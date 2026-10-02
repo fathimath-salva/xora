@@ -96,6 +96,11 @@ export default function CheckoutPage() {
     e.preventDefault();
     setError('');
 
+    if (!isAuthenticated) {
+      navigate(`/login?redirect=${encodeURIComponent('/checkout')}`);
+      return;
+    }
+
     if (!shippingAddress.fullName || !shippingAddress.addressLine1 || !shippingAddress.city || !shippingAddress.postalCode) {
       setError('Please provide all required shipping fields.');
       return;

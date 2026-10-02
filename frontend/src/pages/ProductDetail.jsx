@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, ChevronRight, Check } from 'lucide-react';
+import { Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, ChevronRight, Check, X } from 'lucide-react';
 import { productService } from '../services/api';
 import { formatInr } from '../utils/currency';
 import { useCart } from '../context/CartContext';
@@ -22,6 +22,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('details');
   const [addedNotice, setAddedNotice] = useState(false);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -46,6 +47,15 @@ export default function ProductDetail() {
     fetchProduct();
     window.scrollTo(0, 0);
   }, [id]);
+
+  useEffect(() => {
+    if (!sizeGuideOpen) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setSizeGuideOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [sizeGuideOpen]);
 
   if (loading) {
     return <LoadingSpinner message="Curating garment specifications..." />;
@@ -204,7 +214,13 @@ export default function ProductDetail() {
                   <span className="font-medium uppercase tracking-wider text-xora-charcoal">
                     Size: <strong className="font-semibold">{selectedSize}</strong>
                   </span>
-                  <button type="button" className="text-xora-taupe-dark underline hover:text-xora-charcoal">
+                  <button
+                    type="button"
+                    onClick={() => setSizeGuideOpen(true)}
+                    aria-haspopup="dialog"
+                    aria-expanded={sizeGuideOpen}
+                    className="text-xora-taupe-dark underline hover:text-xora-charcoal"
+                  >
                     Sizing Guide
                   </button>
                 </div>
@@ -392,6 +408,50 @@ export default function ProductDetail() {
           </section>
         )}
       </div>
+
+      {sizeGuideOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close sizing guide"
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setSizeGuideOpen(false)}
+          />
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="size-guide-title"
+            className="relative w-full max-w-md bg-xora-offwhite border border-xora-taupe/30 p-6 sm:p-8 shadow-xl"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <span className="text-[10px] uppercase tracking-luxury text-xora-taupe-dark">Fit & sizing</span>
+                <h2 id="size-guide-title" className="font-serif text-2xl text-xora-charcoal mt-1">{product.name}</h2>
+              </div>
+              <button
+                type="button"
+                aria-label="Close sizing guide"
+                onClick={() => setSizeGuideOpen(false)}
+                className="p-1 text-xora-charcoal hover:text-xora-taupe-dark"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="mt-5 text-xs text-xora-taupe-dark">Available sizes</p>
+            <p className="mt-1 text-sm font-medium text-xora-charcoal">{product.sizes?.join(' · ')}</p>
+            <p className="mt-4 text-sm leading-relaxed text-xora-taupe-dark">
+              {product.fitDetails || 'For fit advice, contact our concierge before ordering.'}
+            </p>
+            <Link
+              to="/contact"
+              onClick={() => setSizeGuideOpen(false)}
+              className="inline-flex mt-5 text-xs uppercase tracking-luxury text-xora-charcoal underline underline-offset-4"
+            >
+              Ask our concierge
+            </Link>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

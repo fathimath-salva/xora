@@ -16,14 +16,22 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
 
   // Filters state initialized from query params
   const categoryParam = searchParams.get('category') || 'All';
+  const colourParam = searchParams.get('colour') || '';
   const sortParam = searchParams.get('sort') || 'newest';
   const sizeParam = searchParams.get('size') || '';
   const maxPriceParam = searchParams.get('maxPrice') || '';
   const filterParam = searchParams.get('filter') || '';
+  const requestedMaxPrice = Number(maxPriceParam);
+  const initialMaxPrice = maxPriceParam && Number.isFinite(requestedMaxPrice)
+    ? Math.min(requestedMaxPrice, 120)
+    : 120;
 
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
+  const [selectedColour, setSelectedColour] = useState(colourParam);
+  const [availableColours, setAvailableColours] = useState([]);
+  const [availableSizes, setAvailableSizes] = useState([]);
   const [selectedSize, setSelectedSize] = useState(sizeParam);
-  const [maxPrice, setMaxPrice] = useState(maxPriceParam || 600);
+  const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
   const [sort, setSort] = useState(sortParam);
 
   // Fetch categories once
@@ -46,6 +54,10 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
           maxPrice: maxPrice ? Number(maxPrice) : undefined
         };
 
+        if (selectedColour) {
+          params.colour = selectedColour;
+        }
+
         if (selectedCategory && selectedCategory !== 'All') {
           params.category = selectedCategory;
         }
@@ -63,6 +75,22 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
         const res = await productService.getProducts(params);
         if (res.data.success) {
           setProducts(res.data.products);
+          setAvailableColours((current) => Array.from(new Set([
+            ...current,
+            ...res.data.products.flatMap((product) => product.colours?.map((colour) => colour.name) || [])
+          ])).sort((first, second) => first.localeCompare(second)));
+          setAvailableSizes((current) => Array.from(new Set([
+            ...current,
+            ...res.data.products.flatMap((product) => product.sizes || [])
+          ])).sort((first, second) => {
+            const order = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+            const firstRank = order.indexOf(first);
+            const secondRank = order.indexOf(second);
+            if (firstRank >= 0 && secondRank >= 0) return firstRank - secondRank;
+            if (firstRank >= 0) return 1;
+            if (secondRank >= 0) return -1;
+            return first.localeCompare(second, undefined, { numeric: true });
+          }));
         }
       } catch (err) {
         console.error('Failed to load products:', err);
@@ -72,12 +100,13 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
     };
 
     fetchFilteredProducts();
-  }, [selectedCategory, selectedSize, maxPrice, sort, filterParam]);
+  }, [selectedCategory, selectedColour, selectedSize, maxPrice, sort, filterParam]);
 
   const handleResetFilters = () => {
     setSelectedCategory('All');
+    setSelectedColour('');
     setSelectedSize('');
-    setMaxPrice(600);
+    setMaxPrice(120);
     setSort('newest');
     setSearchParams({});
   };
@@ -118,7 +147,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
               Showing <strong className="text-xora-charcoal font-medium">{products.length}</strong> styles
             </span>
 
-            {(selectedCategory !== 'All' || selectedSize || Number(maxPrice) < 600) && (
+            {(selectedCategory !== 'All' || selectedColour || selectedSize || Number(maxPrice) < 120) && (
               <button
                 type="button"
                 onClick={handleResetFilters}
@@ -192,13 +221,29 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
               </div>
             </div>
 
+            {/* Colour Filter */}
+            <div>
+              <label htmlFor="shop-colour" className="block text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-3">
+                Colour
+              </label>
+              <select
+                id="shop-colour"
+                value={selectedColour}
+                onChange={(event) => setSelectedColour(event.target.value)}
+                className="w-full appearance-none bg-white border border-xora-taupe/40 px-3 py-2.5 text-xs text-xora-charcoal focus:outline-none focus:border-xora-charcoal"
+              >
+                <option value="">All Colours</option>
+                {availableColours.map((colour) => <option key={colour} value={colour}>{colour}</option>)}
+              </select>
+            </div>
+
             {/* Size Filter */}
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-3">
                 Size
               </h3>
               <div className="flex flex-wrap gap-1.5">
-                {sizesList.map((sz) => (
+                {availableSizes.map((sz) => (
                   <button
                     key={sz}
                     type="button"
@@ -225,16 +270,16 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
               </div>
               <input
                 type="range"
-                min="100"
-                max="600"
-                step="25"
+                min="0"
+                max="120"
+                step="1"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
                 className="w-full accent-xora-charcoal h-1 bg-xora-taupe/30 rounded-lg cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-xora-taupe-dark mt-1">
-                <span>{formatInr(100)}</span>
-                <span>{formatInr(600)}+</span>
+                <span>{formatInr(0)}</span>
+                <span>{formatInr(120)}+</span>
               </div>
             </div>
           </aside>
@@ -314,13 +359,29 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
                 </div>
               </div>
 
+              {/* Colour */}
+              <div>
+                <label htmlFor="shop-colour-mobile" className="block text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-2">
+                  Colour
+                </label>
+                <select
+                  id="shop-colour-mobile"
+                  value={selectedColour}
+                  onChange={(event) => setSelectedColour(event.target.value)}
+                  className="w-full appearance-none bg-white border border-xora-taupe/40 px-3 py-2.5 text-xs text-xora-charcoal focus:outline-none focus:border-xora-charcoal"
+                >
+                  <option value="">All Colours</option>
+                  {availableColours.map((colour) => <option key={colour} value={colour}>{colour}</option>)}
+                </select>
+              </div>
+
               {/* Size */}
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-2">
                   Size
                 </h4>
                 <div className="flex flex-wrap gap-1.5">
-                  {sizesList.map((sz) => (
+                  {availableSizes.map((sz) => (
                     <button
                       key={sz}
                       type="button"
@@ -345,9 +406,9 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
                 </div>
                 <input
                   type="range"
-                  min="100"
-                  max="600"
-                  step="25"
+                  min="0"
+                  max="120"
+                  step="1"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
                   className="w-full accent-xora-charcoal h-1"

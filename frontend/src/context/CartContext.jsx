@@ -4,8 +4,23 @@ import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
+const formatCartItems = (items = []) => items
+  .filter((item) => item.product)
+  .map((item) => ({
+    _id: item._id,
+    productId: item.product._id,
+    name: item.product.name,
+    price: item.product.discountPrice || item.product.price,
+    originalPrice: item.product.price,
+    image: item.product.images?.[0] || '',
+    size: item.size,
+    colour: item.colour,
+    quantity: item.quantity,
+    stock: item.product.stock
+  }));
+
 export const CartProvider = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [items, setItems] = useState(() => {
     try {
       const saved = localStorage.getItem('xora_local_cart');
@@ -19,10 +34,14 @@ export const CartProvider = ({ children }) => {
 
   // When user logs in, fetch backend cart and sync
   useEffect(() => {
+    if (authLoading) return;
+
     if (isAuthenticated) {
       loadBackendCart();
+    } else {
+      setItems((currentItems) => currentItems.filter((item) => String(item._id).startsWith('temp-')));
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authLoading]);
 
   // Persist guest cart locally
   useEffect(() => {
@@ -36,22 +55,25 @@ export const CartProvider = ({ children }) => {
   const loadBackendCart = async () => {
     try {
       setLoading(true);
+      const guestItems = items.filter((item) => String(item._id).startsWith('temp-'));
+      if (guestItems.length > 0) {
+        const syncRes = await cartService.syncCart({
+          items: guestItems.map(({ productId, size, colour, quantity }) => ({
+            productId,
+            size,
+            colour,
+            quantity
+          }))
+        });
+        if (syncRes.data.success && syncRes.data.cart?.items) {
+          setItems(formatCartItems(syncRes.data.cart.items));
+          return;
+        }
+      }
+
       const res = await cartService.getCart();
       if (res.data.success && res.data.cart?.items) {
-        // Map backend format to uniform cart item structure
-        const formatted = res.data.cart.items.map((i) => ({
-          _id: i._id,
-          productId: i.product._id,
-          name: i.product.name,
-          price: i.product.discountPrice || i.product.price,
-          originalPrice: i.product.price,
-          image: i.product.images?.[0] || '',
-          size: i.size,
-          colour: i.colour,
-          quantity: i.quantity,
-          stock: i.product.stock
-        }));
-        setItems(formatted);
+        setItems(formatCartItems(res.data.cart.items));
       }
     } catch (err) {
       console.warn('Failed to fetch user cart from backend:', err);
@@ -67,8 +89,7 @@ export const CartProvider = ({ children }) => {
     const effectivePrice = product.discountPrice || product.price;
     const image = product.images?.[0] || '';
 
-    // Check if item already exists with matching id, size, and colour
-    setItems((prev) => {
+    const addLocalItem = () => setItems((prev) => {
       const existingIdx = prev.findIndex(
         (item) =>
           item.productId === product._id &&
@@ -102,21 +123,29 @@ export const CartProvider = ({ children }) => {
       }
     });
 
-    setIsCartOpen(true);
-
     // If authenticated, sync with backend
     if (isAuthenticated) {
       try {
-        await cartService.addToCart({
+        const res = await cartService.addToCart({
           productId: product._id,
           size: selectedSize,
           colour: selectedColour,
           quantity
         });
+        if (res.data.success && res.data.cart?.items) {
+          setItems(formatCartItems(res.data.cart.items));
+        } else {
+          addLocalItem();
+        }
       } catch (err) {
         console.warn('Error syncing addToCart with backend:', err);
+        addLocalItem();
       }
+    } else {
+      addLocalItem();
     }
+
+    setIsCartOpen(true);
   };
 
   const updateQuantity = async (itemId, quantity) => {
@@ -125,29 +154,39 @@ export const CartProvider = ({ children }) => {
       return;
     }
 
+    if (isAuthenticated && !itemId.toString().startsWith('temp-')) {
+      try {
+        const res = await cartService.updateQuantity({ itemId, quantity });
+        if (res.data.success && res.data.cart?.items) {
+          setItems(formatCartItems(res.data.cart.items));
+        }
+      } catch (err) {
+        console.warn('Failed to update quantity on backend', err);
+        await loadBackendCart();
+      }
+      return;
+    }
+
     setItems((prev) =>
       prev.map((item) => (item._id === itemId ? { ...item, quantity } : item))
     );
-
-    if (isAuthenticated && !itemId.toString().startsWith('temp-')) {
-      try {
-        await cartService.updateQuantity({ itemId, quantity });
-      } catch (err) {
-        console.warn('Failed to update quantity on backend', err);
-      }
-    }
   };
 
   const removeFromCart = async (itemId) => {
-    setItems((prev) => prev.filter((item) => item._id !== itemId));
-
     if (isAuthenticated && !itemId.toString().startsWith('temp-')) {
       try {
-        await cartService.removeFromCart(itemId);
+        const res = await cartService.removeFromCart(itemId);
+        if (res.data.success && res.data.cart?.items) {
+          setItems(formatCartItems(res.data.cart.items));
+        }
       } catch (err) {
         console.warn('Failed to remove item on backend', err);
+        await loadBackendCart();
       }
+      return;
     }
+
+    setItems((prev) => prev.filter((item) => item._id !== itemId));
   };
 
   const clearCart = () => {
