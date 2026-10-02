@@ -12,7 +12,6 @@ import AdminRoute from './components/AdminRoute.jsx';
 
 import Home from './pages/Home.jsx';
 import Shop from './pages/Shop.jsx';
-import Women from './pages/Women.jsx';
 import Men from './pages/Men.jsx';
 import ProductDetail from './pages/ProductDetail.jsx';
 import SearchResults from './pages/SearchResults.jsx';
@@ -38,8 +37,7 @@ function AppShell() {
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/shop" element={<Shop initialGender="all" pageTitle="All Collections" />} />
-          <Route path="/women" element={<Women />} />
+          <Route path="/shop" element={<Shop initialGender="men" pageTitle="Men's Collection" />} />
           <Route path="/men" element={<Men />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/search" element={<SearchResults />} />

@@ -34,7 +34,7 @@ export default function SearchModal({ isOpen, onClose }) {
     const timer = setTimeout(async () => {
       try {
         setLoading(true);
-        const res = await productService.getProducts({ search: query.trim(), limit: 4 });
+        const res = await productService.getProducts({ search: query.trim(), gender: 'men', limit: 4 });
         if (res.data.success) {
           setResults(res.data.products);
         }
@@ -111,7 +111,7 @@ export default function SearchModal({ isOpen, onClose }) {
                   Curated Searches
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {['Cashmere', 'Double-Breasted Trench', 'Pleated Trouser', 'Silk Slip Dress', 'Linen Blazer', 'Outerwear'].map((tag) => (
+                  {['Cashmere', 'Wool Overcoat', 'Pleated Trouser', 'Oxford Shirt', 'Linen Blazer', 'Knitwear'].map((tag) => (
                     <button
                       key={tag}
                       type="button"

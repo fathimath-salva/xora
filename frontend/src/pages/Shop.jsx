@@ -7,7 +7,7 @@ import EmptyState from '../components/EmptyState';
 import { productService, categoryService } from '../services/api';
 import { formatInr } from '../utils/currency';
 
-export default function Shop({ initialGender = 'all', pageTitle = 'All Collections' }) {
+export default function Shop({ initialGender = 'men', pageTitle = "Men's Collection" }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -16,14 +16,12 @@ export default function Shop({ initialGender = 'all', pageTitle = 'All Collectio
 
   // Filters state initialized from query params
   const categoryParam = searchParams.get('category') || 'All';
-  const genderParam = initialGender !== 'all' ? initialGender : searchParams.get('gender') || 'all';
   const sortParam = searchParams.get('sort') || 'newest';
   const sizeParam = searchParams.get('size') || '';
   const maxPriceParam = searchParams.get('maxPrice') || '';
   const filterParam = searchParams.get('filter') || '';
 
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
-  const [selectedGender, setSelectedGender] = useState(genderParam);
   const [selectedSize, setSelectedSize] = useState(sizeParam);
   const [maxPrice, setMaxPrice] = useState(maxPriceParam || 600);
   const [sort, setSort] = useState(sortParam);
@@ -32,7 +30,7 @@ export default function Shop({ initialGender = 'all', pageTitle = 'All Collectio
   useEffect(() => {
     categoryService.getCategories().then((res) => {
       if (res.data.success) {
-        setCategories(res.data.categories);
+        setCategories(res.data.categories.filter((category) => category.gender !== 'women'));
       }
     });
   }, []);
@@ -44,15 +42,12 @@ export default function Shop({ initialGender = 'all', pageTitle = 'All Collectio
         setLoading(true);
         const params = {
           sort,
+          gender: 'men',
           maxPrice: maxPrice ? Number(maxPrice) : undefined
         };
 
         if (selectedCategory && selectedCategory !== 'All') {
           params.category = selectedCategory;
-        }
-
-        if (selectedGender && selectedGender !== 'all') {
-          params.gender = selectedGender;
         }
 
         if (selectedSize) {
@@ -77,11 +72,10 @@ export default function Shop({ initialGender = 'all', pageTitle = 'All Collectio
     };
 
     fetchFilteredProducts();
-  }, [selectedCategory, selectedGender, selectedSize, maxPrice, sort, filterParam]);
+  }, [selectedCategory, selectedSize, maxPrice, sort, filterParam]);
 
   const handleResetFilters = () => {
     setSelectedCategory('All');
-    setSelectedGender(initialGender);
     setSelectedSize('');
     setMaxPrice(600);
     setSort('newest');
@@ -102,7 +96,7 @@ export default function Shop({ initialGender = 'all', pageTitle = 'All Collectio
             {pageTitle}
           </h1>
           <p className="text-xs text-xora-taupe-dark mt-2 font-light">
-            Architectural tailoring, pure natural fibers, and timeless silhouettes.
+            Architectural tailoring, natural fibers, and enduring menswear silhouettes.
           </p>
         </div>
 
@@ -124,7 +118,7 @@ export default function Shop({ initialGender = 'all', pageTitle = 'All Collectio
               Showing <strong className="text-xora-charcoal font-medium">{products.length}</strong> styles
             </span>
 
-            {(selectedCategory !== 'All' || selectedSize || (initialGender === 'all' && selectedGender !== 'all') || Number(maxPrice) < 600) && (
+            {(selectedCategory !== 'All' || selectedSize || Number(maxPrice) < 600) && (
               <button
                 type="button"
                 onClick={handleResetFilters}
@@ -163,29 +157,6 @@ export default function Shop({ initialGender = 'all', pageTitle = 'All Collectio
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Desktop Filter Sidebar */}
           <aside className="hidden lg:block space-y-8 pr-4 border-r border-xora-taupe/20">
-            {/* Gender Filter (if viewing all) */}
-            {initialGender === 'all' && (
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-3">
-                  Department
-                </h3>
-                <div className="space-y-1.5 text-xs">
-                  {['all', 'women', 'men'].map((g) => (
-                    <label key={g} className="flex items-center space-x-2.5 cursor-pointer text-xora-taupe-dark hover:text-xora-charcoal">
-                      <input
-                        type="radio"
-                        name="gender"
-                        checked={selectedGender === g}
-                        onChange={() => setSelectedGender(g)}
-                        className="accent-xora-charcoal w-3.5 h-3.5"
-                      />
-                      <span className="capitalize">{g === 'all' ? 'All Departments' : `${g}'s Collection`}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Category Filter */}
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-3">
@@ -312,31 +283,6 @@ export default function Shop({ initialGender = 'all', pageTitle = 'All Collectio
                   <X className="w-5 h-5" />
                 </button>
               </div>
-
-              {/* Department */}
-              {initialGender === 'all' && (
-                <div>
-                  <h4 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-2">
-                    Department
-                  </h4>
-                  <div className="flex gap-2">
-                    {['all', 'women', 'men'].map((g) => (
-                      <button
-                        key={g}
-                        type="button"
-                        onClick={() => setSelectedGender(g)}
-                        className={`flex-1 py-2 text-xs uppercase tracking-wider border rounded-xs capitalize ${
-                          selectedGender === g
-                            ? 'bg-xora-charcoal text-white border-xora-charcoal'
-                            : 'bg-white text-xora-charcoal border-xora-taupe/40'
-                        }`}
-                      >
-                        {g}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Category */}
               <div>

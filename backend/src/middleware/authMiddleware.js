@@ -42,6 +42,24 @@ export const protect = async (req, res, next) => {
   }
 };
 
+export const optionalProtect = async (req, res, next) => {
+  const authorization = req.headers.authorization;
+  if (!authorization || !authorization.startsWith('Bearer')) {
+    return next();
+  }
+
+  try {
+    const token = authorization.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'xora_secret_key');
+    const user = await User.findById(decoded.id).select('-password');
+    if (user && user.status !== 'suspended') req.user = user;
+  } catch {
+    // Public catalog access remains available when a stale token is present.
+  }
+
+  return next();
+};
+
 export const adminOnly = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
     next();

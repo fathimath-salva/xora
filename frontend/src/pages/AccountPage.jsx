@@ -268,6 +268,26 @@ export default function AccountPage() {
                           </div>
                         ))}
                       </div>
+                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="min-w-0">
+                          <p className="text-xora-taupe-dark">Payment</p>
+                          <p className="font-medium break-words">{order.paymentMethod}</p>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xora-taupe-dark">Shipping Address</p>
+                          <p className="font-medium break-words">
+                            {[
+                              order.shippingAddress?.fullName,
+                              order.shippingAddress?.addressLine1,
+                              order.shippingAddress?.addressLine2,
+                              order.shippingAddress?.city,
+                              order.shippingAddress?.state,
+                              order.shippingAddress?.postalCode,
+                              order.shippingAddress?.country
+                            ].filter(Boolean).join(', ') || 'Address unavailable'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   ))
                 )}

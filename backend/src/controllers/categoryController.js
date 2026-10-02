@@ -9,7 +9,8 @@ export const getCategories = async (req, res, next) => {
     const categoriesWithCount = await Promise.all(
       categories.map(async (cat) => {
         const count = await Product.countDocuments({
-          category: { $regex: new RegExp(`^${cat.name}$`, 'i') }
+          category: { $regex: new RegExp(`^${cat.name}$`, 'i') },
+          gender: { $in: ['men', 'unisex'] }
         });
         return {
           ...cat.toObject(),
@@ -20,7 +21,7 @@ export const getCategories = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      categories: categoriesWithCount
+      categories: categoriesWithCount.filter((category) => category.itemCount > 0)
     });
   } catch (error) {
     next(error);

@@ -8,17 +8,17 @@ export default {
     extend: {
       colors: {
         xora: {
-          offwhite: '#FDFCF9',
-          cream: '#F7F4EE',
-          sand: '#EFEBE2',
-          beige: '#E3DDD2',
-          taupe: '#C6B9A8',
-          'taupe-dark': '#8E8071',
-          brown: '#564B41',
-          charcoal: '#282522',
-          black: '#171615',
-          gold: '#A38B62',
-          light: '#FAF8F5'
+          offwhite: 'rgb(var(--xora-offwhite) / <alpha-value>)',
+          cream: 'rgb(var(--xora-cream) / <alpha-value>)',
+          sand: 'rgb(var(--xora-sand) / <alpha-value>)',
+          beige: 'rgb(var(--xora-beige) / <alpha-value>)',
+          taupe: 'rgb(var(--xora-taupe) / <alpha-value>)',
+          'taupe-dark': 'rgb(var(--xora-taupe-dark) / <alpha-value>)',
+          brown: 'rgb(var(--xora-brown) / <alpha-value>)',
+          charcoal: 'rgb(var(--xora-charcoal) / <alpha-value>)',
+          black: 'rgb(var(--xora-black) / <alpha-value>)',
+          gold: 'rgb(var(--xora-gold) / <alpha-value>)',
+          light: 'rgb(var(--xora-light) / <alpha-value>)'
         }
       },
       fontFamily: {

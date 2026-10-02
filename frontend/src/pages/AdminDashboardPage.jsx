@@ -24,8 +24,8 @@ const getInventoryStatus = (stock) => {
 const initialProductForm = {
   name: '',
   description: '',
-  category: 'Outerwear',
-  gender: 'women',
+  category: 'Tops & Shirts',
+  gender: 'men',
   price: '',
   discountPrice: '',
   sizes: 'XS,S,M,L,XL',
@@ -308,7 +308,7 @@ export default function AdminDashboardPage() {
                   </label>
                   <label className="block text-[11px] text-xora-taupe-dark">Gender *
                     <select name="gender" value={productForm.gender} onChange={handleChange} className={`${inputClass} mt-1`} required>
-                      <option value="women">Women</option>
+                      {productForm.gender === 'women' && <option value="women">Women (legacy)</option>}
                       <option value="men">Men</option>
                       <option value="unisex">Unisex</option>
                     </select>
@@ -336,7 +336,7 @@ export default function AdminDashboardPage() {
                 <label className="block text-[11px] text-xora-taupe-dark">Product image URL(s), comma separated
                   <input name="images" value={productForm.images} onChange={handleChange} placeholder="https://..." className={`${inputClass} mt-1`} />
                 </label>
-                <div className="grid grid-cols-3 gap-2 text-[10px] uppercase tracking-wider text-xora-charcoal">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px] uppercase tracking-wider text-xora-charcoal">
                   <label className="flex items-center gap-2"><input type="checkbox" name="featured" checked={productForm.featured} onChange={handleChange} /> Featured</label>
                   <label className="flex items-center gap-2"><input type="checkbox" name="newArrival" checked={productForm.newArrival} onChange={handleChange} /> New</label>
                   <label className="flex items-center gap-2"><input type="checkbox" name="bestSeller" checked={productForm.bestSeller} onChange={handleChange} /> Best</label>

@@ -17,8 +17,8 @@ export default function Home() {
       try {
         setLoading(true);
         const [featRes, newRes, catRes] = await Promise.all([
-          productService.getProducts({ featured: true, limit: 4 }),
-          productService.getProducts({ newArrival: true, limit: 4 }),
+          productService.getProducts({ featured: true, gender: 'men', limit: 4 }),
+          productService.getProducts({ newArrival: true, gender: 'men', limit: 4 }),
           categoryService.getCategories()
         ]);
 
@@ -42,7 +42,7 @@ export default function Home() {
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=2000&q=85"
-            alt="XORA Luxury Fashion Editorial"
+            alt="XORA men's fashion editorial"
             className="w-full h-full object-cover object-top filter brightness-[0.92] contrast-[1.03]"
           />
           {/* Subtle warm luxury tint overlay */}
@@ -51,31 +51,24 @@ export default function Home() {
 
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white space-y-6">
           <span className="inline-block text-[11px] sm:text-xs uppercase tracking-[0.3em] font-medium text-xora-sand/90">
-            AUTUMN / WINTER COLLECTION
+            MEN'S AUTUMN / WINTER COLLECTION
           </span>
           <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl font-light tracking-[0.15em] uppercase leading-[1.1] text-xora-offwhite">
-            EFFORTLESS STYLE.
+            MODERN MENSWEAR.
             <br />
-            <span className="italic font-normal">TIMELESS YOU.</span>
+            <span className="italic font-normal">MADE TO LAST.</span>
           </h1>
           <p className="text-sm sm:text-base text-xora-sand/90 max-w-xl mx-auto font-light leading-relaxed tracking-wide">
-            Discover elevated essentials designed for everyday confidence. Architectural tailoring in serene neutral palettes.
+            Discover men's essentials designed for everyday confidence, with architectural tailoring in serene neutral palettes.
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              to="/women"
-              className="w-full sm:w-auto px-10 py-4 text-xs font-semibold uppercase tracking-luxury text-xora-charcoal bg-xora-offwhite hover:bg-white active:scale-95 transition-all shadow-md"
-              id="hero-shop-women-btn"
-            >
-              SHOP WOMEN
-            </Link>
             <Link
               to="/men"
               className="w-full sm:w-auto px-10 py-4 text-xs font-semibold uppercase tracking-luxury text-white bg-transparent border border-white hover:bg-white/10 active:scale-95 transition-all"
               id="hero-shop-men-btn"
             >
-              SHOP MEN
+              SHOP MEN'S COLLECTION
             </Link>
           </div>
         </div>
@@ -150,19 +143,19 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Category Card 1: Women */}
+            {/* Men's category cards */}
             <Link
-              to="/women"
+              to="/shop?category=Tops%20%26%20Shirts"
               className="group relative aspect-[4/5] overflow-hidden bg-xora-taupe/20 rounded-xs block shadow-xs"
             >
               <img
-                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80"
-                alt="Women's Collection"
+                src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80"
+                alt="Men's shirts collection"
                 className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-6 text-white">
-                <span className="text-[10px] uppercase tracking-luxury text-xora-sand">Wardrobe</span>
-                <h3 className="font-serif text-2xl font-light tracking-wider">Women</h3>
+                <span className="text-[10px] uppercase tracking-luxury text-xora-sand">Everyday essentials</span>
+                <h3 className="font-serif text-2xl font-light tracking-wider">Shirts</h3>
                 <span className="text-xs uppercase tracking-luxury underline underline-offset-4 mt-2 font-medium opacity-90 group-hover:opacity-100 transition-opacity">
                   Explore →
                 </span>
@@ -171,17 +164,17 @@ export default function Home() {
 
             {/* Category Card 2: Men */}
             <Link
-              to="/men"
+              to="/shop?category=Trousers"
               className="group relative aspect-[4/5] overflow-hidden bg-xora-taupe/20 rounded-xs block shadow-xs"
             >
               <img
                 src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80"
-                alt="Men's Collection"
+                alt="Men's tailored trousers"
                 className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-6 text-white">
-                <span className="text-[10px] uppercase tracking-luxury text-xora-sand">Tailoring</span>
-                <h3 className="font-serif text-2xl font-light tracking-wider">Men</h3>
+                <span className="text-[10px] uppercase tracking-luxury text-xora-sand">Modern tailoring</span>
+                <h3 className="font-serif text-2xl font-light tracking-wider">Trousers</h3>
                 <span className="text-xs uppercase tracking-luxury underline underline-offset-4 mt-2 font-medium opacity-90 group-hover:opacity-100 transition-opacity">
                   Explore →
                 </span>
@@ -195,7 +188,7 @@ export default function Home() {
             >
               <img
                 src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80"
-                alt="Outerwear Collection"
+                alt="Men's outerwear collection"
                 className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-6 text-white">
@@ -214,7 +207,7 @@ export default function Home() {
             >
               <img
                 src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80"
-                alt="Knitwear Collection"
+                alt="Men's knitwear collection"
                 className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-6 text-white">
@@ -286,8 +279,8 @@ export default function Home() {
           <div className="lg:col-span-6 relative">
             <div className="aspect-[4/5] bg-xora-sand rounded-xs overflow-hidden shadow-xl">
               <img
-                src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1000&q=85"
-                alt="XORA Editorial drape"
+                src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1000&q=85"
+                alt="XORA men's tailoring editorial"
                 className="w-full h-full object-cover"
               />
             </div>

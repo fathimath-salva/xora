@@ -11,10 +11,10 @@ export default function AboutPage() {
             <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark">About XORA</span>
             <h1 className="font-serif text-4xl sm:text-5xl mt-2 tracking-wide">Modern essentials. Timeless confidence.</h1>
             <p className="mt-6 text-sm text-xora-taupe-dark leading-relaxed">
-              XORA was founded on the belief that refined dressing should feel effortless, calm, and intentional. We design climate-conscious essentials for everyday life — silhouettes that transition seamlessly from work to weekend, city to coast, and quiet morning to evening plans.
+              XORA was founded on the belief that modern menswear should feel effortless, calm, and intentional. We design climate-conscious essentials for everyday life, from workday tailoring to relaxed weekend layers.
             </p>
             <p className="mt-4 text-sm text-xora-taupe-dark leading-relaxed">
-              Our collections centre on natural fibers, sharp tailoring, warm neutrals, and understated details that keep each piece relevant season after season.
+              Our men's collections centre on natural fibers, sharp tailoring, warm neutrals, and understated details that keep each piece relevant season after season.
             </p>
             <Link to="/shop" className="btn-luxury mt-6 inline-flex items-center">
               Explore Collection <ArrowRight className="w-4 h-4 ml-2" />
@@ -32,7 +32,7 @@ export default function AboutPage() {
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            ['Crafted for daily rituals', 'We create pieces that move with your routines, blending structure and softness for elevated comfort.'],
+            ['Made for how you move', 'We create menswear that moves with your routines, blending structure and softness for elevated comfort.'],
             ['Quiet luxury, made visible', 'Our palette is intentionally warm and grounded — beige, cream, taupe, charcoal, and soft stone.'],
             ['Conscious by design', 'We source natural, durable fabrics and work with mindful manufacturing partners across our supply chain.']
           ].map(([title, copy]) => (

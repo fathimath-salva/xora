@@ -46,8 +46,7 @@ export default function Navbar({ onOpenSearch }) {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/shop' },
-    { name: 'Women', path: '/women' },
-    { name: 'Men', path: '/men' },
+    { name: "Men's Collection", path: '/men' },
     { name: 'About', path: '/about' },
     { name: 'Contact', path: '/contact' }
   ];
@@ -104,14 +103,14 @@ export default function Navbar({ onOpenSearch }) {
             <div className="flex-1 lg:flex-initial text-center lg:text-left">
               <Link
                 to="/"
-                className="inline-block font-serif text-2xl sm:text-3xl tracking-[0.25em] font-light uppercase text-xora-charcoal hover:opacity-90 transition-opacity"
+                className="inline-block font-serif text-xl sm:text-3xl tracking-[0.25em] font-light uppercase text-xora-charcoal hover:opacity-90 transition-opacity"
               >
                 XORA
               </Link>
             </div>
 
             {/* Icons Section (Right) */}
-            <div className="flex items-center space-x-3 sm:space-x-5">
+            <div className="flex items-center space-x-1 sm:space-x-5">
               {/* Search Icon */}
               <button
                 type="button"
@@ -165,7 +164,7 @@ export default function Navbar({ onOpenSearch }) {
                       id="account-menu-button"
                     >
                       <User className="w-5 h-5 stroke-[1.5]" />
-                      <ChevronDown className="w-3.5 h-3.5 text-xora-taupe-dark" />
+                      <ChevronDown className="hidden sm:block w-3.5 h-3.5 text-xora-taupe-dark" />
                     </button>
 
                     {userDropdownOpen && (

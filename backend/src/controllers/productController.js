@@ -19,12 +19,17 @@ export const getProducts = async (req, res, next) => {
     } = req.query;
 
     const query = {};
+    const isAdmin = req.user?.role === 'admin';
+
+    if (!isAdmin) {
+      query.gender = { $in: ['men', 'unisex'] };
+    }
 
     if (category && category !== 'All' && category !== 'all') {
       query.category = { $regex: new RegExp(`^${category}$`, 'i') };
     }
 
-    if (gender && gender !== 'all') {
+    if (isAdmin && gender && gender !== 'all') {
       query.gender = { $in: [gender.toLowerCase(), 'unisex'] };
     }
 
@@ -114,7 +119,7 @@ export const getProductById = async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);
 
-    if (!product) {
+    if (!product || (req.user?.role !== 'admin' && !['men', 'unisex'].includes(product.gender))) {
       return res.status(404).json({
         success: false,
         message: 'Product not found.'
@@ -124,6 +129,7 @@ export const getProductById = async (req, res, next) => {
     // Also fetch related products in same category
     const relatedProducts = await Product.find({
       category: product.category,
+      ...(req.user?.role === 'admin' ? {} : { gender: { $in: ['men', 'unisex'] } }),
       _id: { $ne: product._id }
     }).limit(4);
 

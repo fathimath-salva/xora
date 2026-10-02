@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'xora_secret_key', {
+const generateToken = (user) => {
+  return jwt.sign({ id: user._id.toString(), role: user.role }, process.env.JWT_SECRET || 'xora_secret_key', {
     expiresIn: '30d'
   });
 };
@@ -40,18 +40,14 @@ export const register = async (req, res, next) => {
       });
     }
 
-    // Default first registered user to admin if none exists, or standard customer
-    const userCount = await User.countDocuments();
-    const role = userCount === 0 ? 'admin' : 'customer';
-
     const user = await User.create({
       name,
       email: email.toLowerCase(),
       password,
-      role
+      role: 'customer'
     });
 
-    const token = generateToken(user._id);
+    const token = generateToken(user);
 
     res.status(201).json({
       success: true,
@@ -104,7 +100,7 @@ export const login = async (req, res, next) => {
       });
     }
 
-    const token = generateToken(user._id);
+    const token = generateToken(user);
 
     res.status(200).json({
       success: true,

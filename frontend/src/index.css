@@ -3,6 +3,21 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: light;
+    --xora-offwhite: 253 252 249;
+    --xora-cream: 247 244 238;
+    --xora-sand: 239 235 226;
+    --xora-beige: 227 221 210;
+    --xora-taupe: 198 185 168;
+    --xora-taupe-dark: 142 128 113;
+    --xora-brown: 86 75 65;
+    --xora-charcoal: 40 37 34;
+    --xora-black: 23 22 21;
+    --xora-gold: 163 139 98;
+    --xora-light: 250 248 245;
+  }
+
   html {
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
@@ -11,6 +26,11 @@
   body {
     background-color: #FAF8F5;
     color: #282522;
+  }
+
+  :focus-visible {
+    outline: 2px solid #A38B62 !important;
+    outline-offset: 2px;
   }
 
   /* Custom subtle scrollbar */
@@ -31,6 +51,102 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #8E8071;
   }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --xora-offwhite: 37 34 31;
+    --xora-cream: 29 27 24;
+    --xora-sand: 43 39 35;
+    --xora-beige: 55 49 43;
+    --xora-taupe: 91 80 69;
+    --xora-taupe-dark: 190 178 163;
+    --xora-brown: 197 177 154;
+    --xora-charcoal: 37 34 31;
+    --xora-black: 20 19 17;
+    --xora-gold: 195 164 110;
+    --xora-light: 33 31 28;
+  }
+
+  body {
+    background-color: #191816;
+    color: #F0E9DF;
+  }
+
+  .text-xora-charcoal,
+  [class*="text-xora-charcoal/"] {
+    color: rgb(239 232 220 / var(--tw-text-opacity, 1)) !important;
+  }
+
+  .text-xora-black,
+  [class*="text-xora-black/"] {
+    color: rgb(247 242 233 / var(--tw-text-opacity, 1)) !important;
+  }
+
+  .text-xora-cream,
+  [class*="text-xora-cream/"] {
+    color: rgb(239 232 220 / var(--tw-text-opacity, 1)) !important;
+  }
+
+  .text-xora-offwhite,
+  [class*="text-xora-offwhite/"] {
+    color: rgb(248 244 237 / var(--tw-text-opacity, 1)) !important;
+  }
+
+  .text-xora-sand,
+  [class*="text-xora-sand/"] {
+    color: rgb(220 208 193 / var(--tw-text-opacity, 1)) !important;
+  }
+
+  .text-xora-beige,
+  [class*="text-xora-beige/"] {
+    color: rgb(211 198 181 / var(--tw-text-opacity, 1)) !important;
+  }
+
+  .text-xora-taupe-dark,
+  [class*="text-xora-taupe-dark/"] {
+    color: rgb(190 178 163 / var(--tw-text-opacity, 1)) !important;
+  }
+
+  .text-xora-brown,
+  [class*="text-xora-brown/"] {
+    color: rgb(205 190 172 / var(--tw-text-opacity, 1)) !important;
+  }
+
+  .text-xora-gold,
+  [class*="text-xora-gold/"] {
+    color: rgb(209 180 127 / var(--tw-text-opacity, 1)) !important;
+  }
+
+  [class~="bg-white"] {
+    background-color: #25221F !important;
+  }
+
+  [class~="bg-white/50"] {
+    background-color: rgb(37 34 31 / 0.5) !important;
+  }
+
+  [class~="bg-white/70"] {
+    background-color: rgb(37 34 31 / 0.7) !important;
+  }
+
+  [class~="bg-white/80"] {
+    background-color: rgb(37 34 31 / 0.8) !important;
+  }
+
+  [class~="bg-white/95"] {
+    background-color: rgb(37 34 31 / 0.95) !important;
+  }
+
+  [class~="hover:bg-white"]:hover {
+    background-color: #302C27 !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid #A38B62 !important;
+  outline-offset: 2px;
 }
 
 /* Custom luxury button styling */

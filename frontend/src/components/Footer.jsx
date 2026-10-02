@@ -25,7 +25,7 @@ export default function Footer() {
               XORA
             </h2>
             <p className="text-sm text-xora-taupe-dark max-w-sm leading-relaxed font-light">
-              Elevated essentials designed with architectural tailoring, serene neutral tones, and uncompromising fabric integrity.
+              Elevated menswear shaped by architectural tailoring, serene neutral tones, and uncompromising fabric integrity.
             </p>
             <div className="flex space-x-4 pt-2">
               <a
@@ -97,10 +97,10 @@ export default function Footer() {
             <h4 className="font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">Shop</h4>
             <ul className="space-y-2.5 text-xora-taupe-dark">
               <li>
-                <Link to="/women" className="hover:text-xora-charcoal transition-colors">Women's Collection</Link>
+                <Link to="/men" className="hover:text-xora-charcoal transition-colors">Men's Collection</Link>
               </li>
               <li>
-                <Link to="/men" className="hover:text-xora-charcoal transition-colors">Men's Collection</Link>
+                <Link to="/shop?category=Tops%20%26%20Shirts" className="hover:text-xora-charcoal transition-colors">Shirts</Link>
               </li>
               <li>
                 <Link to="/shop?sort=newest" className="hover:text-xora-charcoal transition-colors">New Arrivals</Link>

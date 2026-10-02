@@ -240,9 +240,9 @@ export default function ProductDetail() {
 
             {/* Quantity Selector & Add to Bag */}
             <div className="space-y-3 pt-2">
-              <div className="flex space-x-3">
+              <div className="flex flex-wrap gap-3">
                 {/* Quantity */}
-                <div className="flex items-center border border-xora-taupe/40 bg-white px-3">
+                <div className="order-1 flex flex-shrink-0 items-center border border-xora-taupe/40 bg-white px-3">
                   <button
                     type="button"
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -269,7 +269,7 @@ export default function ProductDetail() {
                   type="button"
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
-                  className="flex-1 btn-luxury disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="order-3 w-full min-w-0 btn-luxury disabled:opacity-50 disabled:cursor-not-allowed sm:order-2 sm:w-auto sm:flex-1"
                   id="add-to-cart-detail-btn"
                 >
                   {addedNotice ? (
@@ -291,7 +291,7 @@ export default function ProductDetail() {
                 <button
                   type="button"
                   onClick={() => toggleWishlist(product)}
-                  className={`p-3.5 border rounded-xs transition-colors flex items-center justify-center ${
+                  className={`order-2 p-3.5 border rounded-xs transition-colors flex items-center justify-center sm:order-3 ${
                     isFavorited
                       ? 'border-xora-charcoal bg-xora-charcoal text-white'
                       : 'border-xora-taupe/40 bg-white text-xora-charcoal hover:border-xora-charcoal'
@@ -306,7 +306,7 @@ export default function ProductDetail() {
 
             {/* Accordion / Tabs */}
             <div className="border-t border-xora-taupe/20 pt-6 space-y-4">
-              <div className="flex border-b border-xora-taupe/20 text-xs uppercase tracking-luxury">
+              <div className="flex flex-wrap gap-x-4 gap-y-2 border-b border-xora-taupe/20 text-xs uppercase tracking-luxury">
                 <button
                   type="button"
                   onClick={() => setActiveTab('details')}
@@ -321,7 +321,7 @@ export default function ProductDetail() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('fit')}
-                  className={`ml-6 pb-2.5 font-medium transition-colors ${
+                  className={`pb-2.5 font-medium transition-colors ${
                     activeTab === 'fit'
                       ? 'border-b-2 border-xora-charcoal text-xora-charcoal font-semibold'
                       : 'text-xora-taupe-dark hover:text-xora-charcoal'
@@ -332,7 +332,7 @@ export default function ProductDetail() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('shipping')}
-                  className={`ml-6 pb-2.5 font-medium transition-colors ${
+                  className={`pb-2.5 font-medium transition-colors ${
                     activeTab === 'shipping'
                       ? 'border-b-2 border-xora-charcoal text-xora-charcoal font-semibold'
                       : 'text-xora-taupe-dark hover:text-xora-charcoal'

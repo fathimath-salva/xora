@@ -16,7 +16,7 @@ export default function SearchResults() {
     const fetchSearch = async () => {
       try {
         setLoading(true);
-        const res = await productService.getProducts({ search: query, limit: 30 });
+        const res = await productService.getProducts({ search: query, gender: 'men', limit: 30 });
         if (res.data.success) {
           setProducts(res.data.products);
         }
