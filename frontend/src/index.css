@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: #FAF8F5;
+    color: #282522;
+  }
+
+  /* Custom subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #F3EFEA;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #C4B5A5;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8E8071;
+  }
+}
+
+/* Custom luxury button styling */
+.btn-luxury {
+  @apply inline-flex items-center justify-center px-8 py-3.5 text-xs font-medium uppercase tracking-luxury text-white bg-xora-charcoal hover:bg-xora-black active:scale-[0.99] transition-all duration-300 ease-out shadow-sm;
+}
+
+.btn-luxury-outline {
+  @apply inline-flex items-center justify-center px-8 py-3.5 text-xs font-medium uppercase tracking-luxury text-xora-charcoal border border-xora-charcoal hover:bg-xora-charcoal hover:text-white active:scale-[0.99] transition-all duration-300 ease-out;
+}
+
+.btn-luxury-light {
+  @apply inline-flex items-center justify-center px-8 py-3.5 text-xs font-medium uppercase tracking-luxury text-xora-charcoal bg-xora-sand hover:bg-xora-beige active:scale-[0.99] transition-all duration-300 ease-out;
+}
+
+/* Smooth fade in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Image zoom effect on hover */
+.img-zoom-container {
+  overflow: hidden;
+}
+
+.img-zoom-container img {
+  transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.img-zoom-container:hover img {
+  transform: scale(1.05);
+}
