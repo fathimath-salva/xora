@@ -15,14 +15,18 @@ export const protect = async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'xora_secret_key');
-    const user = await User.findById(decoded.id).select('-password');
+    if (!process.env.JWT_SECRET) throw new Error('Authentication is not configured.');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+    const user = await User.findById(decoded.id).select('-password +tokenVersion');
 
     if (!user) {
       return res.status(401).json({
         success: false,
         message: 'The account for this token no longer exists.'
       });
+    }
+    if ((decoded.tokenVersion || 0) !== (user.tokenVersion || 0)) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired session. Please log in again.' });
     }
 
     if (user.status === 'suspended') {
@@ -50,9 +54,10 @@ export const optionalProtect = async (req, res, next) => {
 
   try {
     const token = authorization.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'xora_secret_key');
-    const user = await User.findById(decoded.id).select('-password');
-    if (user && user.status !== 'suspended') req.user = user;
+    if (!process.env.JWT_SECRET) return next();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+    const user = await User.findById(decoded.id).select('-password +tokenVersion');
+    if (user && user.status !== 'suspended' && (decoded.tokenVersion || 0) === (user.tokenVersion || 0)) req.user = user;
   } catch {
     // Public catalog access remains available when a stale token is present.
   }

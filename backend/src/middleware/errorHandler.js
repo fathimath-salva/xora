@@ -7,6 +7,7 @@ export const notFound = (req, res, next) => {
 export const errorHandler = (err, req, res, next) => {
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   let message = err.message;
+  if (err.statusCode && err.statusCode >= 400 && err.statusCode < 500) statusCode = err.statusCode;
 
   // Handle Mongoose Bad ObjectId (CastError)
   if (err.name === 'CastError' && err.kind === 'ObjectId') {
@@ -27,9 +28,10 @@ export const errorHandler = (err, req, res, next) => {
     message = `An entry with that ${field} already exists.`;
   }
 
+  if (statusCode >= 500 && process.env.NODE_ENV === 'production') message = 'An unexpected server error occurred.';
   res.status(statusCode).json({
     success: false,
     message: message || 'An unexpected server error occurred.',
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack
+    ...(process.env.NODE_ENV === 'production' ? {} : { stack: err.stack })
   });
 };

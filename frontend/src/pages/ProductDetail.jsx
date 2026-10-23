@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, ChevronRight, Check, X } from 'lucide-react';
 import { productService } from '../services/api';
 import { formatInr } from '../utils/currency';
+import { getProductImage, getProductImages, getCategoryImage, PRODUCT_IMAGE_FALLBACK } from '../utils/productImage';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import ProductCard from '../components/ProductCard';
@@ -22,6 +23,8 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('details');
   const [addedNotice, setAddedNotice] = useState(false);
+  const [cartError, setCartError] = useState('');
+  const [addingToCart, setAddingToCart] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   useEffect(() => {
@@ -32,8 +35,8 @@ export default function ProductDetail() {
         if (res.data.success) {
           const prod = res.data.product;
           setProduct(prod);
-          setSelectedImage(prod.images?.[0] || '');
-          setSelectedSize(prod.sizes?.[0] || 'M');
+          setSelectedImage(getProductImage(prod));
+          setSelectedSize(prod.sizes?.[0] || '');
           setSelectedColour(prod.colours?.[0]?.name || 'Default');
           setRelatedProducts(res.data.relatedProducts || []);
         }
@@ -45,7 +48,6 @@ export default function ProductDetail() {
     };
 
     fetchProduct();
-    window.scrollTo(0, 0);
   }, [id]);
 
   useEffect(() => {
@@ -79,9 +81,16 @@ export default function ProductDetail() {
   const isOutOfStock = product.stock <= 0;
   const isLowStock = product.stock > 0 && product.stock <= 5;
 
-  const handleAddToCart = () => {
-    if (isOutOfStock) return;
-    addToCart(product, selectedSize, selectedColour, quantity);
+  const handleAddToCart = async () => {
+    if (isOutOfStock || addingToCart) return;
+    setCartError('');
+    setAddingToCart(true);
+    const result = await addToCart(product, selectedSize, selectedColour, quantity);
+    setAddingToCart(false);
+    if (!result?.success) {
+      setCartError(result?.message || 'Could not add this item to your bag.');
+      return;
+    }
     setAddedNotice(true);
     setTimeout(() => setAddedNotice(false), 2000);
   };
@@ -107,9 +116,9 @@ export default function ProductDetail() {
           {/* Left Column: Images */}
           <div className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-4">
             {/* Thumbnail selector */}
-            {product.images && product.images.length > 1 && (
+            {getProductImages(product).length > 1 && (
               <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-visible">
-                {product.images.map((img, idx) => (
+                {getProductImages(product).map((img, idx) => (
                   <button
                     key={idx}
                     type="button"
@@ -120,7 +129,7 @@ export default function ProductDetail() {
                         : 'border-transparent opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img} alt="" className="w-full h-full object-cover" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = PRODUCT_IMAGE_FALLBACK; }} />
                   </button>
                 ))}
               </div>
@@ -129,9 +138,19 @@ export default function ProductDetail() {
             {/* Large Preview */}
             <div className="flex-1 aspect-[3/4] bg-xora-sand/50 rounded-xs overflow-hidden shadow-xs relative">
               <img
-                src={selectedImage || product.images?.[0]}
+                src={selectedImage || getProductImage(product)}
                 alt={product.name}
                 className="w-full h-full object-cover object-center"
+                onError={(event) => {
+                  const image = event.currentTarget;
+                  if (image.dataset.categoryFallback !== 'true') {
+                    image.dataset.categoryFallback = 'true';
+                    image.src = getCategoryImage(product.category);
+                  } else {
+                    image.onerror = null;
+                    image.src = PRODUCT_IMAGE_FALLBACK;
+                  }
+                }}
               />
               {product.discountPrice && (
                 <span className="absolute top-4 left-4 bg-xora-charcoal text-white text-xs uppercase tracking-widest px-3 py-1 font-medium">
@@ -284,7 +303,7 @@ export default function ProductDetail() {
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  disabled={isOutOfStock}
+                  disabled={isOutOfStock || addingToCart}
                   className="order-3 w-full min-w-0 btn-luxury disabled:opacity-50 disabled:cursor-not-allowed sm:order-2 sm:w-auto sm:flex-1"
                   id="add-to-cart-detail-btn"
                 >
@@ -293,6 +312,8 @@ export default function ProductDetail() {
                       <Check className="w-4 h-4 text-emerald-400" />
                       <span>ADDED TO BAG</span>
                     </span>
+                  ) : addingToCart ? (
+                    'ADDING…'
                   ) : isOutOfStock ? (
                     'OUT OF STOCK'
                   ) : (
@@ -318,6 +339,7 @@ export default function ProductDetail() {
                   <Heart className={`w-5 h-5 ${isFavorited ? 'fill-current' : 'stroke-[1.5]'}`} />
                 </button>
               </div>
+              {cartError && <p role="alert" className="text-xs text-red-700">{cartError}</p>}
             </div>
 
             {/* Accordion / Tabs */}
@@ -360,13 +382,13 @@ export default function ProductDetail() {
 
               <div className="text-xs text-xora-taupe-dark leading-relaxed font-light pt-2">
                 {activeTab === 'details' && (
-                  <p>{product.fabricDetails || '100% Organic certified natural fiber blend. Woven in Biella, Italy.'}</p>
+                  <div className="space-y-2">{product.fabricDetails && <p><strong>Materials:</strong> {product.fabricDetails}</p>}{product.careInstructions && <p><strong>Care:</strong> {product.careInstructions}</p>}{!product.fabricDetails && !product.careInstructions && <p>Material and care information has not been provided for this item.</p>}</div>
                 )}
                 {activeTab === 'fit' && (
-                  <p>{product.fitDetails || 'Cut with architectural ease. True to size tailoring with clean shoulder drape.'}</p>
+                  <p>{product.fitDetails || 'Fit information has not been provided for this item.'}</p>
                 )}
                 {activeTab === 'shipping' && (
-                  <p>{product.shippingDetails || `Complimentary express courier delivery on orders above ${formatInr(200)}. 30-day effortless return privilege.`}</p>
+                  <p>Delivery terms are awaiting client confirmation. See the <Link to="/policies" className="underline underline-offset-2">Store Policies draft</Link> for the current returns and exchanges wording.</p>
                 )}
               </div>
             </div>
@@ -379,7 +401,7 @@ export default function ProductDetail() {
               </div>
               <div className="flex items-center space-x-1.5">
                 <RefreshCw className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>30-Day Returns</span>
+                <Link to="/policies" className="underline underline-offset-2">14-Day Policy</Link>
               </div>
               <div className="flex items-center space-x-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" />
@@ -421,7 +443,7 @@ export default function ProductDetail() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="size-guide-title"
-            className="relative w-full max-w-md bg-xora-offwhite border border-xora-taupe/30 p-6 sm:p-8 shadow-xl"
+            className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-xora-offwhite border border-xora-taupe/30 p-6 sm:p-8 shadow-xl"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -440,8 +462,9 @@ export default function ProductDetail() {
             <p className="mt-5 text-xs text-xora-taupe-dark">Available sizes</p>
             <p className="mt-1 text-sm font-medium text-xora-charcoal">{product.sizes?.join(' · ')}</p>
             <p className="mt-4 text-sm leading-relaxed text-xora-taupe-dark">
-              {product.fitDetails || 'For fit advice, contact our concierge before ordering.'}
+              {product.fitDetails || 'Fit details have not been provided for this item.'}
             </p>
+            {product.measurements && Object.keys(product.measurements).length > 0 && <div className="mt-5 overflow-x-auto"><h3 className="text-xs font-semibold">Garment measurements</h3><table className="mt-2 w-full text-left text-xs"><thead><tr><th className="py-2">Size</th>{Object.keys(product.measurements[product.sizes?.[0]] || {}).map((label) => <th key={label} className="px-2 py-2">{label}</th>)}</tr></thead><tbody>{product.sizes?.map((size) => <tr key={size} className="border-t border-xora-taupe/20"><th className="py-2">{size}</th>{Object.values(product.measurements[size] || {}).map((value, index) => <td key={index} className="px-2 py-2">{value} cm</td>)}</tr>)}</tbody></table><p className="mt-2 text-[11px]">Sample measurements are in centimetres and await client confirmation. Compare with a similar garment laid flat. Chest, waist, and hip are garment circumferences; sleeve runs shoulder seam to cuff, body length shoulder point to hem, and trouser inseam crotch seam to hem.</p></div>}
             <Link
               to="/contact"
               onClick={() => setSizeGuideOpen(false)}

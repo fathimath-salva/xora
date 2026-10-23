@@ -4,6 +4,7 @@ import { Heart, ShoppingBag, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { formatInr } from '../utils/currency';
+import { getProductImage, getCategoryImage, PRODUCT_IMAGE_FALLBACK } from '../utils/productImage';
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -43,10 +44,20 @@ export default function ProductCard({ product }) {
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-xora-sand/60 rounded-xs mb-3.5">
         <Link to={`/product/${product._id}`} className="block w-full h-full">
           <img
-            src={product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80'}
+            src={getProductImage(product)}
             alt={product.name}
             loading="lazy"
             className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+            onError={(event) => {
+              const image = event.currentTarget;
+              if (image.dataset.categoryFallback !== 'true') {
+                image.dataset.categoryFallback = 'true';
+                image.src = getCategoryImage(product.category);
+              } else {
+                image.onerror = null;
+                image.src = PRODUCT_IMAGE_FALLBACK;
+              }
+            }}
           />
         </Link>
 

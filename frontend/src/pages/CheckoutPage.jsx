@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, Smartphone, Banknote, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { orderService, addressService } from '../services/api';
 import { formatInr } from '../utils/currency';
 import { indianStatesAndTerritories } from '../utils/india';
+import { getProductImage } from '../utils/productImage';
 
 const paymentOptions = [
   { value: 'Google Pay (UPI)', icon: Smartphone },
@@ -14,6 +15,7 @@ const paymentOptions = [
   { value: 'UPI', icon: Smartphone },
   { value: 'Cash on Delivery', label: 'Cash on Delivery (COD)', icon: Banknote }
 ];
+const CHECKOUT_ATTEMPT_STORAGE_KEY = 'xora_checkout_attempt';
 
 export default function CheckoutPage() {
   const { items, subtotal, shippingFee, estimatedTax, grandTotal, clearCart } = useCart();
@@ -37,6 +39,7 @@ export default function CheckoutPage() {
   const [orderNotes, setOrderNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const checkoutAttempt = useRef(null);
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -129,8 +132,32 @@ export default function CheckoutPage() {
         notes: orderNotes
       };
 
-      const res = await orderService.createOrder(orderPayload);
+      const signature = JSON.stringify(orderPayload);
+      if (checkoutAttempt.current?.signature !== signature) {
+        let storedAttempt;
+        try {
+          storedAttempt = JSON.parse(sessionStorage.getItem(CHECKOUT_ATTEMPT_STORAGE_KEY) || 'null');
+        } catch {
+          storedAttempt = null;
+        }
+        const key = storedAttempt?.signature === signature && /^[A-Za-z0-9_-]{16,100}$/.test(storedAttempt.key || '')
+          ? storedAttempt.key
+          : (globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(36).slice(2)}`);
+        checkoutAttempt.current = { signature, key };
+        try {
+          sessionStorage.setItem(CHECKOUT_ATTEMPT_STORAGE_KEY, JSON.stringify(checkoutAttempt.current));
+        } catch {
+          // The in-memory key still protects retries during this page session.
+        }
+      }
+      const res = await orderService.createOrder(orderPayload, checkoutAttempt.current.key);
       if (res.data.success) {
+        checkoutAttempt.current = null;
+        try {
+          sessionStorage.removeItem(CHECKOUT_ATTEMPT_STORAGE_KEY);
+        } catch {
+          // The completed order response is authoritative even if storage is unavailable.
+        }
         clearCart();
         navigate(`/order-confirmation/${res.data.order._id}`);
       }
@@ -411,9 +438,10 @@ export default function CheckoutPage() {
                   {items.map((item) => (
                     <div key={item._id} className="py-3 flex space-x-3 items-center">
                       <img
-                        src={item.image}
+                        src={item.image || getProductImage({ category: item.category })}
                         alt=""
                         className="w-12 h-16 object-cover rounded-xs bg-xora-sand flex-shrink-0"
+                        onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getProductImage({ category: item.category }); }}
                       />
                       <div className="flex-1 min-w-0">
                         <h4 className="font-serif text-xs text-xora-charcoal truncate">{item.name}</h4>

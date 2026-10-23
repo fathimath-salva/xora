@@ -2,8 +2,11 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
 const generateToken = (user) => {
-  return jwt.sign({ id: user._id.toString(), role: user.role }, process.env.JWT_SECRET || 'xora_secret_key', {
-    expiresIn: '30d'
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    throw new Error('Authentication is not configured. Set a strong JWT_SECRET.');
+  }
+  return jwt.sign({ id: user._id.toString(), tokenVersion: user.tokenVersion || 0 }, process.env.JWT_SECRET, {
+    expiresIn: '8h', algorithm: 'HS256'
   });
 };
 
@@ -77,7 +80,7 @@ export const login = async (req, res, next) => {
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password +tokenVersion');
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -181,7 +184,7 @@ export const changePassword = async (req, res, next) => {
       });
     }
 
-    const user = await User.findById(req.user._id).select('+password');
+    const user = await User.findById(req.user._id).select('+password +tokenVersion');
     const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
       return res.status(400).json({
@@ -191,6 +194,7 @@ export const changePassword = async (req, res, next) => {
     }
 
     user.password = newPassword;
+    user.tokenVersion = (user.tokenVersion || 0) + 1;
     await user.save();
 
     res.status(200).json({
@@ -200,4 +204,11 @@ export const changePassword = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+export const logout = async (req, res, next) => {
+  try {
+    await User.updateOne({ _id: req.user._id }, { $inc: { tokenVersion: 1 } });
+    res.status(200).json({ success: true, message: 'Logged out successfully.' });
+  } catch (error) { next(error); }
 };

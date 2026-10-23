@@ -35,11 +35,16 @@ export const authService = {
   register: (data) => API.post('/auth/register', data),
   getProfile: () => API.get('/auth/profile'),
   updateProfile: (data) => API.put('/auth/profile', data),
-  changePassword: (data) => API.put('/auth/change-password', data)
+  changePassword: (data) => API.put('/auth/change-password', data),
+  logout: (token) => API.post('/auth/logout', {}, { headers: { Authorization: `Bearer ${token}` } })
 };
 
 // Product Services
 export const productService = {
+  getCollections: () => API.get('/products/collections'),
+  createCollection: (data) => API.post('/products/collections', data),
+  renameCollection: (name, nextName, description) => API.put(`/products/collections/${encodeURIComponent(name)}`, { name: nextName, description }),
+  removeCollection: (name) => API.delete(`/products/collections/${encodeURIComponent(name)}`),
   getProducts: (params) => API.get('/products', { params }),
   getProductById: (id) => API.get(`/products/${id}`),
   createProduct: (data) => API.post('/products', data),
@@ -57,7 +62,7 @@ export const categoryService = {
 
 // Order Services
 export const orderService = {
-  createOrder: (data) => API.post('/orders', data),
+  createOrder: (data, idempotencyKey) => API.post('/orders', data, { headers: { 'Idempotency-Key': idempotencyKey } }),
   getMyOrders: () => API.get('/orders/my-orders'),
   getOrderById: (id) => API.get(`/orders/${id}`),
   getAllOrders: (params) => API.get('/orders', { params }),

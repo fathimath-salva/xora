@@ -17,6 +17,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Description is required']
     },
+    shortDescription: { type: String, trim: true, maxlength: 300, default: '' },
     category: {
       type: String,
       required: [true, 'Category is required'],
@@ -39,8 +40,7 @@ const productSchema = new mongoose.Schema(
       min: [0, 'Discount price must be positive']
     },
     sizes: {
-      type: [String],
-      default: ['S', 'M', 'L', 'XL']
+      type: [String], default: []
     },
     colours: [
       {
@@ -71,25 +71,28 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    fabricDetails: {
-      type: String,
-      default: '100% Organic Mulberry Silk & Italian Merino Wool blend. Dry clean only.'
-    },
-    fitDetails: {
-      type: String,
-      default: 'Tailored drape, true to size. Model is 5\'10" wearing size S.'
-    },
-    shippingDetails: {
-      type: String,
-      default: 'Complimentary express shipping across India. 30-day effortless returns.'
-    }
+    fabricDetails: { type: String, trim: true, default: '' },
+    fitDetails: { type: String, trim: true, default: '' },
+    careInstructions: { type: String, trim: true, default: '' },
+    collectionName: { type: String, trim: true, default: '' },
+    measurements: { type: mongoose.Schema.Types.Mixed, default: undefined },
+    shippingDetails: { type: String, trim: true, default: '' },
+    // Legacy catalogue records predate the active flag. Treat a missing flag as
+    // active; explicit false remains the archive state used by admin actions.
+    active: { type: Boolean, default: true }
   },
   {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
   }
 );
 
+productSchema.virtual('collection').get(function () { return this.collectionName; }).set(function (value) { this.collectionName = value; });
+
 productSchema.index({ name: 'text', description: 'text', category: 'text' });
+productSchema.index({ gender: 1, category: 1, createdAt: -1 });
+productSchema.index({ newArrival: 1, createdAt: -1 });
 
 export const Product = mongoose.model('Product', productSchema);
 export default Product;

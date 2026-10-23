@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, X, ArrowRight, Loader2 } from 'lucide-react';
 import { productService } from '../services/api';
 import { formatInr } from '../utils/currency';
+import { getProductImage } from '../utils/productImage';
 
 export default function SearchModal({ isOpen, onClose }) {
   const [query, setQuery] = useState('');
@@ -139,9 +140,10 @@ export default function SearchModal({ isOpen, onClose }) {
                       className="flex items-center space-x-4 p-2 hover:bg-xora-sand/40 rounded-xs cursor-pointer transition-colors"
                     >
                       <img
-                        src={product.images?.[0]}
+                        src={getProductImage(product)}
                         alt={product.name}
                         className="w-12 h-14 object-cover rounded-xs"
+                        onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getProductImage({ category: product.category }); }}
                       />
                       <div className="flex-1">
                         <p className="font-serif text-sm text-xora-charcoal">{product.name}</p>

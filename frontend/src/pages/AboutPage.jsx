@@ -23,7 +23,7 @@ export default function AboutPage() {
 
           <div className="overflow-hidden rounded-xs">
             <img
-              src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=80"
+              src="https://images.unsplash.com/photo-1627686011747-74adda3d2343?auto=format&fit=crop&w=1200&q=80"
               alt="XORA atelier"
               className="w-full h-[480px] object-cover"
             />

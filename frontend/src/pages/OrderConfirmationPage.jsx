@@ -4,6 +4,7 @@ import { CheckCircle2, PackageCheck } from 'lucide-react';
 import { orderService } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { formatInr } from '../utils/currency';
+import { getProductImage } from '../utils/productImage';
 
 export default function OrderConfirmationPage() {
   const { id } = useParams();
@@ -80,7 +81,7 @@ export default function OrderConfirmationPage() {
               <div className="space-y-3">
                 {order.items.map((item) => (
                   <div key={`${item.product}-${item.size}-${item.colour}`} className="flex items-center gap-3">
-                    <img src={item.image} alt={item.name} className="w-12 h-14 object-cover bg-xora-sand flex-shrink-0" />
+                    <img src={item.image || getProductImage({ category: item.category })} alt={item.name} className="w-12 h-14 object-cover bg-xora-sand flex-shrink-0" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getProductImage({ category: item.category }); }} />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium break-words">{item.name}</p>
                       <p className="text-xora-taupe-dark mt-1">Qty {item.quantity} · Size {item.size} · {item.colour}</p>

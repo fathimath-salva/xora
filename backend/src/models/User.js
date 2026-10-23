@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema(
       enum: ['customer', 'admin'],
       default: 'customer'
     },
+    tokenVersion: { type: Number, default: 0, select: false },
     phone: {
       type: String,
       trim: true,

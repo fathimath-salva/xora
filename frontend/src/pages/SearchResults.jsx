@@ -28,7 +28,6 @@ export default function SearchResults() {
     };
 
     fetchSearch();
-    window.scrollTo(0, 0);
   }, [query]);
 
   return (
@@ -45,6 +44,7 @@ export default function SearchResults() {
           <p className="text-xs text-xora-taupe-dark mt-2 font-light">
             Found <strong className="text-xora-charcoal">{products.length}</strong> matching silhouettes
           </p>
+          {query && <Link to={`/shop?search=${encodeURIComponent(query)}`} className="mt-4 inline-flex text-xs font-medium uppercase tracking-luxury underline underline-offset-4">Filter these results by size</Link>}
         </div>
 
         {loading ? (

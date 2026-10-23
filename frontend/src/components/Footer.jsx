@@ -97,19 +97,22 @@ export default function Footer() {
             <h4 className="font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">Shop</h4>
             <ul className="space-y-2.5 text-xora-taupe-dark">
               <li>
-                <Link to="/men" className="hover:text-xora-charcoal transition-colors">Men's Collection</Link>
+                <Link to="/shop" state={{ scrollToTop: true }} className="hover:text-xora-charcoal transition-colors">All Products</Link>
               </li>
               <li>
-                <Link to="/shop?category=Tops%20%26%20Shirts" className="hover:text-xora-charcoal transition-colors">Shirts</Link>
+                <Link to="/shop?filter=new" className="hover:text-xora-charcoal transition-colors">New Arrivals</Link>
               </li>
               <li>
-                <Link to="/shop?sort=newest" className="hover:text-xora-charcoal transition-colors">New Arrivals</Link>
+                <Link to="/shop?category=T-Shirts" state={{ scrollToTop: true }} className="hover:text-xora-charcoal transition-colors">T-Shirts</Link>
               </li>
               <li>
-                <Link to="/shop?sort=popular" className="hover:text-xora-charcoal transition-colors">Best Sellers</Link>
+                <Link to="/shop?category=Hoodies" state={{ scrollToTop: true }} className="hover:text-xora-charcoal transition-colors">Hoodies</Link>
               </li>
               <li>
-                <Link to="/shop?category=Outerwear" className="hover:text-xora-charcoal transition-colors">Outerwear & Coats</Link>
+                <Link to="/shop?category=Shirts" state={{ scrollToTop: true }} className="hover:text-xora-charcoal transition-colors">Shirts</Link>
+              </li>
+              <li>
+                <Link to="/shop?category=Trousers" state={{ scrollToTop: true }} className="hover:text-xora-charcoal transition-colors">Trousers</Link>
               </li>
             </ul>
           </div>
@@ -121,13 +124,13 @@ export default function Footer() {
                 <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Client Services</Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Shipping & Delivery</Link>
+                <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Shipping &amp; Delivery</Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Complimentary Returns</Link>
+                <Link to="/policies" className="hover:text-xora-charcoal transition-colors">Returns &amp; Exchanges</Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Garment Care & Fabric</Link>
+                <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Garment Care &amp; Fabric</Link>
               </li>
               <li>
                 <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Bespoke Inquiries</Link>
@@ -142,7 +145,7 @@ export default function Footer() {
                 <Link to="/about" className="hover:text-xora-charcoal transition-colors">About XORA</Link>
               </li>
               <li>
-                <Link to="/about" className="hover:text-xora-charcoal transition-colors">Our Atelier & Craft</Link>
+                <Link to="/about" className="hover:text-xora-charcoal transition-colors">Our Atelier &amp; Craft</Link>
               </li>
               <li>
                 <Link to="/about" className="hover:text-xora-charcoal transition-colors">Sustainable Sourcing</Link>
@@ -154,16 +157,16 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">Legal & Privacy</h4>
+            <h4 className="font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">Legal &amp; Privacy</h4>
             <ul className="space-y-2.5 text-xora-taupe-dark">
               <li>
                 <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Privacy Policy</Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Terms of Service</Link>
+                <Link to="/policies" className="hover:text-xora-charcoal transition-colors">Store Policies</Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Cookie Preferences</Link>
+                <Link to="/policies" className="hover:text-xora-charcoal transition-colors">Returns Policy</Link>
               </li>
               <li>
                 <Link to="/admin" className="hover:text-xora-gold transition-colors font-medium">Atelier Portal (Admin)</Link>

@@ -17,6 +17,7 @@ import { addressService, authService, orderService } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { formatInr } from '../utils/currency';
 import { indianStatesAndTerritories } from '../utils/india';
+import { getProductImage } from '../utils/productImage';
 
 const tabs = [
   { id: 'overview', label: 'Overview', icon: Sparkles },
@@ -303,7 +304,7 @@ export default function AccountPage() {
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                     {wishlist.map((product) => (
                       <div key={product._id || product.id} className="flex gap-3 border border-xora-taupe/20 bg-white p-3 rounded-xs">
-                        <img src={product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80'} alt={product.name} className="w-20 h-24 object-cover rounded-xs" />
+                        <img src={getProductImage(product)} alt={product.name} className="w-20 h-24 object-cover rounded-xs" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getProductImage({ category: product.category }); }} />
                         <div className="flex-1">
                           <p className="font-serif text-xl text-xora-charcoal">{product.name}</p>
                           <p className="text-xs text-xora-taupe-dark">{product.category}</p>

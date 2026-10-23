@@ -1,46 +1,65 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Filter, X, ChevronDown, SlidersHorizontal, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { X, ChevronDown, SlidersHorizontal, RotateCcw, Tag, Sparkles, Layers } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
 import { productService, categoryService } from '../services/api';
-import { formatInr } from '../utils/currency';
+
+const CATEGORY_SLUGS = ['T-Shirts', 'Hoodies', 'Shirts', 'Trousers'];
 
 export default function Shop({ initialGender = 'men', pageTitle = "Men's Collection" }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [availableSizes, setAvailableSizes] = useState([]);
 
-  // Filters state initialized from query params
+  // Read filters from URL query params
   const categoryParam = searchParams.get('category') || 'All';
-  const colourParam = searchParams.get('colour') || '';
+  const collectionParam = searchParams.get('collection') || '';
   const sortParam = searchParams.get('sort') || 'newest';
   const sizeParam = searchParams.get('size') || '';
-  const maxPriceParam = searchParams.get('maxPrice') || '';
   const filterParam = searchParams.get('filter') || '';
-  const requestedMaxPrice = Number(maxPriceParam);
-  const initialMaxPrice = maxPriceParam && Number.isFinite(requestedMaxPrice)
-    ? Math.min(requestedMaxPrice, 120)
-    : 120;
+  const searchTerm = searchParams.get('search') || '';
 
-  const [selectedCategory, setSelectedCategory] = useState(categoryParam);
-  const [selectedColour, setSelectedColour] = useState(colourParam);
-  const [availableColours, setAvailableColours] = useState([]);
-  const [availableSizes, setAvailableSizes] = useState([]);
-  const [selectedSize, setSelectedSize] = useState(sizeParam);
-  const [maxPrice, setMaxPrice] = useState(initialMaxPrice);
-  const [sort, setSort] = useState(sortParam);
+  const selectedCategory = categoryParam;
+  const selectedCollection = collectionParam;
+  const selectedSize = sizeParam;
+  const sort = sortParam;
 
-  // Fetch categories once
+  const updateShopParam = useCallback((key, value) => setSearchParams((current) => {
+    const next = new URLSearchParams(current);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    return next;
+  }), [setSearchParams]);
+
+  // Determine the active page heading
+  const getPageHeading = () => {
+    if (filterParam === 'new') return 'New Arrivals';
+    if (selectedCollection) return selectedCollection;
+    if (selectedCategory && selectedCategory !== 'All') return selectedCategory;
+    return pageTitle;
+  };
+
+  const getPageSubtitle = () => {
+    if (filterParam === 'new') return 'The latest pieces to arrive at the XORA atelier.';
+    if (selectedCollection) return `Products in the ${selectedCollection} collection.`;
+    if (selectedCategory === 'T-Shirts') return 'Premium cotton jersey, polos, and relaxed-fit essentials.';
+    if (selectedCategory === 'Hoodies') return 'Soft brushed-fleece layers for cooler days and relaxed weekends.';
+    if (selectedCategory === 'Shirts') return 'Oxford, linen, poplin, and chambray shirts for every occasion.';
+    if (selectedCategory === 'Trousers') return 'Tailored wool, refined chinos, and wide-leg linen trousers.';
+    return 'Architectural tailoring, natural fibers, and enduring menswear silhouettes.';
+  };
+
+  // Fetch collections once
   useEffect(() => {
-    categoryService.getCategories().then((res) => {
-      if (res.data.success) {
-        setCategories(res.data.categories.filter((category) => category.gender !== 'women'));
-      }
-    });
+    productService.getCollections().then((res) => setCollections(res.data.collections || [])).catch(() => {});
   }, []);
 
   // Fetch products whenever filters change
@@ -48,15 +67,13 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
     const fetchFilteredProducts = async () => {
       try {
         setLoading(true);
+        setLoadError('');
         const params = {
           sort,
           gender: 'men',
-          maxPrice: maxPrice ? Number(maxPrice) : undefined
         };
-
-        if (selectedColour) {
-          params.colour = selectedColour;
-        }
+        if (searchTerm) params.search = searchTerm;
+        if (selectedCollection) params.collection = selectedCollection;
 
         if (selectedCategory && selectedCategory !== 'All') {
           params.category = selectedCategory;
@@ -73,60 +90,127 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
         }
 
         const res = await productService.getProducts(params);
-        if (res.data.success) {
-          setProducts(res.data.products);
-          setAvailableColours((current) => Array.from(new Set([
-            ...current,
-            ...res.data.products.flatMap((product) => product.colours?.map((colour) => colour.name) || [])
-          ])).sort((first, second) => first.localeCompare(second)));
-          setAvailableSizes((current) => Array.from(new Set([
+        if (!res.data?.success || !Array.isArray(res.data.products)) {
+          throw new Error(res.data?.message || 'The product service returned an unexpected response.');
+        }
+        if (selectedCollection && res.data.products.some((product) => product.collectionName !== selectedCollection)) {
+          throw new Error('Collection filtering is unavailable. Please update the backend deployment and try again.');
+        }
+
+        setProducts(res.data.products);
+        setTotalCount(res.data.totalCount ?? res.data.products.length);
+        setCollections((current) => current.length ? current : Array.from(new Set(
+          res.data.products.map((product) => product.collectionName).filter(Boolean)
+        )).sort((a, b) => a.localeCompare(b)));
+
+        // Build the available sizes list from all products in the current view
+        setAvailableSizes((current) => {
+          const allSizes = Array.from(new Set([
             ...current,
             ...res.data.products.flatMap((product) => product.sizes || [])
-          ])).sort((first, second) => {
-            const order = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-            const firstRank = order.indexOf(first);
-            const secondRank = order.indexOf(second);
-            if (firstRank >= 0 && secondRank >= 0) return firstRank - secondRank;
-            if (firstRank >= 0) return 1;
-            if (secondRank >= 0) return -1;
-            return first.localeCompare(second, undefined, { numeric: true });
-          }));
-        }
+          ]));
+          const order = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+          return allSizes.sort((a, b) => {
+            const ai = order.indexOf(a);
+            const bi = order.indexOf(b);
+            if (ai >= 0 && bi >= 0) return ai - bi;
+            if (ai >= 0) return 1;
+            if (bi >= 0) return -1;
+            return a.localeCompare(b, undefined, { numeric: true });
+          });
+        });
       } catch (err) {
-        console.error('Failed to load products:', err);
+        setLoadError(err.response?.data?.message || 'We could not load products. Please try again.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchFilteredProducts();
-  }, [selectedCategory, selectedColour, selectedSize, maxPrice, sort, filterParam]);
+    // Reset sizes when category changes so we don't show stale sizes
+    setAvailableSizes([]);
+  }, [selectedCategory, selectedCollection, selectedSize, sort, filterParam, searchTerm, retryCount]);
+
+  const hasActiveFilter = selectedCategory !== 'All' || selectedCollection || selectedSize || filterParam;
 
   const handleResetFilters = () => {
-    setSelectedCategory('All');
-    setSelectedColour('');
-    setSelectedSize('');
-    setMaxPrice(120);
-    setSort('newest');
     setSearchParams({});
   };
-
-  const sizesList = ['XS', 'S', 'M', 'L', 'XL'];
 
   return (
     <div className="bg-xora-cream min-h-screen text-xora-charcoal py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+
+        {/* Page Header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark font-medium">
             Wardrobe Archive
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl font-light text-xora-charcoal mt-1 tracking-wide">
-            {pageTitle}
+            {getPageHeading()}
           </h1>
           <p className="text-xs text-xora-taupe-dark mt-2 font-light">
-            Architectural tailoring, natural fibers, and enduring menswear silhouettes.
+            {getPageSubtitle()}
           </p>
+        </div>
+
+        {/* Category Navigation Pills */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+          <Link
+            to="/shop"
+            state={{ scrollToTop: true }}
+            className={`inline-flex items-center px-4 py-1.5 text-[11px] uppercase tracking-luxury border transition-all ${
+              selectedCategory === 'All' && !filterParam && !selectedCollection
+                ? 'bg-xora-charcoal text-white border-xora-charcoal'
+                : 'border-xora-taupe/40 text-xora-taupe-dark hover:border-xora-charcoal hover:text-xora-charcoal bg-white'
+            }`}
+            id="shop-all-link"
+          >
+            All Products
+          </Link>
+          <Link
+            to="/shop?filter=new"
+            className={`inline-flex items-center gap-1 px-4 py-1.5 text-[11px] uppercase tracking-luxury border transition-all ${
+              filterParam === 'new'
+                ? 'bg-xora-charcoal text-white border-xora-charcoal'
+                : 'border-xora-taupe/40 text-xora-taupe-dark hover:border-xora-charcoal hover:text-xora-charcoal bg-white'
+            }`}
+            id="shop-new-link"
+          >
+            <Sparkles className="w-3 h-3" />
+            New
+          </Link>
+          {collections.length > 0 && collections.map((col) => (
+            <Link
+              key={col}
+              to={`/shop?collection=${encodeURIComponent(col)}`}
+              state={{ scrollToTop: true }}
+              className={`inline-flex items-center gap-1 px-4 py-1.5 text-[11px] uppercase tracking-luxury border transition-all ${
+                selectedCollection === col
+                  ? 'bg-xora-charcoal text-white border-xora-charcoal'
+                  : 'border-xora-taupe/40 text-xora-taupe-dark hover:border-xora-charcoal hover:text-xora-charcoal bg-white'
+              }`}
+            >
+              <Layers className="w-3 h-3" />
+              {col}
+            </Link>
+          ))}
+          {CATEGORY_SLUGS.map((cat) => (
+            <Link
+              key={cat}
+              to={`/shop?category=${encodeURIComponent(cat)}`}
+              state={{ scrollToTop: true }}
+              className={`inline-flex items-center gap-1 px-4 py-1.5 text-[11px] uppercase tracking-luxury border transition-all ${
+                selectedCategory === cat && !filterParam
+                  ? 'bg-xora-charcoal text-white border-xora-charcoal'
+                  : 'border-xora-taupe/40 text-xora-taupe-dark hover:border-xora-charcoal hover:text-xora-charcoal bg-white'
+              }`}
+              id={`shop-cat-${cat.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              <Tag className="w-3 h-3" />
+              {cat}
+            </Link>
+          ))}
         </div>
 
         {/* Filter & Sort Controls Bar */}
@@ -140,18 +224,22 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
               id="mobile-filter-open-btn"
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Filters</span>
+              <span>Filter by Size</span>
+              {selectedSize && (
+                <span className="ml-1 bg-xora-charcoal text-white text-[10px] px-1.5 py-0.5 rounded">{selectedSize}</span>
+              )}
             </button>
 
             <span className="text-xs text-xora-taupe-dark">
-              Showing <strong className="text-xora-charcoal font-medium">{products.length}</strong> styles
+              Showing <strong className="text-xora-charcoal font-medium">{totalCount}</strong> styles
             </span>
 
-            {(selectedCategory !== 'All' || selectedColour || selectedSize || Number(maxPrice) < 120) && (
+            {hasActiveFilter && (
               <button
                 type="button"
                 onClick={handleResetFilters}
                 className="hidden sm:inline-flex items-center space-x-1 text-xs text-xora-taupe-dark hover:text-xora-charcoal transition-colors underline"
+                id="reset-filters-btn"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Reset</span>
@@ -168,7 +256,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
               <select
                 id="shop-sort"
                 value={sort}
-                onChange={(e) => setSort(e.target.value)}
+                onChange={(e) => updateShopParam('sort', e.target.value === 'newest' ? '' : e.target.value)}
                 className="appearance-none bg-white border border-xora-taupe/40 px-4 py-2.5 pr-8 text-xs text-xora-charcoal focus:outline-none focus:border-xora-charcoal font-medium cursor-pointer"
               >
                 <option value="newest">Newest Additions</option>
@@ -184,120 +272,68 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
 
         {/* Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Desktop Filter Sidebar */}
-          <aside className="hidden lg:block space-y-8 pr-4 border-r border-xora-taupe/20">
-            {/* Category Filter */}
+          {/* Desktop Filter Sidebar — SIZE ONLY */}
+          <aside className="hidden lg:block space-y-6 pr-4 border-r border-xora-taupe/20">
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-3">
-                Category
+              <h3 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">
+                Filter by Size
               </h3>
-              <div className="space-y-2 text-xs">
+              {availableSizes.length === 0 ? (
+                <p className="text-xs text-xora-taupe-dark">
+                  {loading ? 'Loading sizes…' : loadError ? 'Sizes unavailable.' : 'No sizes available.'}
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {availableSizes.map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => updateShopParam('size', selectedSize === sz ? '' : sz)}
+                      className={`w-10 h-10 text-xs flex items-center justify-center border transition-all font-medium ${
+                        selectedSize === sz
+                          ? 'border-xora-charcoal bg-xora-charcoal text-white shadow-sm'
+                          : 'border-xora-taupe/40 bg-white text-xora-charcoal hover:border-xora-charcoal'
+                      }`}
+                      id={`size-filter-${sz}`}
+                      aria-pressed={selectedSize === sz}
+                    >
+                      {sz}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {selectedSize && (
                 <button
                   type="button"
-                  onClick={() => setSelectedCategory('All')}
-                  className={`block w-full text-left transition-colors ${
-                    selectedCategory === 'All'
-                      ? 'font-bold text-xora-charcoal pl-1 border-l-2 border-xora-charcoal'
-                      : 'text-xora-taupe-dark hover:text-xora-charcoal'
-                  }`}
+                  onClick={() => updateShopParam('size', '')}
+                  className="mt-3 inline-flex items-center gap-1 text-xs text-xora-taupe-dark hover:text-xora-charcoal underline"
                 >
-                  All Categories
+                  <X className="w-3 h-3" />
+                  Clear size filter
                 </button>
-                {categories.map((cat) => (
-                  <button
-                    key={cat._id}
-                    type="button"
-                    onClick={() => setSelectedCategory(cat.name)}
-                    className={`flex items-center justify-between w-full text-left transition-colors ${
-                      selectedCategory === cat.name
-                        ? 'font-bold text-xora-charcoal pl-1 border-l-2 border-xora-charcoal'
-                        : 'text-xora-taupe-dark hover:text-xora-charcoal'
-                    }`}
-                  >
-                    <span>{cat.name}</span>
-                    <span className="text-[10px] text-xora-taupe-dark/80">({cat.itemCount})</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Colour Filter */}
-            <div>
-              <label htmlFor="shop-colour" className="block text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-3">
-                Colour
-              </label>
-              <select
-                id="shop-colour"
-                value={selectedColour}
-                onChange={(event) => setSelectedColour(event.target.value)}
-                className="w-full appearance-none bg-white border border-xora-taupe/40 px-3 py-2.5 text-xs text-xora-charcoal focus:outline-none focus:border-xora-charcoal"
-              >
-                <option value="">All Colours</option>
-                {availableColours.map((colour) => <option key={colour} value={colour}>{colour}</option>)}
-              </select>
-            </div>
-
-            {/* Size Filter */}
-            <div>
-              <h3 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-3">
-                Size
-              </h3>
-              <div className="flex flex-wrap gap-1.5">
-                {availableSizes.map((sz) => (
-                  <button
-                    key={sz}
-                    type="button"
-                    onClick={() => setSelectedSize(selectedSize === sz ? '' : sz)}
-                    className={`w-9 h-9 text-xs flex items-center justify-center border transition-all ${
-                      selectedSize === sz
-                        ? 'border-xora-charcoal bg-xora-charcoal text-white font-medium'
-                        : 'border-xora-taupe/40 bg-white text-xora-charcoal hover:border-xora-charcoal'
-                    }`}
-                  >
-                    {sz}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Price Filter */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal">
-                  Maximum Price
-                </h3>
-                <span className="text-xs font-medium text-xora-charcoal">{formatInr(maxPrice)}</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="120"
-                step="1"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                className="w-full accent-xora-charcoal h-1 bg-xora-taupe/30 rounded-lg cursor-pointer"
-              />
-              <div className="flex justify-between text-[10px] text-xora-taupe-dark mt-1">
-                <span>{formatInr(0)}</span>
-                <span>{formatInr(120)}+</span>
-              </div>
+              )}
             </div>
           </aside>
 
           {/* Product Grid Area */}
           <main className="lg:col-span-3">
             {loading ? (
-              <LoadingSpinner message="Refining wardrobe selection..." />
+              <LoadingSpinner message="Refining wardrobe selection…" />
+            ) : loadError ? (
+              <div role="alert" className="border border-red-200 bg-red-50 p-5 text-sm text-red-800">
+                {loadError}
+                <button type="button" onClick={() => setRetryCount((c) => c + 1)} className="ml-3 underline">Retry</button>
+              </div>
             ) : products.length === 0 ? (
               <EmptyState
-                title="No pieces match your filter."
-                subtitle="Try loosening your filters or resetting to view the full atelier collection."
-                actionText="RESET ALL FILTERS"
+                title={selectedSize ? `No products available in size ${selectedSize}.` : 'No pieces match your filter.'}
+                subtitle={selectedSize ? 'Try a different size or clear the size filter to view all available styles.' : 'Try resetting your filters to view the full collection.'}
+                actionText="RESET FILTERS"
                 actionLink="#"
                 onClick={handleResetFilters}
               />
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                 {products.map((product) => (
                   <ProductCard key={product._id} product={product} />
                 ))}
@@ -307,7 +343,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
         </div>
       </div>
 
-      {/* Mobile Filter Slide-over Drawer */}
+      {/* Mobile Filter Slide-over Drawer — SIZE ONLY */}
       {mobileFilterOpen && (
         <div className="fixed inset-0 z-50 lg:hidden overflow-hidden">
           <div
@@ -318,101 +354,47 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
             <div className="space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-xora-taupe/20">
                 <h2 className="font-serif text-xl text-xora-charcoal uppercase tracking-wider">
-                  Filter Collection
+                  Filter by Size
                 </h2>
                 <button
                   type="button"
                   onClick={() => setMobileFilterOpen(false)}
                   className="p-1 text-xora-charcoal/70"
+                  aria-label="Close filter drawer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Category */}
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-2">
-                  Category
-                </h4>
-                <div className="space-y-1.5 text-xs max-h-40 overflow-y-auto pr-1">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedCategory('All')}
-                    className={`block w-full text-left py-1 ${
-                      selectedCategory === 'All' ? 'font-bold text-xora-charcoal' : 'text-xora-taupe-dark'
-                    }`}
-                  >
-                    All Categories
-                  </button>
-                  {categories.map((cat) => (
-                    <button
-                      key={cat._id}
-                      type="button"
-                      onClick={() => setSelectedCategory(cat.name)}
-                      className={`block w-full text-left py-1 ${
-                        selectedCategory === cat.name ? 'font-bold text-xora-charcoal' : 'text-xora-taupe-dark'
-                      }`}
-                    >
-                      {cat.name} ({cat.itemCount})
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Colour */}
-              <div>
-                <label htmlFor="shop-colour-mobile" className="block text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-2">
-                  Colour
-                </label>
-                <select
-                  id="shop-colour-mobile"
-                  value={selectedColour}
-                  onChange={(event) => setSelectedColour(event.target.value)}
-                  className="w-full appearance-none bg-white border border-xora-taupe/40 px-3 py-2.5 text-xs text-xora-charcoal focus:outline-none focus:border-xora-charcoal"
-                >
-                  <option value="">All Colours</option>
-                  {availableColours.map((colour) => <option key={colour} value={colour}>{colour}</option>)}
-                </select>
-              </div>
-
-              {/* Size */}
-              <div>
-                <h4 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-2">
-                  Size
-                </h4>
-                <div className="flex flex-wrap gap-1.5">
+                <p className="text-xs text-xora-taupe-dark mb-3">Select a size to filter the collection.</p>
+                <div className="flex flex-wrap gap-2">
                   {availableSizes.map((sz) => (
                     <button
                       key={sz}
                       type="button"
-                      onClick={() => setSelectedSize(selectedSize === sz ? '' : sz)}
-                      className={`w-9 h-9 text-xs flex items-center justify-center border ${
+                      onClick={() => updateShopParam('size', selectedSize === sz ? '' : sz)}
+                      className={`w-11 h-11 text-xs flex items-center justify-center border font-medium transition-all ${
                         selectedSize === sz
                           ? 'border-xora-charcoal bg-xora-charcoal text-white'
                           : 'border-xora-taupe/40 bg-white text-xora-charcoal'
                       }`}
+                      aria-pressed={selectedSize === sz}
                     >
                       {sz}
                     </button>
                   ))}
                 </div>
-              </div>
-
-              {/* Price */}
-              <div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="font-semibold uppercase tracking-luxury">Max Price</span>
-                  <span className="font-medium">{formatInr(maxPrice)}</span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="120"
-                  step="1"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-full accent-xora-charcoal h-1"
-                />
+                {selectedSize && (
+                  <button
+                    type="button"
+                    onClick={() => updateShopParam('size', '')}
+                    className="mt-3 inline-flex items-center gap-1 text-xs text-xora-taupe-dark underline"
+                  >
+                    <X className="w-3 h-3" />
+                    Clear size
+                  </button>
+                )}
               </div>
             </div>
 
@@ -421,8 +403,9 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
                 type="button"
                 onClick={() => setMobileFilterOpen(false)}
                 className="btn-luxury w-full"
+                id="apply-filters-mobile-btn"
               >
-                APPLY FILTERS
+                APPLY
               </button>
               <button
                 type="button"

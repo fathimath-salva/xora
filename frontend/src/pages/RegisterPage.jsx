@@ -108,7 +108,7 @@ export default function RegisterPage() {
 
         <div className="relative min-h-[420px] overflow-hidden rounded-xs">
           <img
-            src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80"
+            src="https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?auto=format&fit=crop&w=1200&q=80"
             alt="New XORA customer wardrobe"
             className="absolute inset-0 w-full h-full object-cover"
           />

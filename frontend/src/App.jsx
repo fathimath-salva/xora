@@ -9,6 +9,8 @@ import Footer from './components/Footer.jsx';
 import SearchModal from './components/SearchModal.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
+import ScrollManager from './components/ScrollManager.jsx';
+import IntroSplash from './components/IntroSplash.jsx';
 
 import Home from './pages/Home.jsx';
 import Shop from './pages/Shop.jsx';
@@ -24,12 +26,15 @@ import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
 import OrderConfirmationPage from './pages/OrderConfirmationPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
+import StorePolicies from './pages/StorePolicies.jsx';
 
 function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <>
+      <ScrollManager />
+      <IntroSplash />
       <Navbar onOpenSearch={() => setSearchOpen(true)} />
       <CartDrawer />
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
@@ -47,6 +52,7 @@ function AppShell() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/policies" element={<StorePolicies />} />
           <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
           <Route
             path="/account"

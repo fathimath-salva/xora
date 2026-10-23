@@ -8,6 +8,7 @@ const orderItemSchema = new mongoose.Schema({
   },
   name: { type: String, required: true },
   image: { type: String, required: true },
+  category: { type: String, default: '' },
   price: { type: Number, required: true },
   quantity: { type: Number, required: true, min: 1 },
   size: { type: String, required: true },
@@ -32,6 +33,7 @@ const orderSchema = new mongoose.Schema(
       ref: 'User',
       required: true
     },
+    idempotencyKey: { type: String, select: false },
     items: [orderItemSchema],
     shippingAddress: shippingAddressSchema,
     paymentMethod: {
@@ -80,6 +82,11 @@ const orderSchema = new mongoose.Schema(
   {
     timestamps: true
   }
+);
+
+orderSchema.index(
+  { customer: 1, idempotencyKey: 1 },
+  { unique: true, partialFilterExpression: { idempotencyKey: { $type: 'string' } } }
 );
 
 export const Order = mongoose.model('Order', orderSchema);

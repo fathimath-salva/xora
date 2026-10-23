@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, Plus, Minus, Trash2, ArrowRight, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { formatInr } from '../utils/currency';
+import { getProductImage } from '../utils/productImage';
 
 export default function CartDrawer() {
   const {
@@ -110,9 +111,10 @@ export default function CartDrawer() {
                   {/* Thumbnail */}
                   <div className="w-20 h-26 flex-shrink-0 bg-xora-sand overflow-hidden rounded-xs">
                     <img
-                      src={item.image}
+                      src={item.image || getProductImage({ category: item.category })}
                       alt={item.name}
                       className="w-full h-full object-cover object-center"
+                      onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getProductImage({ category: item.category }); }}
                     />
                   </div>
 

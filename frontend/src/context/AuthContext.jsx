@@ -71,6 +71,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    const currentToken = localStorage.getItem('xora_token');
+    if (currentToken) authService.logout(currentToken).catch(() => {});
     localStorage.removeItem('xora_token');
     localStorage.removeItem('xora_user');
     setToken(null);

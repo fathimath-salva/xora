@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { cartService } from '../services/api';
 import { useAuth } from './AuthContext';
+import { getProductImage } from '../utils/productImage';
 
 const CartContext = createContext();
 
@@ -12,7 +13,8 @@ const formatCartItems = (items = []) => items
     name: item.product.name,
     price: item.product.discountPrice || item.product.price,
     originalPrice: item.product.price,
-    image: item.product.images?.[0] || '',
+    image: getProductImage(item.product),
+    category: item.product.category,
     size: item.size,
     colour: item.colour,
     quantity: item.quantity,
@@ -83,11 +85,11 @@ export const CartProvider = ({ children }) => {
   };
 
   const addToCart = async (product, size, colour, quantity = 1) => {
-    const selectedSize = size || (product.sizes && product.sizes[0]) || 'M';
+    const selectedSize = size || (product.sizes && product.sizes[0]) || 'N/A';
     const selectedColour =
       colour || (product.colours && product.colours[0]?.name) || 'Default';
     const effectivePrice = product.discountPrice || product.price;
-    const image = product.images?.[0] || '';
+    const image = getProductImage(product);
 
     const addLocalItem = () => setItems((prev) => {
       const existingIdx = prev.findIndex(
@@ -114,6 +116,7 @@ export const CartProvider = ({ children }) => {
             price: effectivePrice,
             originalPrice: product.price,
             image,
+            category: product.category,
             size: selectedSize,
             colour: selectedColour,
             quantity,
@@ -123,7 +126,7 @@ export const CartProvider = ({ children }) => {
       }
     });
 
-    // If authenticated, sync with backend
+    // If authenticated, only report success after the backend accepts the item.
     if (isAuthenticated) {
       try {
         const res = await cartService.addToCart({
@@ -135,17 +138,17 @@ export const CartProvider = ({ children }) => {
         if (res.data.success && res.data.cart?.items) {
           setItems(formatCartItems(res.data.cart.items));
         } else {
-          addLocalItem();
+          return { success: false, message: res.data.message || 'Could not add this item to your bag.' };
         }
       } catch (err) {
-        console.warn('Error syncing addToCart with backend:', err);
-        addLocalItem();
+        return { success: false, message: err.response?.data?.message || 'Could not add this item to your bag. Please try again.' };
       }
     } else {
       addLocalItem();
     }
 
     setIsCartOpen(true);
+    return { success: true };
   };
 
   const updateQuantity = async (itemId, quantity) => {

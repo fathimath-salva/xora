@@ -4,6 +4,7 @@ import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Truck } from
 import { useCart } from '../context/CartContext';
 import EmptyState from '../components/EmptyState';
 import { formatInr } from '../utils/currency';
+import { getProductImage } from '../utils/productImage';
 
 export default function CartPage() {
   const {
@@ -62,9 +63,10 @@ export default function CartPage() {
                   {/* Garment details */}
                   <div className="sm:col-span-6 flex space-x-4 w-full">
                     <img
-                      src={item.image}
+                      src={item.image || getProductImage({ category: item.category })}
                       alt={item.name}
                       className="w-20 h-26 sm:w-24 sm:h-32 object-cover rounded-xs bg-xora-sand flex-shrink-0"
+                      onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getProductImage({ category: item.category }); }}
                     />
                     <div className="flex flex-col justify-between py-1">
                       <div>

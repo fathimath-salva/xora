@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { adminService, orderService, productService } from '../services/api';
-import { BarChart3, Boxes, LayoutDashboard, LogOut, Package, PenSquare, Plus, Search, Settings, Trash2, Users } from 'lucide-react';
+import { adminService, categoryService, orderService, productService } from '../services/api';
+import { BarChart3, Boxes, LayoutDashboard, LogOut, Package, PenSquare, Plus, Search, Settings, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { catalogUnitsToRupees, formatInr, rupeesToCatalogUnits } from '../utils/currency';
+import { getProductImage } from '../utils/productImage';
 
 const sections = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'products', label: 'Products', icon: Package },
+  { id: 'catalogue', label: 'Categories & Collections', icon: Boxes },
   { id: 'orders', label: 'Orders', icon: Boxes },
   { id: 'customers', label: 'Customers', icon: Users },
   { id: 'inventory', label: 'Inventory', icon: Boxes },
@@ -24,17 +26,24 @@ const getInventoryStatus = (stock) => {
 const initialProductForm = {
   name: '',
   description: '',
-  category: 'Tops & Shirts',
+  category: 'T-Shirts',
   gender: 'men',
   price: '',
   discountPrice: '',
   sizes: 'XS,S,M,L,XL',
+  shortDescription: '',
+  collection: '',
+  fabricDetails: '',
+  fitDetails: '',
+  careInstructions: '',
+  measurements: '',
   colours: 'Neutral,Black',
   stock: '25',
   images: '',
   featured: false,
   newArrival: false,
-  bestSeller: false
+  bestSeller: false,
+  active: true
 };
 
 export default function AdminDashboardPage() {
@@ -54,20 +63,35 @@ export default function AdminDashboardPage() {
   const [customers, setCustomers] = useState([]);
   const [categoryDistribution, setCategoryDistribution] = useState([]);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [collections, setCollections] = useState([]);
+  const [collectionRecords, setCollectionRecords] = useState([]);
+  const [categoryForm, setCategoryForm] = useState({ name: '', description: '', image: '' });
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [collectionForm, setCollectionForm] = useState({ name: '', description: '' });
+  const [collectionRename, setCollectionRename] = useState({ current: '', name: '', description: '' });
   const [orders, setOrders] = useState([]);
   const [productForm, setProductForm] = useState(initialProductForm);
   const [editingId, setEditingId] = useState(null);
   const [productSearch, setProductSearch] = useState('');
   const [notice, setNotice] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const loadAdminData = async () => {
+    setLoading(true);
     try {
-      const [statsRes, customersRes, productsRes, ordersRes] = await Promise.all([
+      const [statsRes, customersRes, firstProductsRes, ordersRes, categoriesRes, collectionsRes] = await Promise.all([
         adminService.getStats(),
         adminService.getCustomers(),
-        productService.getProducts({ limit: 100 }),
-        orderService.getAllOrders({ limit: 50 })
+        productService.getProducts({ limit: 100, page: 1 }),
+        orderService.getAllOrders({ limit: 50 }),
+        categoryService.getCategories(),
+        productService.getCollections()
       ]);
+
+      const productPages = firstProductsRes.data.totalPages > 1
+        ? await Promise.all(Array.from({ length: firstProductsRes.data.totalPages - 1 }, (_, index) => productService.getProducts({ limit: 100, page: index + 2 })))
+        : [];
 
       if (statsRes.data.success) {
         setStats(statsRes.data.stats || statsRes.data);
@@ -76,10 +100,17 @@ export default function AdminDashboardPage() {
       }
 
       if (customersRes.data.success) setCustomers(customersRes.data.customers || []);
-      if (productsRes.data.success) setProducts(productsRes.data.products || []);
+      if (firstProductsRes.data.success) setProducts([...(firstProductsRes.data.products || []), ...productPages.flatMap((page) => page.data.products || [])]);
       if (ordersRes.data.success) setOrders(ordersRes.data.orders || []);
+      if (categoriesRes.data.success) setCategories(categoriesRes.data.categories || []);
+      if (collectionsRes.data.success) {
+        setCollections(collectionsRes.data.collections || []);
+        setCollectionRecords(collectionsRes.data.collectionRecords || []);
+      }
     } catch (err) {
-      console.error('Admin dashboard load failed:', err);
+      setNotice(err.response?.data?.message || 'Could not load admin data. Check the API connection and your administrator session.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,6 +132,7 @@ export default function AdminDashboardPage() {
       const originalProduct = editingId ? products.find((product) => product._id === editingId) : null;
       const payload = {
         ...productForm,
+        measurements: productForm.measurements ? JSON.parse(productForm.measurements) : undefined,
         price: rupeesToCatalogUnits(productForm.price),
         discountPrice: productForm.discountPrice ? rupeesToCatalogUnits(productForm.discountPrice) : null,
         stock: Number(productForm.stock),
@@ -141,26 +173,76 @@ export default function AdminDashboardPage() {
       price: String(catalogUnitsToRupees(product.price)),
       discountPrice: product.discountPrice ? String(catalogUnitsToRupees(product.discountPrice)) : '',
       sizes: Array.isArray(product.sizes) ? product.sizes.join(', ') : '',
+      shortDescription: product.shortDescription || '',
+      collection: product.collection || '',
+      fabricDetails: product.fabricDetails || '',
+      fitDetails: product.fitDetails || '',
+      careInstructions: product.careInstructions || '',
+      measurements: product.measurements ? JSON.stringify(product.measurements, null, 2) : '',
       colours: Array.isArray(product.colours) ? product.colours.map((c) => c.name).join(', ') : '',
       stock: String(product.stock),
       images: Array.isArray(product.images) ? product.images.join(', ') : '',
       featured: Boolean(product.featured),
       newArrival: Boolean(product.newArrival),
-      bestSeller: Boolean(product.bestSeller)
+        bestSeller: Boolean(product.bestSeller),
+        active: product.active === true
     });
   };
 
-  const handleDelete = async (id) => {
-    const product = products.find((item) => item._id === id);
-    if (!window.confirm(`Delete ${product?.name || 'this product'}? This cannot be undone.`)) return;
-
+  const handleArchiveToggle = async (product) => {
     try {
-      await productService.deleteProduct(id);
-      setNotice('Product deleted.');
+      await productService.updateProduct(product._id, { active: product.active !== true });
+      setNotice(product.active === true ? 'Product archived; its order history is preserved.' : 'Product activated.');
       await loadAdminData();
     } catch (err) {
-      setNotice(err.response?.data?.message || 'Could not delete product.');
+      setNotice(err.response?.data?.message || 'Could not update product status.');
     }
+  };
+
+  const handleCategorySubmit = async (event) => {
+    event.preventDefault();
+    try {
+      if (editingCategoryId) await categoryService.updateCategory(editingCategoryId, categoryForm);
+      else await categoryService.createCategory(categoryForm);
+      setCategoryForm({ name: '', description: '', image: '' });
+      setEditingCategoryId(null);
+      setNotice('Category saved.');
+      await loadAdminData();
+    } catch (err) { setNotice(err.response?.data?.message || 'Category save failed.'); }
+  };
+
+  const handleCollectionRename = async (event) => {
+    event.preventDefault();
+    try {
+      await productService.renameCollection(collectionRename.current, collectionRename.name, collectionRename.description);
+      setCollectionRename({ current: '', name: '', description: '' });
+      setNotice('Collection renamed.');
+      await loadAdminData();
+    } catch (err) { setNotice(err.response?.data?.message || 'Collection rename failed.'); }
+  };
+
+  const handleCollectionCreate = async (event) => {
+    event.preventDefault();
+    try {
+      await productService.createCollection(collectionForm);
+      setCollectionForm({ name: '', description: '' });
+      setNotice('Collection created. Add products to it from the product form.');
+      await loadAdminData();
+    } catch (err) { setNotice(err.response?.data?.message || 'Collection creation failed.'); }
+  };
+
+  const handleCategoryEdit = (category) => {
+    setEditingCategoryId(category._id);
+    setCategoryForm({ name: category.name, description: category.description || '', image: category.image || '' });
+  };
+
+  const handleCollectionRemove = async (name) => {
+    if (!window.confirm(`Remove “${name}” and unassign its products?`)) return;
+    try {
+      await productService.removeCollection(name);
+      setNotice('Collection removed and products unassigned.');
+      await loadAdminData();
+    } catch (err) { setNotice(err.response?.data?.message || 'Collection removal failed.'); }
   };
 
   const handleOrderStatus = async (id, status) => {
@@ -240,6 +322,7 @@ export default function AdminDashboardPage() {
           </button>
         </nav>
 
+        {loading && <div role="status" className="mb-4 text-sm text-xora-taupe-dark">Loading admin data…</div>}
         {notice && (
           <div role="status" className="mb-6 rounded-xs border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
             {notice}
@@ -288,6 +371,52 @@ export default function AdminDashboardPage() {
           </section>
         )}
 
+        {activeSection === 'catalogue' && (
+          <section aria-label="Category and collection management" className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div className={panelClass}>
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <h2 className="font-serif text-2xl">{editingCategoryId ? 'Edit Category' : 'Add Category'}</h2>
+                {editingCategoryId && <button type="button" onClick={() => { setEditingCategoryId(null); setCategoryForm({ name: '', description: '', image: '' }); }} className="text-xs underline">Cancel</button>}
+              </div>
+              <form onSubmit={handleCategorySubmit} className="space-y-3">
+                <label className="block text-[11px]">Name<input className={`${inputClass} mt-1`} value={categoryForm.name} onChange={(event) => setCategoryForm((form) => ({ ...form, name: event.target.value }))} required maxLength={80} readOnly={Boolean(editingCategoryId)} /></label>
+                <label className="block text-[11px]">Description<textarea className={`${inputClass} mt-1`} value={categoryForm.description} onChange={(event) => setCategoryForm((form) => ({ ...form, description: event.target.value }))} rows="2" maxLength={500} /></label>
+                <label className="block text-[11px]">Category image URL<input className={`${inputClass} mt-1`} value={categoryForm.image} onChange={(event) => setCategoryForm((form) => ({ ...form, image: event.target.value }))} maxLength={2048} /></label>
+                <button className="btn-luxury w-full" type="submit">{editingCategoryId ? 'Save Category' : 'Add Category'}</button>
+              </form>
+              <div className="mt-6 space-y-2">
+                {categories.map((category) => <div key={category._id} className="flex items-center justify-between gap-3 border-t border-xora-taupe/20 py-3 text-xs">
+                  <div><p className="font-medium">{category.name} <span className={category.active === false ? 'text-red-700' : 'text-emerald-800'}>{category.active === false ? '· Archived' : '· Active'}</span></p><p className="text-xora-taupe-dark">{category.itemCount || 0} active products</p></div>
+                  <button type="button" onClick={() => handleCategoryEdit(category)} className="underline">Edit details</button>
+                </div>)}
+              </div>
+            </div>
+
+            <div className={`${panelClass} space-y-6`}>
+              <div>
+                <h2 className="font-serif text-2xl mb-3">Collections</h2>
+                <p className="text-xs text-xora-taupe-dark mb-4">Collections are stored independently so an empty collection can be prepared before products are assigned.</p>
+                <form onSubmit={handleCollectionCreate} className="space-y-3">
+                  <label className="block text-[11px]">New collection name<input className={`${inputClass} mt-1`} value={collectionForm.name} onChange={(event) => setCollectionForm((form) => ({ ...form, name: event.target.value }))} required maxLength={100} /></label>
+                  <label className="block text-[11px]">Description<textarea className={`${inputClass} mt-1`} value={collectionForm.description} onChange={(event) => setCollectionForm((form) => ({ ...form, description: event.target.value }))} rows="2" maxLength={500} /></label>
+                  <button className="btn-luxury w-full" type="submit">Create Collection</button>
+                </form>
+              </div>
+              <form onSubmit={handleCollectionRename} className="space-y-3 border-t border-xora-taupe/20 pt-5">
+                <h3 className="font-serif text-xl">Rename Collection</h3>
+                <label className="block text-[11px]">Collection<select className={`${inputClass} mt-1`} value={collectionRename.current} onChange={(event) => { const current = event.target.value; const record = collectionRecords.find((item) => item.name === current); setCollectionRename({ current, name: current, description: record?.description || '' }); }} required><option value="">Choose a collection</option>{collections.map((name) => <option key={name} value={name}>{name}</option>)}</select></label>
+                <label className="block text-[11px]">New name<input className={`${inputClass} mt-1`} value={collectionRename.name} onChange={(event) => setCollectionRename((form) => ({ ...form, name: event.target.value }))} required maxLength={100} /></label>
+                <label className="block text-[11px]">Description<textarea className={`${inputClass} mt-1`} value={collectionRename.description} onChange={(event) => setCollectionRename((form) => ({ ...form, description: event.target.value }))} rows="2" maxLength={500} /></label>
+                <button className="btn-luxury-outline w-full" type="submit" disabled={!collectionRename.current}>Save Collection</button>
+              </form>
+              <div className="border-t border-xora-taupe/20 pt-4 space-y-2">
+                {collections.map((name) => <div key={name} className="flex justify-between items-center text-xs border-b border-xora-taupe/10 py-2"><span>{name}</span><button type="button" onClick={() => handleCollectionRemove(name)} className="text-red-700 underline">Remove</button></div>)}
+                {collections.length === 0 && <p className="text-xs text-xora-taupe-dark">No collections yet.</p>}
+              </div>
+            </div>
+          </section>
+        )}
+
         {activeSection === 'products' && (
           <section aria-label="Product management" className="grid grid-cols-1 xl:grid-cols-12 gap-6">
             <div className={`${panelClass} xl:col-span-5 h-fit`}>
@@ -302,9 +431,15 @@ export default function AdminDashboardPage() {
                 <label className="block text-[11px] text-xora-taupe-dark">Description *
                   <textarea name="description" value={productForm.description} onChange={handleChange} rows="3" placeholder="Product description" className={`${inputClass} mt-1 resize-y`} required />
                 </label>
+                <label className="block text-[11px] text-xora-taupe-dark">Short description
+                  <input name="shortDescription" value={productForm.shortDescription} onChange={handleChange} className={`${inputClass} mt-1`} maxLength={300} />
+                </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <label className="block text-[11px] text-xora-taupe-dark">Category *
-                    <input name="category" value={productForm.category} onChange={handleChange} placeholder="Shirts" className={`${inputClass} mt-1`} required />
+                    <select name="category" value={productForm.category} onChange={handleChange} className={`${inputClass} mt-1`} required>
+                      {!categories.some((category) => category.name === productForm.category) && <option value={productForm.category}>{productForm.category} (existing)</option>}
+                      {categories.filter((category) => category.active !== false).map((category) => <option key={category._id} value={category.name}>{category.name}</option>)}
+                    </select>
                   </label>
                   <label className="block text-[11px] text-xora-taupe-dark">Gender *
                     <select name="gender" value={productForm.gender} onChange={handleChange} className={`${inputClass} mt-1`} required>
@@ -336,10 +471,30 @@ export default function AdminDashboardPage() {
                 <label className="block text-[11px] text-xora-taupe-dark">Product image URL(s), comma separated
                   <input name="images" value={productForm.images} onChange={handleChange} placeholder="https://..." className={`${inputClass} mt-1`} />
                 </label>
+                <label className="block text-[11px] text-xora-taupe-dark">Collection name
+                  <select name="collection" value={productForm.collection} onChange={handleChange} className={`${inputClass} mt-1`}>
+                    <option value="">No collection</option>
+                    {!collections.includes(productForm.collection) && productForm.collection && <option value={productForm.collection}>{productForm.collection} (existing)</option>}
+                    {collections.map((collection) => <option key={collection} value={collection}>{collection}</option>)}
+                  </select>
+                </label>
+                <label className="block text-[11px] text-xora-taupe-dark">Materials (verified composition only)
+                  <textarea name="fabricDetails" value={productForm.fabricDetails} onChange={handleChange} rows="2" className={`${inputClass} mt-1`} />
+                </label>
+                <label className="block text-[11px] text-xora-taupe-dark">Fit / style information
+                  <textarea name="fitDetails" value={productForm.fitDetails} onChange={handleChange} rows="2" className={`${inputClass} mt-1`} />
+                </label>
+                <label className="block text-[11px] text-xora-taupe-dark">Care instructions
+                  <textarea name="careInstructions" value={productForm.careInstructions} onChange={handleChange} rows="2" className={`${inputClass} mt-1`} />
+                </label>
+                <label className="block text-[11px] text-xora-taupe-dark">Garment measurements by size (JSON, centimetres)
+                  <textarea name="measurements" value={productForm.measurements} onChange={handleChange} rows="4" placeholder={'{"M":{"chest":102,"length":70}}'} className={`${inputClass} mt-1 font-mono`} />
+                </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px] uppercase tracking-wider text-xora-charcoal">
                   <label className="flex items-center gap-2"><input type="checkbox" name="featured" checked={productForm.featured} onChange={handleChange} /> Featured</label>
                   <label className="flex items-center gap-2"><input type="checkbox" name="newArrival" checked={productForm.newArrival} onChange={handleChange} /> New</label>
                   <label className="flex items-center gap-2"><input type="checkbox" name="bestSeller" checked={productForm.bestSeller} onChange={handleChange} /> Best</label>
+                  <label className="flex items-center gap-2"><input type="checkbox" name="active" checked={productForm.active} onChange={handleChange} /> Active</label>
                 </div>
                 <button type="submit" className="btn-luxury w-full py-3 text-[10px] flex items-center justify-center gap-2">
                   {editingId ? <PenSquare className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -359,9 +514,10 @@ export default function AdminDashboardPage() {
               <div className="space-y-3 max-h-[720px] overflow-y-auto">
                 {filteredProducts.map((product) => (
                   <div key={product._id} className="flex flex-col sm:flex-row sm:items-center gap-3 border border-xora-taupe/20 bg-white p-3 rounded-xs">
-                    <img src={product.images?.[0] || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80'} alt={product.name} className="w-16 h-20 object-cover rounded-xs bg-xora-sand flex-shrink-0" />
+                    <img src={getProductImage(product)} alt={product.name} className="w-16 h-20 object-cover rounded-xs bg-xora-sand flex-shrink-0" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getProductImage({ category: product.category }); }} />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-xora-charcoal break-words">{product.name}</p>
+                      <p className={`text-[11px] ${product.active === true ? 'text-emerald-800' : 'text-amber-800'}`}>{product.active === true ? 'Active' : 'Archived'}</p>
                       <p className="text-[11px] text-xora-taupe-dark">{product.category} · {product.gender}</p>
                     </div>
                     <div className="sm:min-w-28 text-xs sm:text-right text-xora-charcoal">
@@ -371,7 +527,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div className="flex gap-2 sm:ml-2">
                       <button type="button" onClick={() => handleEdit(product)} className="text-xs px-3 py-2 border border-xora-taupe/30 hover:border-xora-charcoal">Edit</button>
-                      <button type="button" onClick={() => handleDelete(product._id)} className="text-xs px-3 py-2 border border-red-200 text-red-700 hover:bg-red-50">Delete</button>
+                      <button type="button" onClick={() => handleArchiveToggle(product)} className={`text-xs px-3 py-2 border ${product.active === true ? 'border-red-200 text-red-700 hover:bg-red-50' : 'border-emerald-200 text-emerald-800 hover:bg-emerald-50'}`}>{product.active === true ? 'Archive' : 'Activate'}</button>
                     </div>
                   </div>
                 ))}
