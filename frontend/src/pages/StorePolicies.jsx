@@ -74,7 +74,7 @@ export default function StorePolicies() {
           <section className="bg-xora-offwhite border border-xora-taupe/30 px-6 py-6 text-sm leading-7 text-xora-charcoal space-y-3">
             <h2 className="font-serif text-2xl text-xora-charcoal">Exchanges, Returns &amp; Refunds</h2>
             <p>
-              <strong>Draft proposal:</strong> contact XORA customer care within 14 calendar days of delivery to request an exchange, return, or refund review. The proposed window begins on the confirmed delivery date. Whether all request types are accepted and whether requests after day 14 are ineligible require client approval.
+              <strong>Draft proposal:</strong> contact YAQANA customer care within 14 calendar days of delivery to request an exchange, return, or refund review. The proposed window begins on the confirmed delivery date. Whether all request types are accepted and whether requests after day 14 are ineligible require client approval.
             </p>
             <p>
               Proposed process: contact customer care before sending an item back and wait for return instructions. The review steps and approval authority are pending client approval.
@@ -89,7 +89,7 @@ export default function StorePolicies() {
           {/* Scenario 1: Faulty or Damaged */}
           <PolicySection title="Faulty, Damaged, or Incorrect Items" icon={AlertTriangle} defaultOpen>
             <p>
-              If an item arrives faulty, damaged, or incorrect, contact XORA customer care promptly so the issue can be reviewed. Any specific reporting deadline is pending client approval.
+              If an item arrives faulty, damaged, or incorrect, contact YAQANA customer care promptly so the issue can be reviewed. Any specific reporting deadline is pending client approval.
             </p>
             <p>
               Please include:
@@ -113,7 +113,7 @@ export default function StorePolicies() {
               A return or refund request for a change of mind may be submitted within 14 days of delivery. Eligibility, required item condition, original packaging, and whether any return shipping charges apply are subject to the final client-approved policy terms, which have not yet been confirmed.
             </p>
             <p>
-              Until the final terms are approved, XORA customer care will handle all change-of-mind requests individually and communicate the applicable process at the time of the request.
+              Until the final terms are approved, YAQANA customer care will handle all change-of-mind requests individually and communicate the applicable process at the time of the request.
             </p>
             <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 p-3">
               <strong>Draft note:</strong> The client must confirm whether change-of-mind returns are accepted, the required item condition (e.g., unworn, tags attached), original packaging requirements, and whether return postage is at the customer's expense.
@@ -123,13 +123,13 @@ export default function StorePolicies() {
           {/* Scenario 3: Wrong Size */}
           <PolicySection title="Wrong Size Ordered or Poor Fit" icon={Package}>
             <p>
-              If an item does not fit as expected, you may contact XORA customer care within 14 days of delivery to request an exchange for a different size. Exchanges are subject to stock availability at the time of the request.
+              If an item does not fit as expected, you may contact YAQANA customer care within 14 days of delivery to request an exchange for a different size. Exchanges are subject to stock availability at the time of the request.
             </p>
             <p>
               If the requested size is not available, the customer care team will explain the available options — which may include a refund, a credit, or being placed on a waiting list. An exchange is not confirmed until the request has been reviewed and the replacement size is confirmed as available.
             </p>
             <p>
-              XORA provides a Size Guide on each product page to help customers select the correct size before purchasing. Please consult the guide and, if in doubt, contact the customer care team before placing your order.
+              YAQANA provides a Size Guide on each product page to help customers select the correct size before purchasing. Please consult the guide and, if in doubt, contact the customer care team before placing your order.
             </p>
             <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 p-3">
               <strong>Draft note:</strong> Whether size exchanges are free of charge, what happens if no size is available (full refund vs store credit), and any restocking fee require client confirmation.

@@ -43,11 +43,11 @@ export default function IntroSplash() {
     <div
       className={`xora-intro fixed inset-0 z-[100] flex items-center justify-center bg-white text-black dark:bg-black dark:text-white transition-opacity duration-300 ${leaving ? 'opacity-0' : 'opacity-100'}`}
       role="status"
-      aria-label="Welcome to XORA"
+      aria-label="Welcome to YAQANA"
       aria-live="polite"
     >
       <span className="xora-intro-wordmark font-serif text-5xl sm:text-7xl font-light tracking-[0.42em] pl-[0.42em]">
-        XORA
+        YAQANA
       </span>
       <button
         type="button"

@@ -207,7 +207,7 @@ export default function Navbar({ onOpenSearch }) {
                 to="/"
                 className="inline-block font-serif text-xl sm:text-3xl tracking-[0.25em] font-light uppercase text-xora-charcoal hover:opacity-90 transition-opacity"
               >
-                XORA
+                YAQANA
               </Link>
             </div>
 
@@ -360,7 +360,7 @@ export default function Navbar({ onOpenSearch }) {
                   onClick={() => setMobileMenuOpen(false)}
                   className="font-serif text-2xl tracking-[0.25em] font-light uppercase text-xora-charcoal"
                 >
-                  XORA
+                  YAQANA
                 </Link>
                 <button
                   type="button"

@@ -8,10 +8,10 @@ export default function AboutPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div>
-            <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark">About XORA</span>
+            <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark">About YAQANA</span>
             <h1 className="font-serif text-4xl sm:text-5xl mt-2 tracking-wide">Modern essentials. Timeless confidence.</h1>
             <p className="mt-6 text-sm text-xora-taupe-dark leading-relaxed">
-              XORA was founded on the belief that modern menswear should feel effortless, calm, and intentional. We design climate-conscious essentials for everyday life, from workday tailoring to relaxed weekend layers.
+              YAQANA was founded on the belief that modern menswear should feel effortless, calm, and intentional. We design climate-conscious essentials for everyday life, from workday tailoring to relaxed weekend layers.
             </p>
             <p className="mt-4 text-sm text-xora-taupe-dark leading-relaxed">
               Our men's collections centre on natural fibers, sharp tailoring, warm neutrals, and understated details that keep each piece relevant season after season.
@@ -24,7 +24,7 @@ export default function AboutPage() {
           <div className="overflow-hidden rounded-xs">
             <img
               src="https://images.unsplash.com/photo-1627686011747-74adda3d2343?auto=format&fit=crop&w=1200&q=80"
-              alt="XORA atelier"
+              alt="YAQANA atelier"
               className="w-full h-[480px] object-cover"
             />
           </div>

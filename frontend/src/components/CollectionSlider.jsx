@@ -5,10 +5,10 @@ import { CAMPAIGN_IMAGES, firstOrderOffer } from '../config/storefront';
 
 const SLIDES = [
   {
-    name: 'XORA introduction',
+    name: 'YAQANA introduction',
     image: CAMPAIGN_IMAGES.hero,
     imagePosition: 'object-[78%_top] sm:object-[78%_top] lg:object-center',
-    alt: 'A man wearing XORA menswear against a warm neutral backdrop',
+    alt: 'A man wearing YAQANA menswear against a warm neutral backdrop',
     title: 'MODERN MENSWEAR, MADE TO LAST',
     description: `${firstOrderOffer.percentage}% EXTRA OFF YOUR FIRST ORDER`,
     disclosure: 'Offer is not configured at checkout and will not be applied to your order.',
@@ -103,7 +103,7 @@ export default function CollectionSlider() {
       className="relative isolate w-full min-h-[32rem] overflow-hidden touch-pan-y bg-[#eee7da] sm:min-h-[75vh] lg:aspect-video lg:min-h-0"
       role="region"
       aria-roledescription="carousel"
-      aria-label="XORA menswear campaign"
+      aria-label="YAQANA menswear campaign"
       tabIndex={0}
       onKeyDown={handleKeyDown}
       onTouchStart={(event) => { touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }}
@@ -124,7 +124,7 @@ export default function CollectionSlider() {
         <div key={activeSlide.name} className="xora-collection-slide relative w-full max-w-[70%] sm:max-w-2xl">
           {activeIndex === 0 ? (
             <>
-              <p className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#686553] mb-4">XORA MENSWEAR</p>
+              <p className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#686553] mb-4">YAQANA MENSWEAR</p>
               <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-light tracking-[0.08em] leading-[1.08] text-[#292820]">
                 MODERN MENSWEAR,
                 <span className="block italic font-normal">MADE TO LAST</span>
@@ -137,7 +137,7 @@ export default function CollectionSlider() {
             </>
           ) : (
             <>
-              <p className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#686553] mb-4">The XORA edit</p>
+              <p className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#686553] mb-4">The YAQANA edit</p>
               <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-light tracking-[0.1em] uppercase leading-[1.08] text-[#292820]">{activeSlide.name}</h2>
               <p className="mt-5 max-w-md text-sm sm:text-base leading-relaxed text-[#38372e]">{activeSlide.description}</p>
               <div className="mt-7 flex max-w-lg flex-wrap gap-2 sm:gap-3" aria-label={`${activeSlide.name} categories`}>

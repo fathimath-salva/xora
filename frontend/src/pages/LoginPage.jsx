@@ -38,7 +38,7 @@ export default function LoginPage() {
         <div className="relative min-h-[420px] overflow-hidden rounded-xs">
           <img
             src="https://images.unsplash.com/photo-1611619668823-13e82692eddc?auto=format&fit=crop&w=1200&q=80"
-            alt="XORA editorial styling"
+            alt="YAQANA editorial styling"
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />

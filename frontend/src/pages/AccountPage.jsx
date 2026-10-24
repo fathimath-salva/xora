@@ -124,7 +124,7 @@ export default function AccountPage() {
       <div className="min-h-[70vh] flex items-center justify-center px-4">
         <div className="bg-xora-offwhite border border-xora-taupe/30 p-8 max-w-lg text-center">
           <h2 className="font-serif text-3xl text-xora-charcoal">Welcome back</h2>
-          <p className="mt-3 text-sm text-xora-taupe-dark">Please sign in to manage your XORA account.</p>
+          <p className="mt-3 text-sm text-xora-taupe-dark">Please sign in to manage your YAQANA account.</p>
           <div className="mt-6 flex justify-center gap-3">
             <Link className="btn-luxury" to="/login?redirect=/account">Sign In</Link>
             <Link className="btn-luxury-outline" to="/register?redirect=/account">Create Account</Link>

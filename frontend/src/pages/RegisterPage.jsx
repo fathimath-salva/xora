@@ -36,7 +36,7 @@ export default function RegisterPage() {
       <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
         <div className="bg-xora-offwhite border border-xora-taupe/30 p-6 sm:p-8 flex items-center">
           <div className="w-full">
-            <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark">New to XORA</span>
+            <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark">New to YAQANA</span>
             <h2 className="font-serif text-3xl text-xora-charcoal mt-2">Create Account</h2>
 
             {error && (
@@ -109,7 +109,7 @@ export default function RegisterPage() {
         <div className="relative min-h-[420px] overflow-hidden rounded-xs">
           <img
             src="https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?auto=format&fit=crop&w=1200&q=80"
-            alt="New XORA customer wardrobe"
+            alt="New YAQANA customer wardrobe"
             className="absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />

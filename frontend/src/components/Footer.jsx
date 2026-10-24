@@ -22,7 +22,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-12 border-b border-xora-taupe/30">
           <div className="lg:col-span-5 space-y-4">
             <h2 className="font-serif text-3xl sm:text-4xl tracking-[0.2em] font-light uppercase text-xora-charcoal">
-              XORA
+              YAQANA
             </h2>
             <p className="text-sm text-xora-taupe-dark max-w-sm leading-relaxed font-light">
               Elevated menswear shaped by architectural tailoring, serene neutral tones, and uncompromising fabric integrity.
@@ -55,7 +55,7 @@ export default function Footer() {
           <div className="lg:col-span-7">
             <div className="bg-xora-offwhite p-6 sm:p-8 rounded-xs border border-xora-taupe/20">
               <h3 className="font-serif text-xl sm:text-2xl text-xora-charcoal tracking-wide">
-                Join the XORA Society
+                Join the YAQANA Society
               </h3>
               <p className="text-xs text-xora-taupe-dark mt-1 mb-4 leading-relaxed font-light">
                 Receive private seasonal previews, archival access, and 10% privilege on your debut collection order.
@@ -142,7 +142,7 @@ export default function Footer() {
             <h4 className="font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">Company</h4>
             <ul className="space-y-2.5 text-xora-taupe-dark">
               <li>
-                <Link to="/about" className="hover:text-xora-charcoal transition-colors">About XORA</Link>
+                <Link to="/about" className="hover:text-xora-charcoal transition-colors">About YAQANA</Link>
               </li>
               <li>
                 <Link to="/about" className="hover:text-xora-charcoal transition-colors">Our Atelier &amp; Craft</Link>
@@ -177,7 +177,7 @@ export default function Footer() {
 
         {/* Bottom copyright */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-xora-taupe-dark tracking-wide">
-          <p>© {new Date().getFullYear()} XORA Fashion House Ltd. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} YAQANA Fashion House Ltd. All rights reserved.</p>
           <p className="mt-2 sm:mt-0 font-light">
             Modern essentials. Timeless confidence.
           </p>

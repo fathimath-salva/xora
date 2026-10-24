@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function LoadingSpinner({ message = 'Loading XORA Collection...' }) {
+export default function LoadingSpinner({ message = 'Loading YAQANA Collection...' }) {
   return (
     <div className="min-h-[300px] w-full flex flex-col items-center justify-center p-8 space-y-4">
       <div className="relative w-12 h-12">

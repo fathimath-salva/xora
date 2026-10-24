@@ -151,7 +151,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-6 space-y-6">
             <span className="text-xs uppercase tracking-luxury text-xora-taupe-dark font-medium">
-              The XORA Philosophy
+              The YAQANA Philosophy
             </span>
             <h2 className="font-serif text-3xl sm:text-5xl text-xora-charcoal font-light leading-tight">
               Quiet Elegance.
@@ -159,7 +159,7 @@ export default function Home() {
               <span className="italic font-normal">Intentional Craftsmanship.</span>
             </h2>
             <p className="text-sm text-xora-taupe-dark font-light leading-relaxed">
-              XORA was born out of a desire for enduring simplicity. We believe in dressing as a meditative, effortless act. Every seam, cut, and hue is calculated to exist seamlessly across seasons.
+              YAQANA was born out of a desire for enduring simplicity. We believe in dressing as a meditative, effortless act. Every seam, cut, and hue is calculated to exist seamlessly across seasons.
             </p>
             <p className="text-sm text-xora-taupe-dark font-light leading-relaxed">
               By working strictly in warm whites, ecru, oatmeals, and muted taupes, we create garments that bring clarity to your wardrobe and poise to your presence.
@@ -175,7 +175,7 @@ export default function Home() {
             <div className="aspect-[4/5] bg-xora-sand rounded-xs overflow-hidden shadow-xl">
               <img
                 src={CAMPAIGN_IMAGES.upperwear}
-                alt="XORA menswear in considered neutral tones"
+                alt="YAQANA menswear in considered neutral tones"
                 className="w-full h-full object-cover"
                 onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = PRODUCT_IMAGE_FALLBACK; }}
               />

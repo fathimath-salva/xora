@@ -48,7 +48,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
   };
 
   const getPageSubtitle = () => {
-    if (filterParam === 'new') return 'The latest pieces to arrive at the XORA atelier.';
+    if (filterParam === 'new') return 'The latest pieces to arrive at the YAQANA atelier.';
     if (selectedCollection) return `Products in the ${selectedCollection} collection.`;
     if (selectedCategory === 'T-Shirts') return 'Premium cotton jersey, polos, and relaxed-fit essentials.';
     if (selectedCategory === 'Hoodies') return 'Soft brushed-fleece layers for cooler days and relaxed weekends.';

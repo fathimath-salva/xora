@@ -201,7 +201,7 @@ export default function CheckoutPage() {
               {!isAuthenticated && (
                 <div className="bg-xora-sand/50 p-4 border border-xora-taupe/30 rounded-xs flex items-center justify-between text-xs">
                   <div>
-                    <span className="font-medium text-xora-charcoal">Have a XORA account?</span>
+                    <span className="font-medium text-xora-charcoal">Have a YAQANA account?</span>
                     <p className="text-xora-taupe-dark">Sign in to retrieve saved addresses and track privileges.</p>
                   </div>
                   <Link
