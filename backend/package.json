@@ -7,7 +7,10 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "seed": "node src/utils/seeder.js"
+    "seed": "node src/utils/seeder.js",
+    "import:catalogue": "node src/utils/catalogueImporter.js",
+    "import:catalogue:api": "node scripts/importCatalogueViaAdminApi.js",
+    "test:catalogue-import": "node --test test/catalogueImporter.test.js test/catalogueApiImport.test.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

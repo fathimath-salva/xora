@@ -1,5 +1,5 @@
 /**
- * XORA Catalogue Seed Data
+ * YAQANA Catalogue Seed Data
  * 20 men's products: 5 T-Shirts, 5 Hoodies, 5 Shirts, 5 Trousers
  * Sample data — material compositions and measurements are indicative only.
  * Client must review and approve before treating as verified specifications.
@@ -74,7 +74,7 @@ export const productsData = [
   // ─────────────── T-SHIRTS (5) ───────────────
 
   {
-    name: "XORA Essential Crew Tee",
+    name: "YAQANA Essential Crew Tee",
     shortDescription: "Dependable everyday crew-neck in soft combed cotton with a substantial hand feel.",
     description: "Our foundational piece. Crafted from 200gsm combed ring-spun cotton for a smooth, durable finish that holds its shape wash after wash. The ribbed crew neck and taped shoulder seams give it a clean, refined silhouette that works under a blazer or on its own.",
     category: 'T-Shirts',
@@ -100,7 +100,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Heavyweight Oversized Tee",
+    name: "YAQANA Heavyweight Oversized Tee",
     shortDescription: "Relaxed heavyweight tee with dropped shoulders and a clean modern silhouette.",
     description: "Constructed from a dense 260gsm cotton fleece-back jersey, this oversized tee channels a deliberate, architectural ease. Dropped shoulder seams fall intentionally low for a contemporary proportion. Finished with a clean hemline and minimal branding.",
     category: 'T-Shirts',
@@ -126,7 +126,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Slim Fit Polo",
+    name: "YAQANA Slim Fit Polo",
     shortDescription: "Refined piqué cotton polo with a structured collar and short button placket.",
     description: "A wardrobe cornerstone for the considered gentleman. Woven in a classic piqué cotton and finished with a two-button placket and ribbed collar. The slim silhouette transitions effortlessly from weekend dressing to smart-casual occasions.",
     category: 'T-Shirts',
@@ -152,9 +152,9 @@ export const productsData = [
   },
 
   {
-    name: "XORA Graphic Logo Tee",
+    name: "YAQANA Graphic Logo Tee",
     shortDescription: "Understated chest graphic tee in soft combed cotton with a relaxed fit.",
-    description: "Minimal branding, maximum confidence. This relaxed crew tee features a tasteful tonal XORA chest graphic embroidered in self-coloured thread on premium combed cotton jersey. The hem is slightly longer at the back for intentional layering.",
+    description: "Minimal branding, maximum confidence. This relaxed crew tee features a tasteful tonal YAQANA chest graphic embroidered in self-coloured thread on premium combed cotton jersey. The hem is slightly longer at the back for intentional layering.",
     category: 'T-Shirts',
     gender: 'men',
     priceInr: 1299,
@@ -178,7 +178,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Henley Long-Sleeve Tee",
+    name: "YAQANA Henley Long-Sleeve Tee",
     shortDescription: "Long-sleeve Henley tee in soft jersey with a three-button placket and relaxed drape.",
     description: "An elevated take on the everyday long-sleeve. The Henley placket with three corozo nut buttons adds a considered detail without sacrificing comfort. Made from our softest single-jersey cotton for a fluid, relaxed drape.",
     category: 'T-Shirts',
@@ -206,7 +206,7 @@ export const productsData = [
   // ─────────────── HOODIES (5) ───────────────
 
   {
-    name: "XORA Classic Pullover Hoodie",
+    name: "YAQANA Classic Pullover Hoodie",
     shortDescription: "Soft brushed-fleece hoodie with a kangaroo pocket, drawstring, and clean minimal finish.",
     description: "Our most-worn layer. Constructed from a mid-weight cotton-rich brushed fleece with a smooth face and plush interior. Features an adjustable two-tone drawstring, kangaroo front pocket, and ribbed cuffs and hem for a comfortable, tailored fit.",
     category: 'Hoodies',
@@ -232,7 +232,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Zip-Through Hoodie",
+    name: "YAQANA Zip-Through Hoodie",
     shortDescription: "Full-zip hoodie in heavyweight fleece with structured silhouette and clean seaming.",
     description: "A versatile layering piece designed for ease and refinement. The full-length zip allows for effortless wear-ability while the structured shoulders and clean seaming elevate it well beyond casual. Finished with a lined hood for added depth.",
     category: 'Hoodies',
@@ -258,7 +258,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Heavyweight Loopback Hoodie",
+    name: "YAQANA Heavyweight Loopback Hoodie",
     shortDescription: "Thick loopback cotton hoodie with a boxy silhouette and premium hand feel.",
     description: "Made from our densest 400gsm loopback cotton jersey, this hoodie is built to last. The signature loopback texture on the interior provides exceptional warmth without excessive weight. The boxy, oversized fit is intentional — designed as a statement layer for cooler months.",
     category: 'Hoodies',
@@ -284,7 +284,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Quarter-Zip Sweatshirt",
+    name: "YAQANA Quarter-Zip Sweatshirt",
     shortDescription: "Clean quarter-zip sweatshirt in French terry cotton with a ribbed collar.",
     description: "An elevated take on the everyday sweatshirt. The quarter-zip collar detail adds a quiet, considered refinement. Crafted from fine-gauge French terry cotton with a smooth face and airy loop interior — ideal for layering through transitional seasons.",
     category: 'Hoodies',
@@ -310,7 +310,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Blanket-Stitch Fleece Hoodie",
+    name: "YAQANA Blanket-Stitch Fleece Hoodie",
     shortDescription: "Cosy sherpa-lined hoodie with blanket-stitch detail and structured fit.",
     description: "Where warmth meets refinement. A structured hoodie with a sherpa-lined hood and interior body for exceptional cold-weather comfort. The blanket-stitch trim at the cuffs and hem is a considered artisanal detail that sets this piece apart from the ordinary.",
     category: 'Hoodies',
@@ -338,7 +338,7 @@ export const productsData = [
   // ─────────────── SHIRTS (5) ───────────────
 
   {
-    name: "XORA Oxford Button-Down Shirt",
+    name: "YAQANA Oxford Button-Down Shirt",
     shortDescription: "Crisp cotton Oxford with a classic button-down collar and easy tailored fit.",
     description: "A foundational wardrobe shirt that transitions seamlessly from the boardroom to the weekend. Woven in a heavyweight 120s Oxford cotton with a textured basket weave, this shirt offers structure without stiffness. Finished with mother-of-pearl buttons and a clean, precise placket.",
     category: 'Shirts',
@@ -364,7 +364,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Linen Camp Collar Shirt",
+    name: "YAQANA Linen Camp Collar Shirt",
     shortDescription: "Garment-washed linen with a relaxed camp collar and effortless warm-weather drape.",
     description: "Our most beloved summer shirt. Woven from pure Normandy linen and garment-washed for immediate softness and a relaxed drape. The open camp collar and straight vented hem make it an ideal companion for warmer climates — worn open over a tee or buttoned to the top.",
     category: 'Shirts',
@@ -390,7 +390,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Poplin Spread Collar Shirt",
+    name: "YAQANA Poplin Spread Collar Shirt",
     shortDescription: "Fine two-ply poplin with a spread collar and precise tailored construction.",
     description: "Precision craftsmanship in a lightweight 80s two-ply poplin. The spread collar is designed for wearing open or with a tie. Single-needle stitching throughout and precisely matched patterns at the button placket reflect a commitment to understated quality.",
     category: 'Shirts',
@@ -416,7 +416,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Chambray Overshirt",
+    name: "YAQANA Chambray Overshirt",
     shortDescription: "Medium-weight chambray overshirt with chest pockets and clean workwear detailing.",
     description: "A versatile overshirt designed to layer over a tee or wear alone. Woven from a fine chambray cotton in a soft mid-blue, it brings relaxed utility with a refined edge. Features two chest patch pockets and a clean box pleat at the back yoke.",
     category: 'Shirts',
@@ -442,9 +442,9 @@ export const productsData = [
   },
 
   {
-    name: "XORA Flannel Check Shirt",
+    name: "YAQANA Flannel Check Shirt",
     shortDescription: "Soft brushed flannel in a tonal check with a relaxed, comfortable fit.",
-    description: "A seasonal classic elevated by XORA's premium material standards. Woven from a brushed cotton flannel in a subtle tonal check, this shirt is extraordinarily soft and gets better with every wash. Finished with a clean chest pocket and reinforced button placket.",
+    description: "A seasonal classic elevated by YAQANA's premium material standards. Woven from a brushed cotton flannel in a subtle tonal check, this shirt is extraordinarily soft and gets better with every wash. Finished with a clean chest pocket and reinforced button placket.",
     category: 'Shirts',
     gender: 'men',
     priceInr: 2499,
@@ -470,7 +470,7 @@ export const productsData = [
   // ─────────────── TROUSERS (5) ───────────────
 
   {
-    name: "XORA Tailored Wool Trouser",
+    name: "YAQANA Tailored Wool Trouser",
     shortDescription: "Clean-front wool trouser with a considered taper and refined finish.",
     description: "Our signature tailored trouser, cut from a breathable high-twist fresco wool blend. Clean-front construction with side-waist adjusters, a concealed hook-and-bar fastening, and subtle pressed crease for a polished, understated silhouette.",
     category: 'Trousers',
@@ -496,9 +496,9 @@ export const productsData = [
   },
 
   {
-    name: "XORA Relaxed Pleated Trouser",
+    name: "YAQANA Relaxed Pleated Trouser",
     shortDescription: "Double-pleated drape trouser in year-round tropical wool with side waist tabs.",
-    description: "Inspired by classic Italian tailoring, the XORA pleated trouser features double reverse pleats for generous room through the thigh, falling to a clean straight leg. Cut from a lightweight tropical wool for year-round wearability. Side waist tabs allow for a precise waist fit.",
+    description: "Inspired by classic Italian tailoring, the YAQANA pleated trouser features double reverse pleats for generous room through the thigh, falling to a clean straight leg. Cut from a lightweight tropical wool for year-round wearability. Side waist tabs allow for a precise waist fit.",
     category: 'Trousers',
     gender: 'men',
     priceInr: 4499,
@@ -522,7 +522,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Cotton Chino Trouser",
+    name: "YAQANA Cotton Chino Trouser",
     shortDescription: "Versatile straight-leg chino in premium garment-washed cotton with a clean finish.",
     description: "The everyday trouser that does everything well. Cut from a garment-washed cotton twill for a relaxed, slightly broken-in feel from the first wear. Features a clean flat-front construction, straight leg from hip to hem, and an invisible back welt pocket.",
     category: 'Trousers',
@@ -548,7 +548,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Linen Wide-Leg Trouser",
+    name: "YAQANA Linen Wide-Leg Trouser",
     shortDescription: "Relaxed wide-leg linen trouser with a high rise and effortless warm-weather drape.",
     description: "An architectural statement in pure linen. The wide-leg cut falls with a natural weight and ease, ideal for warmer climates or elevated resort dressing. High-rise construction with an elasticated back waist for comfort without sacrificing silhouette.",
     category: 'Trousers',
@@ -574,7 +574,7 @@ export const productsData = [
   },
 
   {
-    name: "XORA Jogger Trouser",
+    name: "YAQANA Jogger Trouser",
     shortDescription: "Premium tapered jogger in French terry cotton with an elasticated waist and ankle.",
     description: "The refined answer to the everyday jogger. Cut from our heaviest French terry cotton, these tapered trousers offer a clean, contemporary silhouette with the ease of a drawstring waist and elasticated ankle cuffs. Designed to be presentable beyond the home.",
     category: 'Trousers',
@@ -621,5 +621,5 @@ export const collectionsData = [...new Set(productsData.map((product) => product
   .map((name) => ({
     name,
     slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-    description: `A considered edit of XORA menswear from the ${name} collection.`
+    description: `A considered edit of YAQANA menswear from the ${name} collection.`
   }));
