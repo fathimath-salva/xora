@@ -26,7 +26,7 @@ const getInventoryStatus = (stock) => {
 const initialProductForm = {
   name: '',
   description: '',
-  category: 'T-Shirts',
+  category: '',
   gender: 'men',
   price: '',
   discountPrice: '',
@@ -437,7 +437,7 @@ export default function AdminDashboardPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <label className="block text-[11px] text-xora-taupe-dark">Category *
                     <select name="category" value={productForm.category} onChange={handleChange} className={`${inputClass} mt-1`} required>
-                      {!categories.some((category) => category.name === productForm.category) && <option value={productForm.category}>{productForm.category} (existing)</option>}
+                      <option value="" disabled>Select an active category</option>
                       {categories.filter((category) => category.active !== false).map((category) => <option key={category._id} value={category.name}>{category.name}</option>)}
                     </select>
                   </label>
