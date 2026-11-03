@@ -9,10 +9,10 @@ import CollectionSlider from '../components/CollectionSlider';
 import { CAMPAIGN_IMAGES } from '../config/storefront';
 
 const SHOP_CATEGORIES = [
-  { name: 'T-Shirts', note: 'Everyday essentials' },
-  { name: 'Hoodies', note: 'Soft, considered layers' },
-  { name: 'Shirts', note: 'Refined daily dressing' },
-  { name: 'Trousers', note: 'Modern tailoring' }
+  { name: 'T-Shirts', image: '/images/yaqana-categories/t-shirts.jpg' },
+  { name: 'Hoodies', image: '/images/yaqana-categories/hoodies.jpg' },
+  { name: 'Shirts', image: '/images/yaqana-categories/shirts.jpg' },
+  { name: 'Trousers', image: '/images/yaqana-categories/trousers.jpg' }
 ];
 
 export default function Home() {
@@ -119,7 +119,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {SHOP_CATEGORIES.map(({ name, note }) => (
+            {SHOP_CATEGORIES.map(({ name, image }) => (
               <Link
                 key={name}
                 to={`/shop?category=${encodeURIComponent(name)}`}
@@ -127,15 +127,14 @@ export default function Home() {
                 className="group relative aspect-[4/5] overflow-hidden bg-xora-taupe/20 rounded-xs block shadow-xs"
               >
                 <img
-                  src={name === 'T-Shirts' || name === 'Hoodies' ? CAMPAIGN_IMAGES.upperwear : name === 'Trousers' ? CAMPAIGN_IMAGES.trousers : CAMPAIGN_IMAGES.hero}
+                  src={image}
                   alt={`Men's ${name.toLowerCase()} collection`}
                   loading="lazy"
                   className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${name === 'T-Shirts' ? 'object-[32%_center]' : name === 'Hoodies' ? 'object-[78%_center]' : name === 'Shirts' ? 'object-[62%_center]' : 'object-[74%_center]'}`}
                   onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = PRODUCT_IMAGE_FALLBACK; }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex flex-col justify-end p-4 sm:p-6 text-white">
-                  <span className="text-[10px] uppercase tracking-luxury text-xora-sand">{note}</span>
-                  <h3 className="font-serif text-xl sm:text-2xl font-light tracking-wider">{name}</h3>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-light tracking-wider">{name}</h3>
                   <span className="text-xs uppercase tracking-luxury underline underline-offset-4 mt-2 font-medium opacity-90 group-hover:opacity-100 transition-opacity">
                     Explore →
                   </span>

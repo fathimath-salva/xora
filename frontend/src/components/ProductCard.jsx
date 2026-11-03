@@ -47,7 +47,7 @@ export default function ProductCard({ product }) {
             src={getProductImage(product)}
             alt={product.name}
             loading="lazy"
-            className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+            className="w-full h-full object-cover object-[center_28%] transition-transform duration-700 ease-out group-hover:scale-105"
             onError={(event) => {
               const image = event.currentTarget;
               if (image.dataset.categoryFallback !== 'true') {

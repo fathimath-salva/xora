@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { CAMPAIGN_IMAGES } from '../config/storefront';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -37,9 +38,9 @@ export default function LoginPage() {
       <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
         <div className="relative min-h-[420px] overflow-hidden rounded-xs">
           <img
-            src="https://images.unsplash.com/photo-1611619668823-13e82692eddc?auto=format&fit=crop&w=1200&q=80"
+            src={CAMPAIGN_IMAGES.hero}
             alt="YAQANA editorial styling"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-[72%_center]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-8 text-white">

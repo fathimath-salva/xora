@@ -129,7 +129,7 @@ export default function ProductDetail() {
                         : 'border-transparent opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = PRODUCT_IMAGE_FALLBACK; }} />
+                    <img src={img} alt="" className="w-full h-full object-contain bg-xora-sand/30" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = PRODUCT_IMAGE_FALLBACK; }} />
                   </button>
                 ))}
               </div>
@@ -140,7 +140,7 @@ export default function ProductDetail() {
               <img
                 src={selectedImage || getProductImage(product)}
                 alt={product.name}
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-contain object-center bg-xora-sand/30"
                 onError={(event) => {
                   const image = event.currentTarget;
                   if (image.dataset.categoryFallback !== 'true') {

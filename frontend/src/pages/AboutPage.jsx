@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { CAMPAIGN_IMAGES } from '../config/storefront';
 
 export default function AboutPage() {
   return (
@@ -23,9 +24,9 @@ export default function AboutPage() {
 
           <div className="overflow-hidden rounded-xs">
             <img
-              src="https://images.unsplash.com/photo-1627686011747-74adda3d2343?auto=format&fit=crop&w=1200&q=80"
+              src={CAMPAIGN_IMAGES.hero}
               alt="YAQANA atelier"
-              className="w-full h-[480px] object-cover"
+              className="w-full h-[480px] object-cover object-[72%_center]"
             />
           </div>
         </section>

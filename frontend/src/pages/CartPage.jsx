@@ -65,7 +65,7 @@ export default function CartPage() {
                     <img
                       src={item.image || getProductImage({ category: item.category })}
                       alt={item.name}
-                      className="w-20 h-26 sm:w-24 sm:h-32 object-cover rounded-xs bg-xora-sand flex-shrink-0"
+                      className="w-20 aspect-[3/4] sm:w-24 sm:aspect-[3/4] object-cover rounded-xs bg-xora-sand flex-shrink-0"
                       onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getProductImage({ category: item.category }); }}
                     />
                     <div className="flex flex-col justify-between py-1">

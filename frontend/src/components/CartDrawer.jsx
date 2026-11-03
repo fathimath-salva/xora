@@ -109,7 +109,7 @@ export default function CartDrawer() {
               items.map((item) => (
                 <div key={item._id} className="py-4 flex space-x-4">
                   {/* Thumbnail */}
-                  <div className="w-20 h-26 flex-shrink-0 bg-xora-sand overflow-hidden rounded-xs">
+                  <div className="w-20 aspect-[3/4] flex-shrink-0 bg-xora-sand overflow-hidden rounded-xs">
                     <img
                       src={item.image || getProductImage({ category: item.category })}
                       alt={item.name}

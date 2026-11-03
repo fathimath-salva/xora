@@ -1,8 +1,8 @@
 const CATEGORY_IMAGES = {
-  't-shirts': 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=900&q=85',
-  hoodies: 'https://images.unsplash.com/photo-1564557287817-3785e38ec1f5?auto=format&fit=crop&w=900&q=85',
-  shirts: 'https://images.unsplash.com/photo-1611619668823-13e82692eddc?auto=format&fit=crop&w=900&q=85',
-  trousers: 'https://images.unsplash.com/photo-1792007195216-c4b6e8bd8d3d?auto=format&fit=crop&w=900&q=85'
+  't-shirts': '/images/xora-products/t-shirts.jpg',
+  hoodies: '/images/xora-products/hoodies.jpg',
+  shirts: '/images/xora-products/shirts.jpg',
+  trousers: '/images/xora-campaign/xora-trousers.jpg'
 };
 
 export const PRODUCT_IMAGE_FALLBACK = '/images/xora-garment-fallback.svg';
