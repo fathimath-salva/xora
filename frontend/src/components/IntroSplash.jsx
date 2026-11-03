@@ -32,16 +32,11 @@ export default function IntroSplash() {
     };
   }, [visible]);
 
-  const skipIntro = () => {
-    setLeaving(true);
-    window.setTimeout(() => setVisible(false), 300);
-  };
-
   if (!visible) return null;
 
   return (
     <div
-      className={`xora-intro fixed inset-0 z-[100] flex items-center justify-center bg-white text-black dark:bg-black dark:text-white transition-opacity duration-300 ${leaving ? 'opacity-0' : 'opacity-100'}`}
+      className={`xora-intro fixed inset-0 z-[100] flex items-center justify-center bg-black text-white transition-opacity duration-300 ${leaving ? 'opacity-0' : 'opacity-100'}`}
       role="status"
       aria-label="Welcome to YAQANA"
       aria-live="polite"
@@ -49,13 +44,6 @@ export default function IntroSplash() {
       <span className="xora-intro-wordmark font-serif text-5xl sm:text-7xl font-light tracking-[0.42em] pl-[0.42em]">
         YAQANA
       </span>
-      <button
-        type="button"
-        onClick={skipIntro}
-        className="absolute bottom-8 right-8 text-[10px] uppercase tracking-[0.2em] text-black dark:text-white underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
-      >
-        Skip intro
-      </button>
     </div>
   );
 }

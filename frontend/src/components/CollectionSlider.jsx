@@ -6,7 +6,7 @@ import { CAMPAIGN_IMAGES, firstOrderOffer } from '../config/storefront';
 const SLIDES = [
   {
     name: 'YAQANA introduction',
-    image: CAMPAIGN_IMAGES.hero,
+    image: '/images/xora-campaign/xora-hero-slideshow.jpg',
     imagePosition: 'object-[78%_top] sm:object-[78%_top] lg:object-center',
     alt: 'A man wearing YAQANA menswear against a warm neutral backdrop',
     title: 'MODERN MENSWEAR, MADE TO LAST',
@@ -100,7 +100,8 @@ export default function CollectionSlider() {
 
   return (
     <section
-      className="relative isolate w-full min-h-[32rem] overflow-hidden touch-pan-y bg-[#eee7da] sm:min-h-[75vh] lg:aspect-video lg:min-h-0"
+      className="xora-campaign relative isolate w-full overflow-hidden touch-pan-y bg-[#eee7da] lg:aspect-video lg:min-h-0"
+      data-slide={activeIndex}
       role="region"
       aria-roledescription="carousel"
       aria-label="YAQANA menswear campaign"
@@ -115,12 +116,12 @@ export default function CollectionSlider() {
         alt=""
         aria-hidden="true"
         fetchPriority={activeIndex === 0 ? 'high' : 'auto'}
-        className={`absolute inset-0 h-full w-full object-cover ${activeSlide.imagePosition}`}
+        className={`xora-campaign-image absolute inset-0 h-full w-full object-cover ${activeSlide.imagePosition}`}
         onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = PRODUCT_IMAGE_FALLBACK; }}
       />
 
-      <div className="relative z-10 flex min-h-[32rem] items-center px-6 py-16 sm:min-h-[75vh] sm:px-12 lg:min-h-0 lg:h-full lg:px-20 xl:px-28">
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-[min(70vw,48rem)] bg-gradient-to-r from-[#eee7da]/72 via-[#eee7da]/42 to-transparent sm:w-[min(68vw,56rem)]" aria-hidden="true" />
+      <div className="xora-campaign-content relative z-10 flex items-center px-6 py-16 sm:px-12 lg:min-h-0 lg:h-full lg:px-20 xl:px-28">
+        <div className="xora-campaign-gradient pointer-events-none absolute inset-y-0 left-0 w-[min(70vw,48rem)] bg-gradient-to-r from-[#eee7da]/72 via-[#eee7da]/42 to-transparent sm:w-[min(68vw,56rem)]" aria-hidden="true" />
         <div key={activeSlide.name} className="xora-collection-slide relative w-full max-w-[70%] sm:max-w-2xl">
           {activeIndex === 0 ? (
             <>
@@ -137,7 +138,7 @@ export default function CollectionSlider() {
             </>
           ) : (
             <>
-              <p className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#686553] mb-4">The YAQANA edit</p>
+              <p className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#686553] mb-4">YAQANA</p>
               <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-light tracking-[0.1em] uppercase leading-[1.08] text-[#292820]">{activeSlide.name}</h2>
               <p className="mt-5 max-w-md text-sm sm:text-base leading-relaxed text-[#38372e]">{activeSlide.description}</p>
               <div className="mt-7 flex max-w-lg flex-wrap gap-2 sm:gap-3" aria-label={`${activeSlide.name} categories`}>
@@ -152,7 +153,7 @@ export default function CollectionSlider() {
         </div>
       </div>
 
-      <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 sm:bottom-7" aria-label="Choose slide">
+      <div className="xora-campaign-indicators absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 sm:bottom-7" aria-label="Choose slide">
         {SLIDES.map((slide, index) => (
           <button key={slide.name} type="button" onClick={() => showSlide(index)} aria-label={`Show slide ${index + 1}: ${slide.name}`} aria-current={index === activeIndex ? 'true' : undefined} className={`h-2 rounded-full transition-[width,background-color] motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 ${index === activeIndex ? 'w-8 bg-[#292820]' : 'w-3 bg-[#292820]/40 hover:bg-[#292820]/70'}`} />
         ))}

@@ -74,12 +74,12 @@ export default function Navbar({ onOpenSearch }) {
         }`}
       >
         {/* Top Announcement Bar */}
-        <div className="bg-xora-charcoal text-xora-cream text-[11px] tracking-luxury uppercase py-1.5 px-4 text-center font-light">
+        <div className="bg-xora-charcoal text-xora-cream text-[8px] min-[375px]:text-[9px] sm:text-[11px] tracking-[0.08em] sm:tracking-luxury uppercase leading-relaxed py-1.5 px-2 sm:px-4 text-center font-light whitespace-nowrap">
           Complimentary express shipping on orders over {formatInr(5000)}
         </div>
 
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
+          <div className="relative flex items-center justify-between h-16 sm:h-20">
             {/* Mobile Hamburger Button */}
             <div className="flex items-center lg:hidden">
               <button
@@ -202,36 +202,36 @@ export default function Navbar({ onOpenSearch }) {
             </div>
 
             {/* Brand Logo (Center) */}
-            <div className="flex-1 lg:flex-initial text-center lg:text-left">
+            <div className="absolute left-1/2 -translate-x-1/2 text-center lg:static lg:flex-initial lg:translate-x-0 lg:text-left">
               <Link
                 to="/"
-                className="inline-block font-serif text-xl sm:text-3xl tracking-[0.25em] font-light uppercase text-xora-charcoal hover:opacity-90 transition-opacity"
+                className="inline-block font-serif text-lg sm:text-3xl tracking-[0.16em] sm:tracking-[0.25em] font-light uppercase text-xora-charcoal hover:opacity-90 transition-opacity"
               >
                 YAQANA
               </Link>
             </div>
 
             {/* Icons Section (Right) */}
-            <div className="flex items-center space-x-1 sm:space-x-5">
+            <div className="flex items-center space-x-0 sm:space-x-5">
               {/* Search Icon */}
               <button
                 type="button"
                 onClick={onOpenSearch}
-                className="p-1.5 text-xora-charcoal/80 hover:text-xora-charcoal transition-colors"
+                className="p-1 sm:p-1.5 text-xora-charcoal/80 hover:text-xora-charcoal transition-colors"
                 aria-label="Search clothing"
                 id="search-trigger-btn"
               >
-                <Search className="w-5 h-5 stroke-[1.5]" />
+                <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
               </button>
 
               {/* Wishlist Icon */}
               <Link
                 to={isAuthenticated ? '/account?tab=wishlist' : '/login'}
-                className="p-1.5 text-xora-charcoal/80 hover:text-xora-charcoal transition-colors relative"
+                className="p-1 sm:p-1.5 text-xora-charcoal/80 hover:text-xora-charcoal transition-colors relative"
                 aria-label="Wishlist"
                 id="wishlist-btn"
               >
-                <Heart className="w-5 h-5 stroke-[1.5]" />
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
                 {wishlistCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-xora-charcoal text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-medium">
                     {wishlistCount}
@@ -243,11 +243,11 @@ export default function Navbar({ onOpenSearch }) {
               <button
                 type="button"
                 onClick={openCart}
-                className="p-1.5 text-xora-charcoal/80 hover:text-xora-charcoal transition-colors relative"
+                className="p-1 sm:p-1.5 text-xora-charcoal/80 hover:text-xora-charcoal transition-colors relative"
                 aria-label="Open shopping bag"
                 id="cart-trigger-btn"
               >
-                <ShoppingBag className="w-5 h-5 stroke-[1.5]" />
+                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
                 {totalCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-xora-charcoal text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-medium">
                     {totalCount}
@@ -262,10 +262,10 @@ export default function Navbar({ onOpenSearch }) {
                     <button
                       type="button"
                       onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                      className="flex items-center space-x-1.5 p-1.5 text-xora-charcoal hover:text-xora-black transition-colors"
+                      className="flex items-center space-x-1.5 p-1 sm:p-1.5 text-xora-charcoal hover:text-xora-black transition-colors"
                       id="account-menu-button"
                     >
-                      <User className="w-5 h-5 stroke-[1.5]" />
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
                       <ChevronDown className="hidden sm:block w-3.5 h-3.5 text-xora-taupe-dark" />
                     </button>
 
@@ -332,11 +332,11 @@ export default function Navbar({ onOpenSearch }) {
                 ) : (
                   <Link
                     to="/login"
-                    className="p-1.5 text-xora-charcoal/80 hover:text-xora-charcoal transition-colors"
+                    className="p-1 sm:p-1.5 text-xora-charcoal/80 hover:text-xora-charcoal transition-colors"
                     title="Sign In"
                     id="nav-login-btn"
                   >
-                    <User className="w-5 h-5 stroke-[1.5]" />
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
                   </Link>
                 )}
               </div>
