@@ -1,38 +1,42 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PRODUCT_IMAGE_FALLBACK } from '../utils/productImage';
-import { CAMPAIGN_IMAGES, firstOrderOffer } from '../config/storefront';
+import { ArrowRight } from 'lucide-react';
+import { firstOrderOffer } from '../config/storefront';
 
 const SLIDES = [
   {
     name: 'YAQANA introduction',
-    image: '/images/xora-campaign/xora-hero-slideshow.jpg',
-    imagePosition: 'object-[78%_top] sm:object-[78%_top] lg:object-center',
+    image: '/images/yaqana-home-slides/discount%20slide.jpg',
+    mobileImage: '/images/yaqana-home-slides/discount-campaign-mobile.jpg',
+    tabletImage: '/images/yaqana-home-slides/discount-campaign-tablet.jpg',
+    desktopImage: '/images/yaqana-home-slides/discount-campaign-wide.jpg',
     alt: 'A man wearing YAQANA menswear against a warm neutral backdrop',
-    title: 'MODERN MENSWEAR, MADE TO LAST',
-    description: `${firstOrderOffer.percentage}% EXTRA OFF YOUR FIRST ORDER`,
-    disclosure: 'Offer is not configured at checkout and will not be applied to your order.',
+    headline: `${firstOrderOffer.percentage}% OFF`,
+    subheading: 'ON YOUR FIRST ORDER',
     action: { label: 'SHOP NOW', to: '/shop' }
   },
   {
     name: 'Upperwear',
-    image: CAMPAIGN_IMAGES.trousers,
-    imagePosition: 'object-[80%_top] sm:object-[80%_top] lg:object-center',
-    alt: 'Two men wearing a cream T-shirt and sage hoodie',
-    description: 'Essential T-shirts, refined shirts and everyday hoodies.',
-    links: [
-      { label: 'T-Shirts', category: 'T-Shirts' },
-      { label: 'Shirts', category: 'Shirts' },
-      { label: 'Hoodies', category: 'Hoodies' }
-    ]
+    image: '/images/yaqana-home-slides/upperwear%20slide.jpg',
+    mobileImage: '/images/yaqana-home-slides/upperwear-campaign-mobile.jpg',
+    tabletImage: '/images/yaqana-home-slides/upperwear-campaign-tablet.jpg',
+    desktopImage: '/images/yaqana-home-slides/upperwear-campaign-wide.jpg',
+    alt: 'Three male models wearing a T-shirt, shirt and hoodie',
+    headline: 'UPPERWEAR',
+    description: 'T-shirts, shirts & hoodies.',
+    action: { label: 'EXPLORE UPPERWEAR', to: '/shop' }
   },
   {
     name: 'Trousers',
-    image: CAMPAIGN_IMAGES.upperwear,
-    imagePosition: 'object-[68%_top] sm:object-[68%_top] lg:object-center',
-    alt: 'A man wearing tailored charcoal trousers in a warm stone setting',
-    description: 'Considered fits. Timeless everyday essentials.',
-    links: [{ label: 'EXPLORE TROUSERS', category: 'Trousers' }]
+    image: '/images/yaqana-home-slides/trousers%20slide.jpg',
+    mobileImage: '/images/yaqana-home-slides/trousers-campaign-mobile.jpg',
+    tabletImage: '/images/yaqana-home-slides/trousers-campaign-tablet.jpg',
+    desktopImage: '/images/yaqana-home-slides/trousers-campaign-wide.jpg',
+    alt: 'A male model wearing brown trousers',
+    headline: 'TROUSERS',
+    description: 'Refined fits. Everyday essentials.',
+    action: { label: 'EXPLORE TROUSERS', to: '/shop?category=Trousers' }
   }
 ];
 
@@ -110,44 +114,40 @@ export default function CollectionSlider() {
       onTouchStart={(event) => { touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }}
       onTouchEnd={handleTouchEnd}
     >
-      <img
-        key={activeSlide.name}
-        src={activeSlide.image}
-        alt=""
-        aria-hidden="true"
-        fetchPriority={activeIndex === 0 ? 'high' : 'auto'}
-        className={`xora-campaign-image absolute inset-0 h-full w-full object-cover ${activeSlide.imagePosition}`}
-        onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = PRODUCT_IMAGE_FALLBACK; }}
-      />
+      <picture key={activeSlide.name} className="xora-campaign-image">
+        <source media="(min-width: 1024px)" srcSet={activeSlide.desktopImage} />
+        <source media="(min-width: 640px)" srcSet={activeSlide.tabletImage} />
+        <source media="(max-width: 639px)" srcSet={activeSlide.mobileImage} />
+        <img
+          src={activeSlide.image}
+          alt=""
+          aria-hidden="true"
+          fetchPriority={activeIndex === 0 ? 'high' : 'auto'}
+          onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = PRODUCT_IMAGE_FALLBACK; }}
+        />
+      </picture>
 
-      <div className="xora-campaign-content relative z-10 flex items-center px-6 py-16 sm:px-12 lg:min-h-0 lg:h-full lg:px-20 xl:px-28">
-        <div className="xora-campaign-gradient pointer-events-none absolute inset-y-0 left-0 w-[min(70vw,48rem)] bg-gradient-to-r from-[#eee7da]/72 via-[#eee7da]/42 to-transparent sm:w-[min(68vw,56rem)]" aria-hidden="true" />
-        <div key={activeSlide.name} className="xora-collection-slide relative w-full max-w-[70%] sm:max-w-2xl">
+      <div className="xora-campaign-content">
+        <div key={activeSlide.name} className="xora-collection-slide">
           {activeIndex === 0 ? (
             <>
-              <p className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#686553] mb-4">YAQANA MENSWEAR</p>
-              <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-light tracking-[0.08em] leading-[1.08] text-[#292820]">
-                MODERN MENSWEAR,
-                <span className="block italic font-normal">MADE TO LAST</span>
+              <h1 className="xora-campaign-headline xora-campaign-offer">
+                {activeSlide.headline}
               </h1>
-              <p className="mt-6 text-sm sm:text-base uppercase tracking-[0.16em] text-[#38372e]">{activeSlide.description}</p>
-              <p className="mt-2 max-w-md text-[10px] sm:text-xs leading-relaxed text-[#575449]">{activeSlide.disclosure}</p>
-              <Link to={activeSlide.action.to} state={{ scrollToTop: true }} className="mt-7 inline-flex min-h-12 items-center justify-center border border-[#292820] bg-[#292820] px-9 py-4 text-[10px] font-semibold uppercase tracking-[0.22em] text-white transition-colors hover:bg-transparent hover:text-[#292820] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
+              <p className="xora-campaign-subheading">{activeSlide.subheading}</p>
+              <Link to={activeSlide.action.to} state={{ scrollToTop: true }} className="xora-campaign-action">
                 {activeSlide.action.label}
+                <ArrowRight className="ml-2 h-3.5 w-3.5 flex-shrink-0" />
               </Link>
             </>
           ) : (
             <>
-              <p className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#686553] mb-4">YAQANA</p>
-              <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-light tracking-[0.1em] uppercase leading-[1.08] text-[#292820]">{activeSlide.name}</h2>
-              <p className="mt-5 max-w-md text-sm sm:text-base leading-relaxed text-[#38372e]">{activeSlide.description}</p>
-              <div className="mt-7 flex max-w-lg flex-wrap gap-2 sm:gap-3" aria-label={`${activeSlide.name} categories`}>
-                {activeSlide.links.map(({ label, category }) => (
-                  <Link key={category} to={`/shop?category=${encodeURIComponent(category)}`} state={{ scrollToTop: true }} className="inline-flex min-h-11 items-center justify-center border border-[#514f43]/70 bg-white/35 px-4 sm:px-5 py-2 text-[10px] uppercase tracking-[0.16em] text-[#292820] transition-colors hover:bg-[#292820] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
-                    {label}
-                  </Link>
-                ))}
-              </div>
+              <h2 className="xora-campaign-headline">{activeSlide.headline}</h2>
+              <p className="xora-campaign-description">{activeSlide.description}</p>
+              <Link to={activeSlide.action.to} state={{ scrollToTop: true }} className="xora-campaign-action">
+                {activeSlide.action.label}
+                <ArrowRight className="ml-2 h-3.5 w-3.5 flex-shrink-0" />
+              </Link>
             </>
           )}
         </div>

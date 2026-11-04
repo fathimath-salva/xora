@@ -4,6 +4,8 @@ import {
   ShoppingBag,
   Heart,
   User,
+  Home as HomeIcon,
+  Store,
   Search,
   Menu,
   X,
@@ -243,7 +245,7 @@ export default function Navbar({ onOpenSearch }) {
               <button
                 type="button"
                 onClick={() => navigate('/cart')}
-                className="p-1 sm:p-1.5 text-xora-charcoal/80 hover:text-xora-charcoal transition-colors relative"
+                className="hidden lg:inline-flex p-1 sm:p-1.5 text-xora-charcoal/80 hover:text-xora-charcoal transition-colors relative"
                 aria-label="Open shopping bag"
                 id="cart-trigger-btn"
               >
@@ -256,7 +258,7 @@ export default function Navbar({ onOpenSearch }) {
               </button>
 
               {/* Account Dropdown */}
-              <div className="relative">
+              <div className="relative hidden lg:block">
                 {isAuthenticated ? (
                   <div>
                     <button
@@ -507,6 +509,64 @@ export default function Navbar({ onOpenSearch }) {
           </div>
         </div>
       )}
+
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-xora-taupe/30 bg-xora-offwhite/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(40,37,34,0.06)] backdrop-blur-md lg:hidden"
+        aria-label="Mobile navigation"
+      >
+        <div className="mx-auto flex h-16 max-w-lg items-stretch justify-around px-2">
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) => `flex min-w-0 flex-1 flex-col items-center justify-center gap-1 transition-colors ${isActive ? 'text-xora-charcoal' : 'text-xora-taupe-dark hover:text-xora-charcoal'}`}
+          >
+            {({ isActive }) => (
+              <>
+                <HomeIcon className={`h-5 w-5 stroke-[1.5] ${isActive ? 'stroke-[2]' : ''}`} />
+                <span className={`text-[9px] uppercase tracking-[0.12em] ${isActive ? 'font-semibold' : 'font-medium'}`}>Home</span>
+              </>
+            )}
+          </NavLink>
+          <NavLink
+            to="/shop"
+            className={({ isActive }) => `flex min-w-0 flex-1 flex-col items-center justify-center gap-1 transition-colors ${isActive || location.pathname === '/men' ? 'text-xora-charcoal' : 'text-xora-taupe-dark hover:text-xora-charcoal'}`}
+          >
+            {({ isActive }) => (
+              <>
+                <Store className={`h-5 w-5 stroke-[1.5] ${isActive || location.pathname === '/men' ? 'stroke-[2]' : ''}`} />
+                <span className={`text-[9px] uppercase tracking-[0.12em] ${isActive || location.pathname === '/men' ? 'font-semibold' : 'font-medium'}`}>Shop</span>
+              </>
+            )}
+          </NavLink>
+          <NavLink
+            to="/cart"
+            className={({ isActive }) => `relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 transition-colors ${isActive ? 'text-xora-charcoal' : 'text-xora-taupe-dark hover:text-xora-charcoal'}`}
+          >
+            {({ isActive }) => (
+              <>
+                <ShoppingBag className={`h-5 w-5 stroke-[1.5] ${isActive ? 'stroke-[2]' : ''}`} />
+                <span className={`text-[9px] uppercase tracking-[0.12em] ${isActive ? 'font-semibold' : 'font-medium'}`}>Cart</span>
+                {totalCount > 0 && (
+                  <span className="absolute top-1 right-[calc(50%-1.1rem)] flex h-4 min-w-4 items-center justify-center rounded-full bg-xora-charcoal px-1 text-[9px] font-medium text-white">
+                    {totalCount}
+                  </span>
+                )}
+              </>
+            )}
+          </NavLink>
+          <NavLink
+            to={isAuthenticated ? '/account' : '/login'}
+            className={({ isActive }) => `flex min-w-0 flex-1 flex-col items-center justify-center gap-1 transition-colors ${isActive || location.pathname === '/admin' ? 'text-xora-charcoal' : 'text-xora-taupe-dark hover:text-xora-charcoal'}`}
+          >
+            {({ isActive }) => (
+              <>
+                <User className={`h-5 w-5 stroke-[1.5] ${isActive || location.pathname === '/admin' ? 'stroke-[2]' : ''}`} />
+                <span className={`text-[9px] uppercase tracking-[0.12em] ${isActive || location.pathname === '/admin' ? 'font-semibold' : 'font-medium'}`}>Account</span>
+              </>
+            )}
+          </NavLink>
+        </div>
+      </nav>
     </>
   );
 }

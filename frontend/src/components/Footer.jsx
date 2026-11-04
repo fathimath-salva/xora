@@ -57,15 +57,14 @@ export default function Footer() {
                 Join our community and be the first to discover new collections, exclusive offers and updates.
               </p>
 
-              <button
-                type="button"
-                disabled
-                className="btn-luxury whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60"
+              <Link
+                to="/subscribe"
+                className="btn-luxury whitespace-nowrap"
                 id="newsletter-subscribe-btn"
               >
                 SUBSCRIBE NOW
                 <ArrowRight className="w-3.5 h-3.5 ml-2" />
-              </button>
+              </Link>
             </div>
           </div>
         </div>

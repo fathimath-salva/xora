@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { CAMPAIGN_IMAGES } from '../config/storefront';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -34,23 +33,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[80vh] bg-xora-cream py-12 px-4 sm:px-6">
-      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-        <div className="relative min-h-[420px] overflow-hidden rounded-xs">
-          <img
-            src={CAMPAIGN_IMAGES.hero}
-            alt="YAQANA editorial styling"
-            className="absolute inset-0 w-full h-full object-cover object-[72%_center]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-8 text-white">
-            <span className="text-[11px] uppercase tracking-luxury text-xora-sand">Welcome back</span>
-            <h1 className="font-serif text-4xl mt-2">Effortless style starts here.</h1>
-          </div>
-        </div>
-
-        <div className="bg-xora-offwhite border border-xora-taupe/30 p-6 sm:p-8 flex items-center">
-          <div className="w-full">
+    <div className="flex min-h-[80vh] items-center justify-center bg-xora-cream px-4 py-12 sm:px-6">
+      <div className="w-full max-w-md">
+        <div className="bg-xora-offwhite border border-xora-taupe/30 p-6 sm:p-8">
             <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark">Your account</span>
             <h2 className="font-serif text-3xl text-xora-charcoal mt-2">Sign In</h2>
 
@@ -92,10 +77,9 @@ export default function LoginPage() {
             <div className="mt-6 text-xs text-xora-taupe-dark">
               Need an account?{' '}
               <Link to="/register" className="font-medium text-xora-charcoal underline underline-offset-4">
-                Create one
+                Create Account
               </Link>
             </div>
-          </div>
         </div>
       </div>
     </div>

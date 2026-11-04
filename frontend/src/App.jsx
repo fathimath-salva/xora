@@ -20,6 +20,7 @@ import SearchResults from './pages/SearchResults.jsx';
 import CartPage from './pages/CartPage.jsx';
 import CheckoutPage from './pages/CheckoutPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import SubscriptionPage from './pages/SubscriptionPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import AccountPage from './pages/AccountPage.jsx';
 import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
@@ -39,42 +40,45 @@ function AppShell() {
       <CartDrawer />
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/shop" element={<Shop initialGender="men" pageTitle="Men's Collection" />} />
-          <Route path="/men" element={<Men />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/policies" element={<StorePolicies />} />
-          <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
-          <Route
-            path="/account"
-            element={
-              <ProtectedRoute>
-                <AccountPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <AdminDashboardPage />
-              </AdminRoute>
-            }
-          />
-          <Route path="*" element={<Home />} />
-        </Routes>
-      </main>
+      <div className="pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/shop" element={<Shop initialGender="men" pageTitle="Men's Collection" />} />
+            <Route path="/men" element={<Men />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/subscribe" element={<SubscriptionPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/policies" element={<StorePolicies />} />
+            <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
+            <Route
+              path="/account"
+              element={
+                <ProtectedRoute>
+                  <AccountPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboardPage />
+                </AdminRoute>
+              }
+            />
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </main>
 
-      <Footer />
+        <Footer />
+      </div>
     </>
   );
 }
