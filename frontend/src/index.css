@@ -231,20 +231,12 @@
     text-align: left;
   }
 
-  .xora-campaign[data-slide="0"] {
-    height: clamp(27rem, 108vw, 34rem);
-  }
-
   .xora-campaign[data-slide="0"] .xora-campaign-image {
     object-position: 70% center;
   }
 
   .xora-campaign[data-slide="0"] .xora-collection-slide {
     max-width: 64%;
-  }
-
-  .xora-campaign[data-slide="1"] {
-    height: clamp(16.25rem, 72vw, 20rem);
   }
 
   .xora-campaign[data-slide="1"] .xora-campaign-image {

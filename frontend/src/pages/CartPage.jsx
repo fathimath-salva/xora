@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Truck } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Heart, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import EmptyState from '../components/EmptyState';
 import { formatInr } from '../utils/currency';
 import { getProductImage } from '../utils/productImage';
 
 export default function CartPage() {
+  const [activeTab, setActiveTab] = useState('cart');
+  const [cartError, setCartError] = useState('');
   const {
     items,
+    addToCart,
     updateQuantity,
     removeFromCart,
     subtotal,
@@ -16,38 +20,79 @@ export default function CartPage() {
     estimatedTax,
     grandTotal
   } = useCart();
+  const { wishlist, removeFromWishlist } = useWishlist();
   const navigate = useNavigate();
 
-  if (items.length === 0) {
-    return (
-      <div className="bg-xora-cream min-h-[70vh] flex items-center justify-center py-16">
-        <EmptyState
-          icon={ShoppingBag}
-          title="Your bag is waiting."
-          subtitle="Discover elevated essentials designed for everyday confidence and timeless presence."
-          actionText="CONTINUE SHOPPING"
-          actionLink="/shop"
-        />
-      </div>
+  const handleAddWishlistItemToCart = async (product) => {
+    setCartError('');
+    const result = await addToCart(
+      product,
+      product.sizes?.[0] || 'M',
+      product.colours?.[0]?.name || 'Default'
     );
-  }
+    if (!result.success) {
+      setCartError(result.message || 'Could not add this item to your bag. Please try again.');
+    }
+  };
 
   return (
     <div className="bg-xora-cream min-h-screen text-xora-charcoal py-10 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-xl mx-auto mb-10">
           <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark font-medium">
-            Review Selection
+            {activeTab === 'cart' ? 'Review Selection' : 'Saved Pieces'}
           </span>
           <h1 className="font-serif text-3xl sm:text-4xl font-light text-xora-charcoal mt-1 tracking-wide">
-            Your Shopping Bag
+            {activeTab === 'cart' ? 'Your Shopping Bag' : 'Your Wishlist'}
           </h1>
           <p className="text-xs text-xora-taupe-dark mt-2 font-light">
-            {items.reduce((s, i) => s + i.quantity, 0)} essential pieces selected
+            {activeTab === 'cart'
+              ? `${items.reduce((s, i) => s + i.quantity, 0)} essential pieces selected`
+              : `${wishlist.length} saved ${wishlist.length === 1 ? 'piece' : 'pieces'}`}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div className="flex justify-center border-b border-xora-taupe/30 mb-8" role="tablist" aria-label="Shopping bag and wishlist">
+          {[
+            { id: 'cart', label: 'CART' },
+            { id: 'wishlist', label: 'WISHLIST' }
+          ].map(({ id, label }) => (
+            <button
+              key={id}
+              id={`cart-page-${id}-tab`}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === id}
+              aria-controls={`cart-page-${id}-panel`}
+              onClick={() => {
+                setActiveTab(id);
+                setCartError('');
+              }}
+              className={`px-6 py-3 text-[11px] uppercase tracking-luxury transition-colors border-b-2 ${
+                activeTab === id
+                  ? 'border-xora-charcoal text-xora-charcoal font-medium'
+                  : 'border-transparent text-xora-taupe-dark hover:text-xora-charcoal'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === 'cart' ? (
+          <div id="cart-page-cart-panel" role="tabpanel" aria-labelledby="cart-page-cart-tab">
+            {items.length === 0 ? (
+              <div className="flex min-h-[40vh] items-center justify-center">
+                <EmptyState
+                  icon={ShoppingBag}
+                  title="Your bag is waiting."
+                  subtitle="Discover elevated essentials designed for everyday confidence and timeless presence."
+                  actionText="CONTINUE SHOPPING"
+                  actionLink="/shop"
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Items Table */}
           <div className="lg:col-span-8 space-y-6">
             <div className="hidden sm:grid grid-cols-12 text-[11px] uppercase tracking-luxury text-xora-taupe-dark pb-3 border-b border-xora-taupe/30">
@@ -79,6 +124,7 @@ export default function CartPage() {
                         <div className="text-xs text-xora-taupe-dark mt-1 space-y-0.5">
                           <p>Size: <strong className="text-xora-charcoal font-medium">{item.size}</strong></p>
                           <p>Colour: <strong className="text-xora-charcoal font-medium">{item.colour}</strong></p>
+                          <p className="sm:hidden">Price: <strong className="text-xora-charcoal font-medium">{formatInr(item.price)}</strong></p>
                         </div>
                       </div>
 
@@ -196,6 +242,69 @@ export default function CartPage() {
             </div>
           </div>
         </div>
+            )}
+          </div>
+        ) : (
+          <div id="cart-page-wishlist-panel" role="tabpanel" aria-labelledby="cart-page-wishlist-tab">
+            {cartError && (
+              <p className="mb-5 text-sm text-red-700" role="alert">{cartError}</p>
+            )}
+            {wishlist.length === 0 ? (
+              <div className="flex min-h-[40vh] items-center justify-center">
+                <EmptyState
+                  icon={Heart}
+                  title="Your wishlist is waiting."
+                  subtitle="Save pieces you love and return to them whenever you are ready."
+                  actionText="EXPLORE COLLECTION"
+                  actionLink="/shop"
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {wishlist.map((product) => {
+                  const productId = product._id || product.id;
+                  return (
+                    <article key={productId} className="flex gap-4 border border-xora-taupe/20 bg-xora-offwhite p-4 rounded-xs">
+                      <Link to={`/product/${productId}`} className="w-24 sm:w-28 aspect-[3/4] flex-shrink-0 overflow-hidden bg-xora-sand rounded-xs">
+                        <img
+                          src={getProductImage(product)}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                          onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getProductImage({ category: product.category }); }}
+                        />
+                      </Link>
+                      <div className="flex min-w-0 flex-1 flex-col items-start">
+                        <Link to={`/product/${productId}`} className="font-serif text-lg sm:text-xl text-xora-charcoal hover:text-xora-taupe-dark transition-colors">
+                          {product.name}
+                        </Link>
+                        <p className="mt-2 text-sm font-medium text-xora-charcoal">
+                          {formatInr(product.discountPrice || product.price)}
+                        </p>
+                        <div className="mt-auto flex flex-wrap gap-2 pt-4">
+                          <button
+                            type="button"
+                            onClick={() => handleAddWishlistItemToCart(product)}
+                            disabled={product.stock <= 0}
+                            className="btn-luxury px-3 py-2 text-[10px] disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {product.stock <= 0 ? 'OUT OF STOCK' : 'ADD TO CART'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeFromWishlist(productId)}
+                            className="btn-luxury-outline px-3 py-2 text-[10px]"
+                          >
+                            REMOVE
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

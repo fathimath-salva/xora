@@ -81,7 +81,7 @@ export default function SearchModal({ isOpen, onClose }) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search garments, fabrics, styles..."
+              placeholder="Search products..."
               className="w-full bg-transparent text-base sm:text-lg text-xora-charcoal placeholder-xora-taupe-dark/70 focus:outline-none font-serif"
               id="search-modal-input"
             />
@@ -112,7 +112,7 @@ export default function SearchModal({ isOpen, onClose }) {
                   Curated Searches
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {['Cashmere', 'Wool Overcoat', 'Pleated Trouser', 'Oxford Shirt', 'Linen Blazer', 'Knitwear'].map((tag) => (
+                  {['T-Shirts', 'Hoodies', 'Shirts', 'Trousers'].map((tag) => (
                     <button
                       key={tag}
                       type="button"
@@ -167,7 +167,7 @@ export default function SearchModal({ isOpen, onClose }) {
             ) : !loading ? (
               <div className="py-8 text-center text-xora-taupe-dark">
                 <p className="text-sm font-serif">No products found matching "{query}"</p>
-                <p className="text-xs mt-1">Try searching for cashmere, trousers, linen, or coat</p>
+                <p className="text-xs mt-1">Try searching for T-Shirts, Hoodies, Shirts, or Trousers</p>
               </div>
             ) : null}
           </div>

@@ -1,20 +1,7 @@
-import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, Globe, Mail, Send } from 'lucide-react';
+import { ArrowRight, Globe, Mail, Send } from 'lucide-react';
 
 export default function Footer() {
-  const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
-
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    if (email && email.includes('@')) {
-      setSubscribed(true);
-      setEmail('');
-      setTimeout(() => setSubscribed(false), 5000);
-    }
-  };
-
   return (
     <footer className="bg-xora-sand/60 border-t border-xora-taupe/30 pt-16 pb-12 text-xora-charcoal">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -53,40 +40,32 @@ export default function Footer() {
           </div>
 
           <div className="lg:col-span-7">
-            <div className="bg-xora-offwhite p-6 sm:p-8 rounded-xs border border-xora-taupe/20">
-              <h3 className="font-serif text-xl sm:text-2xl text-xora-charcoal tracking-wide">
-                Join the YAQANA Society
+            <div className="bg-xora-offwhite p-6 sm:p-8 rounded-xs border border-xora-taupe/20 text-center">
+              <h3 className="font-serif text-xl sm:text-2xl text-xora-charcoal tracking-[0.12em]">
+                A LITTLE SOMETHING FOR YOU
               </h3>
-              <p className="text-xs text-xora-taupe-dark mt-1 mb-4 leading-relaxed font-light">
-                Receive private seasonal previews, archival access, and 10% privilege on your debut collection order.
+              <p className="mt-4 text-sm sm:text-base text-xora-taupe-dark leading-relaxed font-light">
+                Subscribe to YAQANA and enjoy
+              </p>
+              <p className="my-1 font-serif text-4xl sm:text-5xl tracking-wide text-xora-charcoal">
+                10% OFF
+              </p>
+              <p className="text-sm sm:text-base text-xora-taupe-dark leading-relaxed font-light">
+                your first order.
+              </p>
+              <p className="max-w-xl mx-auto mt-4 mb-6 text-xs sm:text-sm text-xora-taupe-dark leading-relaxed font-light">
+                Join our community and be the first to discover new collections, exclusive offers and updates.
               </p>
 
-              {subscribed ? (
-                <div className="flex items-center space-x-2 text-xs text-emerald-800 bg-emerald-50/80 p-3 rounded border border-emerald-200">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                  <span>Thank you. Your personal welcome invitation has been dispatched.</span>
-                </div>
-              ) : (
-                <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address"
-                    required
-                    className="flex-1 bg-white border border-xora-taupe/40 px-4 py-3 text-xs focus:outline-none focus:border-xora-charcoal font-sans"
-                    id="newsletter-email-input"
-                  />
-                  <button
-                    type="submit"
-                    className="btn-luxury whitespace-nowrap"
-                    id="newsletter-subscribe-btn"
-                  >
-                    Subscribe
-                    <ArrowRight className="w-3.5 h-3.5 ml-2" />
-                  </button>
-                </form>
-              )}
+              <button
+                type="button"
+                disabled
+                className="btn-luxury whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60"
+                id="newsletter-subscribe-btn"
+              >
+                SUBSCRIBE NOW
+                <ArrowRight className="w-3.5 h-3.5 ml-2" />
+              </button>
             </div>
           </div>
         </div>

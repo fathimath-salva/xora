@@ -31,7 +31,7 @@ export default function Navbar({ onOpenSearch }) {
   const shopMenuRef = useRef(null);
 
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
-  const { totalCount, openCart } = useCart();
+  const { totalCount } = useCart();
   const { count: wishlistCount } = useWishlist();
   const navigate = useNavigate();
   const location = useLocation();
@@ -242,7 +242,7 @@ export default function Navbar({ onOpenSearch }) {
               {/* Shopping Bag / Cart */}
               <button
                 type="button"
-                onClick={openCart}
+                onClick={() => navigate('/cart')}
                 className="p-1 sm:p-1.5 text-xora-charcoal/80 hover:text-xora-charcoal transition-colors relative"
                 aria-label="Open shopping bag"
                 id="cart-trigger-btn"
