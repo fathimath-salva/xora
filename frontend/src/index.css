@@ -207,6 +207,14 @@
   display: block;
   width: 100%;
   height: 100%;
+  transition: opacity 650ms ease-in-out;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xora-campaign-image {
+    transition: none;
+  }
 }
 
 .xora-campaign-image img {
@@ -382,16 +390,20 @@
 @media (max-width: 639px) {
   .xora-campaign {
     height: auto;
-    aspect-ratio: 0.8;
+    aspect-ratio: 12 / 13;
   }
 
   .xora-campaign-image {
+    left: 50%;
+    width: 100%;
     height: 100%;
+    transform: translateX(-50%);
   }
 
   .xora-campaign-image img {
+    width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center center;
   }
 
@@ -402,86 +414,37 @@
 
   .xora-collection-slide {
     position: absolute;
-    left: 4%;
-    width: 43%;
+    bottom: 3.25rem;
+    left: 4.5%;
+    width: 58%;
     max-width: none;
+    text-align: left;
   }
 
-  .xora-campaign[data-slide='0'] .xora-collection-slide {
-    top: 48%;
-    width: 42%;
-  }
-
-  .xora-campaign[data-slide='1'] .xora-collection-slide {
-    top: 5%;
-    width: 35%;
-  }
-
-  .xora-campaign[data-slide='1'] .xora-campaign-headline {
-    font-size: clamp(0.82rem, 4.1vw, 1.05rem);
-    letter-spacing: 0.01em;
-  }
-
-  .xora-campaign[data-slide='1'] .xora-campaign-description {
-    margin-top: 0.3rem;
-    font-size: clamp(0.46rem, 2.1vw, 0.54rem);
-    line-height: 1.35;
-  }
-
-  .xora-campaign[data-slide='1'] .xora-campaign-action {
-    min-height: 1.55rem;
-    margin-top: 0.4rem;
-    padding: 0.25rem 0.15rem;
-    font-size: clamp(0.32rem, 1.55vw, 0.4rem);
-    letter-spacing: 0;
-  }
-
-  .xora-campaign[data-slide='1'] .xora-campaign-action svg {
-    width: 0.55rem;
-    height: 0.55rem;
-    margin-left: 0.2rem;
-  }
-
-  .xora-campaign[data-slide='2'] .xora-collection-slide {
-    top: 43%;
-    width: 40%;
-  }
-
-  .xora-campaign[data-slide='2'] .xora-campaign-headline {
-    font-size: clamp(0.95rem, 4.5vw, 1.2rem);
-    letter-spacing: 0.01em;
-  }
-
-  .xora-campaign[data-slide='2'] .xora-campaign-description {
-    margin-top: 0.4rem;
-    font-size: clamp(0.48rem, 2.3vw, 0.58rem);
-    line-height: 1.35;
-  }
-
-  .xora-campaign[data-slide='2'] .xora-campaign-action {
-    min-height: 1.75rem;
-    margin-top: 0.5rem;
-    padding: 0.35rem 0.3rem;
-    font-size: clamp(0.38rem, 1.8vw, 0.46rem);
+  .xora-campaign-headline {
+    font-size: clamp(1.2rem, 5.2vw, 1.55rem);
     letter-spacing: 0.015em;
   }
 
-  .xora-campaign[data-slide='0'] .xora-campaign-offer {
-    font-size: clamp(1.4rem, 7.5vw, 2rem);
+  .xora-campaign-description {
+    margin-top: 0.3rem;
+    font-size: clamp(0.6rem, 2.4vw, 0.68rem);
+    line-height: 1.4;
   }
 
-  .xora-campaign[data-slide='0'] .xora-campaign-subheading {
+  .xora-campaign-subheading {
+    margin-top: 0.3rem;
+    font-size: clamp(0.52rem, 2.1vw, 0.6rem);
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+  }
+
+  .xora-campaign-action {
+    min-height: 2rem;
     margin-top: 0.45rem;
-    font-size: clamp(0.4rem, 1.8vw, 0.5rem);
+    padding: 0.45rem 0.55rem;
+    font-size: clamp(0.45rem, 1.8vw, 0.52rem);
     letter-spacing: 0.06em;
-  }
-
-  .xora-campaign[data-slide='0'] .xora-campaign-action {
-    min-height: 1.9rem;
-    margin-top: 0.65rem;
-    padding: 0.4rem 0.35rem;
-    font-size: clamp(0.42rem, 1.9vw, 0.5rem);
-    letter-spacing: 0.04em;
   }
 
   .xora-campaign-indicators {

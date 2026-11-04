@@ -40,19 +40,70 @@ const SLIDES = [
   }
 ];
 
+const SLIDE_IMAGES = SLIDES.flatMap(({ image, mobileImage, tabletImage, desktopImage }) => [
+  image,
+  mobileImage,
+  tabletImage,
+  desktopImage
+]);
+
 export default function CollectionSlider() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [autoplayEnabled, setAutoplayEnabled] = useState(false);
+  const [loadedImages, setLoadedImages] = useState(() => new Set());
+  const [imagesReady, setImagesReady] = useState(false);
   const touchStart = useRef(null);
   const activeSlide = SLIDES[activeIndex];
-  const showSlide = (index) => setActiveIndex((index + SLIDES.length) % SLIDES.length);
+  const showSlide = (index) => {
+    const nextIndex = (index + SLIDES.length) % SLIDES.length;
+    const nextSlide = SLIDES[nextIndex];
+    const nextSlideImages = [
+      nextSlide.image,
+      nextSlide.mobileImage,
+      nextSlide.tabletImage,
+      nextSlide.desktopImage
+    ];
+
+    if (nextSlideImages.every((image) => loadedImages.has(image))) {
+      setActiveIndex(nextIndex);
+    }
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    const loaded = new Set();
+    let completed = 0;
+
+    SLIDE_IMAGES.forEach((source) => {
+      const image = new Image();
+      image.onload = () => {
+        loaded.add(source);
+        completed += 1;
+        if (!cancelled) {
+          setLoadedImages(new Set(loaded));
+          if (completed === SLIDE_IMAGES.length) setImagesReady(true);
+        }
+      };
+      image.onerror = () => {
+        completed += 1;
+        console.error(`Unable to preload slideshow image: ${source}`);
+      };
+      image.src = source;
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const motionQuery = window.matchMedia
       ? window.matchMedia('(prefers-reduced-motion: reduce)')
       : null;
     const updateAutoplay = () => {
-      setAutoplayEnabled(!motionQuery?.matches && document.visibilityState === 'visible');
+      setAutoplayEnabled(
+        imagesReady && !motionQuery?.matches && document.visibilityState === 'visible'
+      );
     };
 
     updateAutoplay();
@@ -71,7 +122,7 @@ export default function CollectionSlider() {
         motionQuery?.removeListener(updateAutoplay);
       }
     };
-  }, []);
+  }, [imagesReady]);
 
   useEffect(() => {
     if (!autoplayEnabled) return undefined;
@@ -114,18 +165,29 @@ export default function CollectionSlider() {
       onTouchStart={(event) => { touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }}
       onTouchEnd={handleTouchEnd}
     >
-      <picture key={activeSlide.name} className="xora-campaign-image">
-        <source media="(min-width: 1024px)" srcSet={activeSlide.desktopImage} />
-        <source media="(min-width: 640px)" srcSet={activeSlide.tabletImage} />
-        <source media="(max-width: 639px)" srcSet={activeSlide.mobileImage} />
-        <img
-          src={activeSlide.image}
-          alt=""
+      {SLIDES.map((slide, index) => (
+        <picture
+          key={slide.name}
+          className="xora-campaign-image"
+          style={{
+            opacity: index === activeIndex ? 1 : 0,
+            zIndex: index === activeIndex ? 1 : 0
+          }}
           aria-hidden="true"
-          fetchPriority={activeIndex === 0 ? 'high' : 'auto'}
-          onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = PRODUCT_IMAGE_FALLBACK; }}
-        />
-      </picture>
+        >
+          <source media="(min-width: 1024px)" srcSet={slide.desktopImage} />
+          <source media="(min-width: 640px)" srcSet={slide.tabletImage} />
+          <source media="(max-width: 639px)" srcSet={slide.mobileImage} />
+          <img
+            src={slide.image}
+            alt=""
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = PRODUCT_IMAGE_FALLBACK;
+            }}
+          />
+        </picture>
+      ))}
 
       <div className="xora-campaign-content">
         <div key={activeSlide.name} className="xora-collection-slide">
