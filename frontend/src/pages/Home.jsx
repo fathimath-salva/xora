@@ -9,10 +9,10 @@ import CollectionSlider from '../components/CollectionSlider';
 import { CAMPAIGN_IMAGES } from '../config/storefront';
 
 const SHOP_CATEGORIES = [
-  { name: 'T-Shirts', image: '/images/yaqana-categories/t-shirts.jpg' },
-  { name: 'Hoodies', image: '/images/yaqana-categories/hoodies.jpg' },
-  { name: 'Shirts', image: '/images/yaqana-categories/shirts.jpg' },
-  { name: 'Trousers', image: '/images/yaqana-categories/trousers.jpg' }
+  { name: 'T-Shirts', image: '/images/yaqana-categories/t-shirt.jpeg' },
+  { name: 'Hoodies', image: '/images/yaqana-categories/hoodie%20(1).jpeg' },
+  { name: 'Shirts', image: '/images/yaqana-categories/shirt.jpeg' },
+  { name: 'Trousers', image: '/images/yaqana-categories/trouser.jpeg' }
 ];
 
 export default function Home() {
