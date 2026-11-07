@@ -6,7 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { productService } from '../services/api';
 import { PRODUCT_IMAGE_FALLBACK } from '../utils/productImage';
 import CollectionSlider from '../components/CollectionSlider';
-import { CAMPAIGN_IMAGES } from '../config/storefront';
+import NewsletterSignup from '../components/NewsletterSignup';
 
 const SHOP_CATEGORIES = [
   { name: 'T-Shirts', image: '/images/yaqana-categories/t-shirt.jpeg' },
@@ -46,31 +46,7 @@ export default function Home() {
       {/* Homepage hero slideshow: introduction, Upperwear, and Trousers. */}
       <CollectionSlider />
 
-      {/* 2. VALUE PROPOSITIONS BAR */}
-      <section className="border-y border-xora-taupe/20 bg-xora-offwhite py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="flex flex-col items-center space-y-2">
-            <Sparkles className="w-5 h-5 text-xora-taupe-dark stroke-[1.5]" />
-            <h4 className="text-xs uppercase tracking-widest font-semibold text-xora-charcoal">Pure Natural Fibers</h4>
-            <p className="text-[11px] text-xora-taupe-dark font-light">Cashmere, silk, linen & fine wool</p>
-          </div>
-          <div className="flex flex-col items-center space-y-2">
-            <Truck className="w-5 h-5 text-xora-taupe-dark stroke-[1.5]" />
-            <h4 className="text-xs uppercase tracking-widest font-semibold text-xora-charcoal">Express Shipping</h4>
-            <p className="text-[11px] text-xora-taupe-dark font-light">Shipping terms pending approval</p>
-          </div>
-          <div className="flex flex-col items-center space-y-2">
-            <RefreshCw className="w-5 h-5 text-xora-taupe-dark stroke-[1.5]" />
-            <h4 className="text-xs uppercase tracking-widest font-semibold text-xora-charcoal">Effortless Returns</h4>
-            <p className="text-[11px] text-xora-taupe-dark font-light"><Link to="/policies" className="underline underline-offset-2">14-day policy draft · pending approval</Link></p>
-          </div>
-          <div className="flex flex-col items-center space-y-2">
-            <Shield className="w-5 h-5 text-xora-taupe-dark stroke-[1.5]" />
-            <h4 className="text-xs uppercase tracking-widest font-semibold text-xora-charcoal">Atelier Tailoring</h4>
-            <p className="text-[11px] text-xora-taupe-dark font-light">Uncompromising structural cut</p>
-          </div>
-        </div>
-      </section>
+      <NewsletterSignup placement="home" />
 
       {/* 3. NEW ARRIVALS */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -145,40 +121,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. BRAND STORY / EDITORIAL BANNER */}
-      <section className="relative py-28 bg-xora-offwhite border-t border-xora-taupe/30 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-6 space-y-6">
-            <span className="text-xs uppercase tracking-luxury text-xora-taupe-dark font-medium">
-              The YAQANA Philosophy
-            </span>
-            <h2 className="font-serif text-3xl sm:text-5xl text-xora-charcoal font-light leading-tight">
-              Quiet Elegance.
-              <br />
-              <span className="italic font-normal">Intentional Craftsmanship.</span>
-            </h2>
-            <p className="text-sm text-xora-taupe-dark font-light leading-relaxed">
-              YAQANA was born out of a desire for enduring simplicity. We believe in dressing as a meditative, effortless act. Every seam, cut, and hue is calculated to exist seamlessly across seasons.
-            </p>
-            <p className="text-sm text-xora-taupe-dark font-light leading-relaxed">
-              By working strictly in warm whites, ecru, oatmeals, and muted taupes, we create garments that bring clarity to your wardrobe and poise to your presence.
-            </p>
-            <div className="pt-2">
-              <Link to="/about" className="btn-luxury" id="brand-read-story-btn">
-                DISCOVER OUR ATELIER
-              </Link>
-            </div>
+      {/* 2. VALUE PROPOSITIONS BAR */}
+      <section className="border-y border-xora-taupe/20 bg-xora-offwhite py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="flex flex-col items-center space-y-2">
+            <Sparkles className="w-5 h-5 text-xora-taupe-dark stroke-[1.5]" />
+            <h4 className="text-xs uppercase tracking-widest font-semibold text-xora-charcoal">Pure Natural Fibers</h4>
+            <p className="text-[11px] text-xora-taupe-dark font-light">Cashmere, silk, linen & fine wool</p>
           </div>
-
-          <div className="lg:col-span-6 relative">
-            <div className="aspect-[4/5] bg-xora-sand rounded-xs overflow-hidden shadow-xl">
-              <img
-                src={CAMPAIGN_IMAGES.upperwear}
-                alt="YAQANA menswear in considered neutral tones"
-                className="w-full h-full object-cover"
-                onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = PRODUCT_IMAGE_FALLBACK; }}
-              />
-            </div>
+          <div className="flex flex-col items-center space-y-2">
+            <Truck className="w-5 h-5 text-xora-taupe-dark stroke-[1.5]" />
+            <h4 className="text-xs uppercase tracking-widest font-semibold text-xora-charcoal">Express Shipping</h4>
+            <p className="text-[11px] text-xora-taupe-dark font-light">Shipping terms pending approval</p>
+          </div>
+          <div className="flex flex-col items-center space-y-2">
+            <RefreshCw className="w-5 h-5 text-xora-taupe-dark stroke-[1.5]" />
+            <h4 className="text-xs uppercase tracking-widest font-semibold text-xora-charcoal">Effortless Returns</h4>
+            <p className="text-[11px] text-xora-taupe-dark font-light"><Link to="/policies" className="underline underline-offset-2">14-day policy draft · pending approval</Link></p>
+          </div>
+          <div className="flex flex-col items-center space-y-2">
+            <Shield className="w-5 h-5 text-xora-taupe-dark stroke-[1.5]" />
+            <h4 className="text-xs uppercase tracking-widest font-semibold text-xora-charcoal">Atelier Tailoring</h4>
+            <p className="text-[11px] text-xora-taupe-dark font-light">Uncompromising structural cut</p>
           </div>
         </div>
       </section>

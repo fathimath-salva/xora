@@ -7,6 +7,7 @@ export default function LoginPage() {
   const location = useLocation();
   const { login } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -21,7 +22,7 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    const result = await login(form.email, form.password);
+    const result = await login(form.email, form.password, rememberMe);
     if (result.success) {
       const destination = redirect || (result.user?.role === 'admin' ? '/admin' : '/account');
       navigate(destination, { replace: true });
@@ -54,6 +55,7 @@ export default function LoginPage() {
                   value={form.email}
                   onChange={handleChange}
                   required
+                  autoComplete="username"
                   className="w-full border border-xora-taupe/40 bg-white px-3.5 py-2.5 text-xs focus:outline-none focus:border-xora-charcoal"
                 />
               </div>
@@ -65,9 +67,20 @@ export default function LoginPage() {
                   value={form.password}
                   onChange={handleChange}
                   required
+                  autoComplete="current-password"
                   className="w-full border border-xora-taupe/40 bg-white px-3.5 py-2.5 text-xs focus:outline-none focus:border-xora-charcoal"
                 />
               </div>
+
+              <label className="flex items-center gap-2 text-xs text-xora-taupe-dark">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(event) => setRememberMe(event.target.checked)}
+                  className="h-4 w-4 accent-xora-charcoal"
+                />
+                <span>Remember me</span>
+              </label>
 
               <button type="submit" disabled={loading} className="btn-luxury w-full py-3.5 text-[10px] disabled:opacity-60">
                 {loading ? 'Signing in...' : 'Sign In'}

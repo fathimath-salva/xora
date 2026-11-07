@@ -5,13 +5,15 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('xora_token') || null);
+  const [token, setToken] = useState(sessionStorage.getItem('xora_token') || null);
   const [loading, setLoading] = useState(true);
 
   // Initialize and load user
   useEffect(() => {
     const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('xora_token');
+      localStorage.removeItem('xora_token');
+      localStorage.removeItem('xora_user');
+      const storedToken = sessionStorage.getItem('xora_token');
       if (storedToken) {
         try {
           const res = await authService.getProfile();
@@ -20,8 +22,8 @@ export const AuthProvider = ({ children }) => {
           }
         } catch (error) {
           console.warn('Session expired or invalid, clearing local credentials.');
-          localStorage.removeItem('xora_token');
-          localStorage.removeItem('xora_user');
+          sessionStorage.removeItem('xora_token');
+          sessionStorage.removeItem('xora_user');
           setToken(null);
           setUser(null);
         }
@@ -32,13 +34,20 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe = false) => {
+    if (rememberMe) {
+      return {
+        success: false,
+        message: 'Remember Me needs secure persistent-session support from the server. Please sign in with Remember Me unchecked for now.'
+      };
+    }
+
     try {
       const res = await authService.login({ email, password });
       if (res.data.success) {
         const { token: newToken, user: userData } = res.data;
-        localStorage.setItem('xora_token', newToken);
-        localStorage.setItem('xora_user', JSON.stringify(userData));
+        sessionStorage.setItem('xora_token', newToken);
+        sessionStorage.setItem('xora_user', JSON.stringify(userData));
         setToken(newToken);
         setUser(userData);
         return { success: true, user: userData };
@@ -56,8 +65,8 @@ export const AuthProvider = ({ children }) => {
       const res = await authService.register({ name, email, password, confirmPassword });
       if (res.data.success) {
         const { token: newToken, user: userData } = res.data;
-        localStorage.setItem('xora_token', newToken);
-        localStorage.setItem('xora_user', JSON.stringify(userData));
+        sessionStorage.setItem('xora_token', newToken);
+        sessionStorage.setItem('xora_user', JSON.stringify(userData));
         setToken(newToken);
         setUser(userData);
         return { success: true, user: userData };
@@ -71,12 +80,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    const currentToken = localStorage.getItem('xora_token');
+    const currentToken = sessionStorage.getItem('xora_token');
     if (currentToken) authService.logout(currentToken).catch(() => {});
+    sessionStorage.removeItem('xora_token');
+    sessionStorage.removeItem('xora_user');
     localStorage.removeItem('xora_token');
     localStorage.removeItem('xora_user');
-    setToken(null);
     setUser(null);
+    setToken(null);
   };
 
   const updateUser = (updatedData) => {

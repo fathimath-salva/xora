@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowRight, Globe, Mail, Send } from 'lucide-react';
+import { Globe, Mail, Send } from 'lucide-react';
+import NewsletterSignup from './NewsletterSignup';
 
 export default function Footer() {
   const { pathname } = useLocation();
@@ -10,7 +11,7 @@ export default function Footer() {
         {/* Top Newsletter & Brand statement */}
         {pathname !== '/subscribe' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-12 border-b border-xora-taupe/30">
-            <div className="lg:col-span-5 space-y-4">
+            <div className={`${pathname === '/' ? 'lg:col-span-12' : 'lg:col-span-5'} space-y-4`}>
               <h2 className="font-serif text-3xl sm:text-4xl tracking-[0.2em] font-light uppercase text-xora-charcoal">
                 YAQANA
               </h2>
@@ -42,34 +43,11 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="lg:col-span-7">
-              <div className="bg-xora-offwhite p-6 sm:p-8 rounded-xs border border-xora-taupe/20 text-center">
-                <h3 className="font-serif text-xl sm:text-2xl text-xora-charcoal tracking-[0.12em]">
-                  A LITTLE SOMETHING FOR YOU
-                </h3>
-                <p className="mt-4 text-sm sm:text-base text-xora-taupe-dark leading-relaxed font-light">
-                  Subscribe to YAQANA and enjoy
-                </p>
-                <p className="my-1 font-serif text-4xl sm:text-5xl tracking-wide text-xora-charcoal">
-                  10% OFF
-                </p>
-                <p className="text-sm sm:text-base text-xora-taupe-dark leading-relaxed font-light">
-                  your first order.
-                </p>
-                <p className="max-w-xl mx-auto mt-4 mb-6 text-xs sm:text-sm text-xora-taupe-dark leading-relaxed font-light">
-                  Join our community and be the first to discover new collections, exclusive offers and updates.
-                </p>
-
-                <Link
-                  to="/subscribe"
-                  className="btn-luxury whitespace-nowrap"
-                  id="newsletter-subscribe-btn"
-                >
-                  SUBSCRIBE NOW
-                  <ArrowRight className="w-3.5 h-3.5 ml-2" />
-                </Link>
+            {pathname !== '/' && pathname !== '/login' && (
+              <div className="lg:col-span-7">
+                <NewsletterSignup />
               </div>
-            </div>
+            )}
           </div>
         )}
 

@@ -70,9 +70,6 @@ export default function SubscriptionPage() {
             </button>
           </form>
 
-          <p className="mt-5 text-center text-xs text-xora-taupe-dark">
-            You can unsubscribe at any time.
-          </p>
         </div>
       </div>
     </div>

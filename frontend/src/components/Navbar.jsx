@@ -214,7 +214,7 @@ export default function Navbar({ onOpenSearch }) {
             </div>
 
             {/* Icons Section (Right) */}
-            <div className="flex items-center space-x-0 sm:space-x-5">
+            <div className="flex items-center space-x-1 sm:space-x-5">
               {/* Search Icon */}
               <button
                 type="button"
@@ -223,7 +223,7 @@ export default function Navbar({ onOpenSearch }) {
                 aria-label="Search clothing"
                 id="search-trigger-btn"
               >
-                <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
+                <Search className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.5]" />
               </button>
 
               {/* Wishlist Icon */}
@@ -233,7 +233,7 @@ export default function Navbar({ onOpenSearch }) {
                 aria-label="Wishlist"
                 id="wishlist-btn"
               >
-                <Heart className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
+                <Heart className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.5]" />
                 {wishlistCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-xora-charcoal text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-medium">
                     {wishlistCount}
@@ -249,7 +249,7 @@ export default function Navbar({ onOpenSearch }) {
                 aria-label="Open shopping bag"
                 id="cart-trigger-btn"
               >
-                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
+                <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.5]" />
                 {totalCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-xora-charcoal text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-medium">
                     {totalCount}
@@ -267,7 +267,7 @@ export default function Navbar({ onOpenSearch }) {
                       className="flex items-center space-x-1.5 p-1 sm:p-1.5 text-xora-charcoal hover:text-xora-black transition-colors"
                       id="account-menu-button"
                     >
-                      <User className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
+                      <User className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.5]" />
                       <ChevronDown className="hidden sm:block w-3.5 h-3.5 text-xora-taupe-dark" />
                     </button>
 
@@ -338,7 +338,7 @@ export default function Navbar({ onOpenSearch }) {
                     title="Sign In"
                     id="nav-login-btn"
                   >
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 stroke-[1.5]" />
+                    <User className="w-5 h-5 sm:w-6 sm:h-6 stroke-[1.5]" />
                   </Link>
                 )}
               </div>

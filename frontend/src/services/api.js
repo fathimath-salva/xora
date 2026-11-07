@@ -6,7 +6,7 @@ const API = axios.create({
 
 // Intercept request to attach auth token
 API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('xora_token');
+  const token = sessionStorage.getItem('xora_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -21,6 +21,8 @@ API.interceptors.response.use(
       // Clear token if invalid or expired session
       const currentPath = window.location.pathname;
       if (currentPath.startsWith('/account') || currentPath.startsWith('/admin')) {
+        sessionStorage.removeItem('xora_token');
+        sessionStorage.removeItem('xora_user');
         localStorage.removeItem('xora_token');
         localStorage.removeItem('xora_user');
       }
