@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { ContactRound, Mail } from 'lucide-react';
 import NewsletterSignup from './NewsletterSignup';
 import { SocialLinks } from './SocialLinksBanner';
 
@@ -6,7 +7,7 @@ export default function Footer() {
   const { pathname } = useLocation();
 
   return (
-    <footer className="bg-xora-sand/60 border-t border-xora-taupe/30 pt-16 pb-12 text-xora-charcoal">
+    <footer className="bg-xora-sand/60 border-t border-xora-taupe/30 pt-10 pb-8 text-xora-charcoal">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Newsletter & Brand statement */}
         {pathname !== '/subscribe' && pathname !== '/' && (
@@ -30,7 +31,7 @@ export default function Footer() {
         )}
 
         {/* Links Navigation Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-b border-xora-taupe/30 text-xs">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-8 border-b border-xora-taupe/30 text-xs">
           <div>
             <h4 className="font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">Shop</h4>
             <ul className="space-y-2.5 text-xora-taupe-dark">
@@ -114,8 +115,37 @@ export default function Footer() {
         </div>
 
         {/* Bottom copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-xora-taupe-dark tracking-wide">
+        <div className="pt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-[11px] text-xora-taupe-dark tracking-wide">
           <p>© {new Date().getFullYear()} YAQANA Fashion House Ltd. All rights reserved.</p>
+          <nav aria-label="Social and contact links" className="flex items-center gap-1 self-center sm:self-auto">
+            <a
+              href="https://www.instagram.com/yaqana_apparel/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Instagram @yaqana_apparel"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full hover:text-xora-charcoal transition-colors"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" stroke="none" />
+              </svg>
+            </a>
+            <a
+              href="mailto:apparelyaqana@gmail.com"
+              aria-label="Email YAQANA"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full hover:text-xora-charcoal transition-colors"
+            >
+              <Mail aria-hidden="true" className="h-4 w-4" />
+            </a>
+            <Link
+              to="/contact"
+              aria-label="Contact YAQANA"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full hover:text-xora-charcoal transition-colors"
+            >
+              <ContactRound aria-hidden="true" className="h-4 w-4" />
+            </Link>
+          </nav>
           <p className="mt-2 sm:mt-0 font-light">
             Modern essentials. Timeless confidence.
           </p>

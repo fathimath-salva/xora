@@ -134,6 +134,10 @@
   object-position: center center;
 }
 
+.xora-campaign[data-slide="0"] .xora-campaign-image img {
+  filter: contrast(1.1);
+}
+
 .xora-campaign-content {
   position: absolute;
   inset: 0;
@@ -299,7 +303,7 @@
 @media (max-width: 639px) {
   .xora-campaign {
     height: auto;
-    aspect-ratio: 12 / 13;
+    aspect-ratio: 0.8;
   }
 
   .xora-campaign-image {

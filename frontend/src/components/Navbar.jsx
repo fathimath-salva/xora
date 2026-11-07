@@ -201,7 +201,7 @@ export default function Navbar({ onOpenSearch }) {
             <div className="absolute left-1/2 -translate-x-1/2 text-center lg:static lg:flex-initial lg:translate-x-0 lg:text-left">
               <Link
                 to="/"
-                className="inline-block font-serif text-lg sm:text-3xl tracking-[0.16em] sm:tracking-[0.25em] font-light uppercase text-xora-charcoal hover:opacity-90 transition-opacity"
+                className="inline-block font-serif text-lg sm:text-3xl tracking-[0.16em] sm:tracking-[0.25em] font-normal uppercase text-xora-black hover:opacity-90 transition-opacity"
               >
                 YAQANA
               </Link>

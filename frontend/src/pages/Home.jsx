@@ -8,7 +8,6 @@ import { PRODUCT_IMAGE_FALLBACK } from '../utils/productImage';
 import CollectionSlider from '../components/CollectionSlider';
 import NewsletterSignup from '../components/NewsletterSignup';
 import HomepageCollection from '../components/HomepageCollection';
-import SocialLinksBanner from '../components/SocialLinksBanner';
 
 const SHOP_CATEGORIES = [
   { name: 'T-Shirts', image: '/images/yaqana-categories/t-shirt.jpeg' },
@@ -51,8 +50,8 @@ export default function Home() {
       <NewsletterSignup placement="home" />
 
       {/* 3. NEW ARRIVALS */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-xora-taupe/20">
+      <section className="py-12 sm:py-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 pb-4 border-b border-xora-taupe/20">
           <div>
             <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark font-medium">Curated Essentials</span>
             <h2 className="font-serif text-3xl sm:text-4xl text-xora-charcoal tracking-wide mt-1">
@@ -84,9 +83,9 @@ export default function Home() {
       </section>
 
       {/* 4. SHOP BY CATEGORY */}
-      <section className="bg-xora-sand/50 py-20 px-4 sm:px-6 lg:px-8 border-y border-xora-taupe/20">
+      <section className="bg-xora-sand/50 py-12 sm:py-14 px-4 sm:px-6 lg:px-8 border-y border-xora-taupe/20">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="text-center max-w-2xl mx-auto mb-8">
             <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark font-medium">Collections</span>
             <h2 className="font-serif text-3xl sm:text-4xl text-xora-charcoal tracking-wide mt-1">
               Shop by Category
@@ -123,12 +122,10 @@ export default function Home() {
         </div>
       </section>
 
-      <SocialLinksBanner />
-
       <HomepageCollection />
 
       {/* 2. VALUE PROPOSITIONS BAR */}
-      <section className="border-y border-xora-taupe/20 bg-xora-offwhite py-8">
+      <section className="border-y border-xora-taupe/20 bg-xora-offwhite py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div className="flex flex-col items-center space-y-2">
             <Sparkles className="w-5 h-5 text-xora-taupe-dark stroke-[1.5]" />

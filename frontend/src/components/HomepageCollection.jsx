@@ -88,9 +88,9 @@ export default function HomepageCollection() {
   };
 
   return (
-    <section className="border-b border-xora-taupe/30 py-16 sm:py-20" aria-labelledby="homepage-collection-title">
+    <section className="border-b border-xora-taupe/30 py-10 sm:py-14" aria-labelledby="homepage-collection-title">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 border-b border-xora-taupe/20 pb-4">
+        <div className="mb-6 border-b border-xora-taupe/20 pb-4">
           <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark font-medium">
             YAQANA
           </span>
@@ -103,12 +103,12 @@ export default function HomepageCollection() {
         </div>
 
         {loading && products.length === 0 ? (
-          <div className="flex items-center justify-center gap-2 py-12 text-sm text-xora-taupe-dark" role="status">
+          <div className="flex items-center justify-center gap-2 py-8 text-sm text-xora-taupe-dark" role="status">
             <LoaderCircle className="h-4 w-4 animate-spin" />
             Loading the collection...
           </div>
         ) : products.length === 0 && !error ? (
-          <p className="py-12 text-center font-serif text-xl text-xora-taupe-dark">
+          <p className="py-8 text-center font-serif text-xl text-xora-taupe-dark">
             Our collection is coming soon.
           </p>
         ) : (
