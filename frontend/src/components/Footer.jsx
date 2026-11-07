@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Globe, Mail, Send } from 'lucide-react';
 import NewsletterSignup from './NewsletterSignup';
+import HomepageCollection from './HomepageCollection';
 
 export default function Footer() {
   const { pathname } = useLocation();
@@ -20,23 +21,38 @@ export default function Footer() {
               </p>
               <div className="flex space-x-4 pt-2">
                 <a
-                  href="#instagram"
+                  href="https://www.yaqanaapparel.com/"
+                  target="_blank"
+                  rel="noreferrer"
                   className="w-9 h-9 rounded-full border border-xora-taupe/50 flex items-center justify-center text-xora-charcoal hover:bg-xora-charcoal hover:text-white transition-all"
-                  aria-label="Instagram"
+                  aria-label="Website"
                 >
                   <Globe className="w-4 h-4" />
                 </a>
                 <a
+                  href="https://www.instagram.com/yaqana_apparel/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-9 h-9 rounded-full border border-xora-taupe/50 flex items-center justify-center text-xora-charcoal hover:bg-xora-charcoal hover:text-white transition-all"
+                  aria-label="Instagram"
+                >
+                  <svg aria-hidden="true" viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" stroke="none" />
+                  </svg>
+                </a>
+                <a
                   href="#facebook"
                   className="w-9 h-9 rounded-full border border-xora-taupe/50 flex items-center justify-center text-xora-charcoal hover:bg-xora-charcoal hover:text-white transition-all"
-                  aria-label="Facebook"
+                  aria-label="Telegram"
                 >
                   <Send className="w-4 h-4" />
                 </a>
                 <a
-                  href="#twitter"
+                  href="mailto:apparelyaqana@gmail.com"
                   className="w-9 h-9 rounded-full border border-xora-taupe/50 flex items-center justify-center text-xora-charcoal hover:bg-xora-charcoal hover:text-white transition-all"
-                  aria-label="Twitter"
+                  aria-label="Email"
                 >
                   <Mail className="w-4 h-4" />
                 </a>
@@ -50,6 +66,8 @@ export default function Footer() {
             )}
           </div>
         )}
+
+        {pathname === '/' && <HomepageCollection />}
 
         {/* Links Navigation Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-b border-xora-taupe/30 text-xs">

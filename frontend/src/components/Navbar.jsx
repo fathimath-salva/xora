@@ -21,7 +21,6 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { formatInr } from '../utils/currency';
 
 const SHOP_CATEGORIES = ['T-Shirts', 'Hoodies', 'Shirts', 'Trousers'];
 
@@ -75,11 +74,6 @@ export default function Navbar({ onOpenSearch }) {
             : 'bg-xora-offwhite border-b border-xora-taupe/20'
         }`}
       >
-        {/* Top Announcement Bar */}
-        <div className="bg-xora-charcoal text-xora-cream text-[8px] min-[375px]:text-[9px] sm:text-[11px] tracking-[0.08em] sm:tracking-luxury uppercase leading-relaxed py-1.5 px-2 sm:px-4 text-center font-light whitespace-nowrap">
-          Complimentary express shipping on orders over {formatInr(5000)}
-        </div>
-
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative flex items-center justify-between h-16 sm:h-20">
             {/* Mobile Hamburger Button */}
