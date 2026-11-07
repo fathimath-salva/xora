@@ -72,7 +72,7 @@ export default function HomepageCollection() {
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
-    if (!sentinel || !hasMore || error) return undefined;
+    if (!sentinel || !hasMore || error || loading) return undefined;
 
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) loadNextPage();
@@ -80,7 +80,7 @@ export default function HomepageCollection() {
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [error, hasMore, loadNextPage]);
+  }, [error, hasMore, loading, loadNextPage]);
 
   const retry = () => {
     errorRef.current = false;

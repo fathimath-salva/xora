@@ -54,8 +54,8 @@ export default function CartPage() {
 
         <div className="flex justify-center border-b border-xora-taupe/30 mb-8" role="tablist" aria-label="Shopping bag and wishlist">
           {[
-            { id: 'cart', label: 'CART' },
-            { id: 'wishlist', label: 'WISHLIST' }
+            { id: 'wishlist', label: 'WISHLIST' },
+            { id: 'cart', label: 'CART' }
           ].map(({ id, label }) => (
             <button
               key={id}

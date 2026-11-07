@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -23,15 +23,24 @@ export default function ContactPage() {
             <div className="mt-8 space-y-4 text-sm text-xora-charcoal">
               <div className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-xora-charcoal" />
-                <span>concierge@xora.com</span>
+                <a href="mailto:apparelyaqana@gmail.com" className="hover:text-xora-taupe-dark transition-colors">
+                  apparelyaqana@gmail.com
+                </a>
               </div>
               <div className="flex items-center space-x-3">
-                <Phone className="w-4 h-4 text-xora-charcoal" />
-                <span>+1 (555) 014-2894</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <MapPin className="w-4 h-4 text-xora-charcoal" />
-                <span>18 Mercer Street, New York, NY</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="w-4 h-4 text-xora-charcoal" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" stroke="none" />
+                </svg>
+                <a
+                  href="https://www.instagram.com/yaqana_apparel/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-xora-taupe-dark transition-colors"
+                >
+                  @yaqana_apparel
+                </a>
               </div>
             </div>
           </div>

@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { CAMPAIGN_IMAGES } from '../config/storefront';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { register } = useAuth();
+  const { register, isAuthenticated, loading: authLoading } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const redirect = new URLSearchParams(location.search).get('redirect') || '/account';
+
+  if (authLoading) {
+    return (
+      <div className="min-h-[80vh] bg-xora-cream flex items-center justify-center px-4">
+        <p role="status" className="text-xs text-xora-taupe-dark">Checking your account...</p>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to={redirect} replace />;
+  }
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));

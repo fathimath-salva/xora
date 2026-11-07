@@ -7,6 +7,8 @@ import { productService } from '../services/api';
 import { PRODUCT_IMAGE_FALLBACK } from '../utils/productImage';
 import CollectionSlider from '../components/CollectionSlider';
 import NewsletterSignup from '../components/NewsletterSignup';
+import HomepageCollection from '../components/HomepageCollection';
+import SocialLinksBanner from '../components/SocialLinksBanner';
 
 const SHOP_CATEGORIES = [
   { name: 'T-Shirts', image: '/images/yaqana-categories/t-shirt.jpeg' },
@@ -120,6 +122,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <SocialLinksBanner />
+
+      <HomepageCollection />
 
       {/* 2. VALUE PROPOSITIONS BAR */}
       <section className="border-y border-xora-taupe/20 bg-xora-offwhite py-8">
