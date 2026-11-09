@@ -36,7 +36,7 @@ export default function IntroSplash() {
 
   return (
     <div
-      className={`xora-intro fixed inset-0 z-[100] flex items-center justify-center bg-black text-white transition-opacity duration-300 ${leaving ? 'opacity-0' : 'opacity-100'}`}
+      className={`xora-intro fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-300 ${leaving ? 'opacity-0' : 'opacity-100'}`}
       role="status"
       aria-label="Welcome to YAQANA"
       aria-live="polite"
