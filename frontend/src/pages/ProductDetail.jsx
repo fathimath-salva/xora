@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, ChevronRight, Check, X } from 'lucide-react';
+import { Heart, ShoppingBag, Truck, RefreshCw, ShieldCheck, ChevronRight, Check, X, ZoomIn } from 'lucide-react';
 import { productService } from '../services/api';
 import { formatInr } from '../utils/currency';
 import { getProductImage, getProductImages, getCategoryImage, PRODUCT_IMAGE_FALLBACK } from '../utils/productImage';
@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import ProductCard from '../components/ProductCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { rememberViewedProduct } from '../utils/recentlyViewed';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -26,6 +27,7 @@ export default function ProductDetail() {
   const [cartError, setCartError] = useState('');
   const [addingToCart, setAddingToCart] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [zoomOpen, setZoomOpen] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -35,6 +37,7 @@ export default function ProductDetail() {
         if (res.data.success) {
           const prod = res.data.product;
           setProduct(prod);
+          rememberViewedProduct(prod._id);
           setSelectedImage(getProductImage(prod));
           setSelectedSize(prod.sizes?.[0] || '');
           setSelectedColour(prod.colours?.[0]?.name || 'Default');
@@ -59,6 +62,15 @@ export default function ProductDetail() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [sizeGuideOpen]);
 
+  useEffect(() => {
+    if (!zoomOpen) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setZoomOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [zoomOpen]);
+
   if (loading) {
     return <LoadingSpinner message="Curating garment specifications..." />;
   }
@@ -77,9 +89,13 @@ export default function ProductDetail() {
     );
   }
 
+  const measurementLabels = Array.from(new Set(
+    (product.sizes || []).flatMap((size) => Object.keys(product.measurements?.[size] || {}))
+  ));
+  const hasStockData = product.stock != null && Number.isFinite(Number(product.stock));
   const isFavorited = isInWishlist(product._id);
-  const isOutOfStock = product.stock <= 0;
-  const isLowStock = product.stock > 0 && product.stock <= 5;
+  const isOutOfStock = hasStockData && Number(product.stock) <= 0;
+  const isLowStock = hasStockData && Number(product.stock) > 0 && Number(product.stock) <= 5;
 
   const handleAddToCart = async () => {
     if (isOutOfStock || addingToCart) return;
@@ -134,24 +150,45 @@ export default function ProductDetail() {
                 ))}
               </div>
             )}
+            {zoomOpen && (
+              <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4">
+                <button
+                  type="button"
+                  aria-label="Close enlarged product image"
+                  className="absolute inset-0"
+                  onClick={() => setZoomOpen(false)}
+                />
+                <section role="dialog" aria-modal="true" aria-label={`${product.name} enlarged image`} className="relative flex max-h-[90vh] max-w-5xl items-center justify-center">
+                  <button type="button" onClick={() => setZoomOpen(false)} aria-label="Close enlarged image" className="absolute right-2 top-2 z-10 rounded-full bg-xora-offwhite p-2 text-xora-charcoal">
+                    <X className="h-5 w-5" />
+                  </button>
+                  <img src={selectedImage || getProductImage(product)} alt={product.name} className="max-h-[90vh] max-w-full object-contain" />
+                </section>
+              </div>
+            )}
 
             {/* Large Preview */}
             <div className="flex-1 aspect-[3/4] bg-xora-sand/50 rounded-xs overflow-hidden shadow-xs relative">
-              <img
-                src={selectedImage || getProductImage(product)}
-                alt={product.name}
-                className="w-full h-full object-contain object-center bg-xora-sand/30"
-                onError={(event) => {
-                  const image = event.currentTarget;
-                  if (image.dataset.categoryFallback !== 'true') {
-                    image.dataset.categoryFallback = 'true';
-                    image.src = getCategoryImage(product.category);
-                  } else {
-                    image.onerror = null;
-                    image.src = PRODUCT_IMAGE_FALLBACK;
-                  }
-                }}
-              />
+              <button type="button" onClick={() => setZoomOpen(true)} aria-label={`Zoom in on ${product.name}`} className="block h-full w-full cursor-zoom-in">
+                <img
+                  src={selectedImage || getProductImage(product)}
+                  alt={product.name}
+                  className="w-full h-full object-contain object-center bg-xora-sand/30"
+                  onError={(event) => {
+                    const image = event.currentTarget;
+                    if (image.dataset.categoryFallback !== 'true') {
+                      image.dataset.categoryFallback = 'true';
+                      image.src = getCategoryImage(product.category);
+                    } else {
+                      image.onerror = null;
+                      image.src = PRODUCT_IMAGE_FALLBACK;
+                    }
+                  }}
+                />
+              </button>
+              <span aria-hidden="true" className="pointer-events-none absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-xora-offwhite/90 text-xora-charcoal shadow-sm">
+                <ZoomIn className="h-4 w-4" />
+              </span>
               {product.discountPrice && (
                 <span className="absolute top-4 left-4 bg-xora-charcoal text-white text-xs uppercase tracking-widest px-3 py-1 font-medium">
                   Privilege Sale
@@ -169,6 +206,11 @@ export default function ProductDetail() {
               <h1 className="font-serif text-2xl sm:text-4xl text-xora-charcoal tracking-wide mt-1 font-light">
                 {product.name}
               </h1>
+              {product.sku && (
+                <p className="mt-2 text-[11px] uppercase tracking-wider text-xora-taupe-dark">
+                  SKU: {product.sku}
+                </p>
+              )}
 
               {/* Pricing */}
               <div className="flex items-baseline space-x-3 mt-3">
@@ -268,8 +310,10 @@ export default function ProductDetail() {
                 <span className="text-red-700 font-medium">Currently Sold Out</span>
               ) : isLowStock ? (
                 <span className="text-amber-800 font-medium">Only {product.stock} items remaining in atelier</span>
+              ) : !hasStockData ? (
+                <span className="text-xora-taupe-dark font-medium">Availability has not been provided</span>
               ) : (
-                <span className="text-emerald-800 font-medium">In Stock • Ready for dispatch</span>
+                <span className="text-emerald-800 font-medium">In Stock</span>
               )}
             </div>
 
@@ -303,7 +347,7 @@ export default function ProductDetail() {
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  disabled={isOutOfStock || addingToCart}
+                  disabled={isOutOfStock || !hasStockData || addingToCart}
                   className="order-3 w-full min-w-0 btn-luxury disabled:opacity-50 disabled:cursor-not-allowed sm:order-2 sm:w-auto sm:flex-1"
                   id="add-to-cart-detail-btn"
                 >
@@ -316,6 +360,8 @@ export default function ProductDetail() {
                     'ADDING…'
                   ) : isOutOfStock ? (
                     'OUT OF STOCK'
+                  ) : !hasStockData ? (
+                    'CHECK AVAILABILITY'
                   ) : (
                     <span className="flex items-center justify-center space-x-2">
                       <ShoppingBag className="w-4 h-4" />
@@ -397,11 +443,11 @@ export default function ProductDetail() {
             <div className="grid grid-cols-3 gap-2 pt-4 border-t border-xora-taupe/20 text-[11px] text-xora-taupe-dark">
               <div className="flex items-center space-x-1.5">
                 <Truck className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>Express Dispatch</span>
+                <span>Shipping details at checkout</span>
               </div>
               <div className="flex items-center space-x-1.5">
                 <RefreshCw className="w-3.5 h-3.5 flex-shrink-0" />
-                <Link to="/policies" className="underline underline-offset-2">14-Day Policy</Link>
+                <Link to="/policies" className="underline underline-offset-2">Returns &amp; Exchanges</Link>
               </div>
               <div className="flex items-center space-x-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" />
@@ -416,10 +462,10 @@ export default function ProductDetail() {
           <section className="mt-24 pt-12 border-t border-xora-taupe/20">
             <div className="text-center mb-10">
               <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark font-medium">
-                Harmonious Pairings
+                Complete The Look
               </span>
               <h2 className="font-serif text-2xl sm:text-3xl text-xora-charcoal tracking-wide mt-1">
-                Complete The Silhouette
+                Pieces to Pair
               </h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
@@ -464,7 +510,43 @@ export default function ProductDetail() {
             <p className="mt-4 text-sm leading-relaxed text-xora-taupe-dark">
               {product.fitDetails || 'Fit details have not been provided for this item.'}
             </p>
-            {product.measurements && Object.keys(product.measurements).length > 0 && <div className="mt-5 overflow-x-auto"><h3 className="text-xs font-semibold">Garment measurements</h3><table className="mt-2 w-full text-left text-xs"><thead><tr><th className="py-2">Size</th>{Object.keys(product.measurements[product.sizes?.[0]] || {}).map((label) => <th key={label} className="px-2 py-2">{label}</th>)}</tr></thead><tbody>{product.sizes?.map((size) => <tr key={size} className="border-t border-xora-taupe/20"><th className="py-2">{size}</th>{Object.values(product.measurements[size] || {}).map((value, index) => <td key={index} className="px-2 py-2">{value} cm</td>)}</tr>)}</tbody></table><p className="mt-2 text-[11px]">Sample measurements are in centimetres and await client confirmation. Compare with a similar garment laid flat. Chest, waist, and hip are garment circumferences; sleeve runs shoulder seam to cuff, body length shoulder point to hem, and trouser inseam crotch seam to hem.</p></div>}
+            <p className="mt-3 text-xs leading-relaxed text-xora-taupe-dark">
+              Slim fits sit closer to the body, regular fits provide a balanced shape, and relaxed fits allow more room. Follow the fit details above when provided.
+            </p>
+            {measurementLabels.length > 0 ? (
+              <div className="mt-5 overflow-x-auto">
+                <h3 className="text-xs font-semibold">Garment measurements (cm)</h3>
+                <table className="mt-2 w-full text-left text-xs">
+                  <thead>
+                    <tr>
+                      <th className="py-2">Size</th>
+                      {measurementLabels.map((label) => (
+                        <th key={label} className="px-2 py-2">{label}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {product.sizes?.map((size) => (
+                      <tr key={size} className="border-t border-xora-taupe/20">
+                        <th className="py-2">{size}</th>
+                        {measurementLabels.map((label) => (
+                          <td key={label} className="px-2 py-2">
+                            {product.measurements[size]?.[label] == null ? '—' : `${product.measurements[size][label]} cm`}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p role="status" className="mt-5 border border-xora-taupe/20 bg-xora-sand/30 p-3 text-xs text-xora-taupe-dark">
+                A measurement chart is being prepared for this garment.
+              </p>
+            )}
+            <p className="mt-4 text-xs leading-relaxed text-xora-taupe-dark">
+              To measure yourself, keep a flexible tape level and comfortably snug. Measure chest around its fullest point, shoulders across the back between shoulder points, and length from the shoulder point to the hem. For trousers, measure waist around where you wear them and inseam from the crotch seam to the hem.
+            </p>
             <Link
               to="/contact"
               onClick={() => setSizeGuideOpen(false)}

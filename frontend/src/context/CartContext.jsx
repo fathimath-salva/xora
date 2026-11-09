@@ -21,6 +21,8 @@ const formatCartItems = (items = []) => items
     stock: item.product.stock
   }));
 
+const isDemoCartItem = (item) => item?.isDemoOnly === true || String(item?._id || '').startsWith('demo-');
+
 export const CartProvider = ({ children }) => {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [items, setItems] = useState(() => {
@@ -41,7 +43,9 @@ export const CartProvider = ({ children }) => {
     if (isAuthenticated) {
       loadBackendCart();
     } else {
-      setItems((currentItems) => currentItems.filter((item) => String(item._id).startsWith('temp-')));
+      setItems((currentItems) => currentItems.filter((item) =>
+        String(item._id).startsWith('temp-') || isDemoCartItem(item)
+      ));
     }
   }, [isAuthenticated, authLoading]);
 
@@ -68,14 +72,20 @@ export const CartProvider = ({ children }) => {
           }))
         });
         if (syncRes.data.success && syncRes.data.cart?.items) {
-          setItems(formatCartItems(syncRes.data.cart.items));
+          setItems((currentItems) => [
+            ...formatCartItems(syncRes.data.cart.items),
+            ...currentItems.filter(isDemoCartItem)
+          ]);
           return;
         }
       }
 
       const res = await cartService.getCart();
       if (res.data.success && res.data.cart?.items) {
-        setItems(formatCartItems(res.data.cart.items));
+        setItems((currentItems) => [
+          ...formatCartItems(res.data.cart.items),
+          ...currentItems.filter(isDemoCartItem)
+        ]);
       }
     } catch (err) {
       console.warn('Failed to fetch user cart from backend:', err);
@@ -87,11 +97,11 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (product, size, colour, quantity = 1) => {
     const selectedSize = size || (product.sizes && product.sizes[0]) || 'N/A';
     const selectedColour =
-      colour || (product.colours && product.colours[0]?.name) || 'Default';
+      colour || (typeof product.colours?.[0] === 'string' ? product.colours[0] : product.colours?.[0]?.name) || 'Default';
     const effectivePrice = product.discountPrice || product.price;
     const image = getProductImage(product);
 
-    const addLocalItem = () => setItems((prev) => {
+    const addLocalItem = (demoOnly = false) => setItems((prev) => {
       const existingIdx = prev.findIndex(
         (item) =>
           item.productId === product._id &&
@@ -110,7 +120,9 @@ export const CartProvider = ({ children }) => {
         return [
           ...prev,
           {
-            _id: `temp-${Date.now()}-${Math.random()}`,
+            _id: demoOnly
+              ? `demo-${product._id}-${encodeURIComponent(selectedSize)}-${encodeURIComponent(selectedColour)}`
+              : `temp-${Date.now()}-${Math.random()}`,
             productId: product._id,
             name: product.name,
             price: effectivePrice,
@@ -120,11 +132,18 @@ export const CartProvider = ({ children }) => {
             size: selectedSize,
             colour: selectedColour,
             quantity,
-            stock: product.stock
+            stock: product.stock,
+            isDemoOnly: demoOnly
           }
         ];
       }
     });
+
+    if (product.isDemoOnly) {
+      addLocalItem(true);
+      setIsCartOpen(true);
+      return { success: true, demoOnly: true };
+    }
 
     // If authenticated, only report success after the backend accepts the item.
     if (isAuthenticated) {
@@ -136,7 +155,10 @@ export const CartProvider = ({ children }) => {
           quantity
         });
         if (res.data.success && res.data.cart?.items) {
-          setItems(formatCartItems(res.data.cart.items));
+          setItems((currentItems) => [
+            ...formatCartItems(res.data.cart.items),
+            ...currentItems.filter(isDemoCartItem)
+          ]);
         } else {
           return { success: false, message: res.data.message || 'Could not add this item to your bag.' };
         }
@@ -157,11 +179,15 @@ export const CartProvider = ({ children }) => {
       return;
     }
 
-    if (isAuthenticated && !itemId.toString().startsWith('temp-')) {
+    const currentItem = items.find((item) => item._id === itemId);
+    if (isAuthenticated && !itemId.toString().startsWith('temp-') && !isDemoCartItem(currentItem)) {
       try {
         const res = await cartService.updateQuantity({ itemId, quantity });
         if (res.data.success && res.data.cart?.items) {
-          setItems(formatCartItems(res.data.cart.items));
+          setItems((currentItems) => [
+            ...formatCartItems(res.data.cart.items),
+            ...currentItems.filter(isDemoCartItem)
+          ]);
         }
       } catch (err) {
         console.warn('Failed to update quantity on backend', err);
@@ -176,11 +202,15 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = async (itemId) => {
-    if (isAuthenticated && !itemId.toString().startsWith('temp-')) {
+    const currentItem = items.find((item) => item._id === itemId);
+    if (isAuthenticated && !itemId.toString().startsWith('temp-') && !isDemoCartItem(currentItem)) {
       try {
         const res = await cartService.removeFromCart(itemId);
         if (res.data.success && res.data.cart?.items) {
-          setItems(formatCartItems(res.data.cart.items));
+          setItems((currentItems) => [
+            ...formatCartItems(res.data.cart.items),
+            ...currentItems.filter(isDemoCartItem)
+          ]);
         }
       } catch (err) {
         console.warn('Failed to remove item on backend', err);
@@ -202,10 +232,7 @@ export const CartProvider = ({ children }) => {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const shippingFee = subtotal >= 200 || subtotal === 0 ? 0 : 15;
-  const estimatedTax = Math.round(subtotal * 0.08 * 100) / 100;
-  const grandTotal = subtotal + shippingFee + estimatedTax;
-
+  const hasDemoItems = items.some(isDemoCartItem);
   return (
     <CartContext.Provider
       value={{
@@ -221,9 +248,7 @@ export const CartProvider = ({ children }) => {
         loading,
         totalCount,
         subtotal,
-        shippingFee,
-        estimatedTax,
-        grandTotal
+        hasDemoItems
       }}
     >
       {children}

@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import ScrollManager from './components/ScrollManager.jsx';
 import IntroSplash from './components/IntroSplash.jsx';
+import WhatsAppSupport from './components/WhatsAppSupport.jsx';
 
 import Home from './pages/Home.jsx';
 import Shop from './pages/Shop.jsx';
@@ -36,6 +37,7 @@ function AppShell() {
     <>
       <ScrollManager />
       <IntroSplash />
+      <WhatsAppSupport />
       <Navbar onOpenSearch={() => setSearchOpen(true)} />
       <CartDrawer />
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />

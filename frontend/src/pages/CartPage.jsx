@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Heart, ShieldCheck, Truck } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import EmptyState from '../components/EmptyState';
@@ -10,25 +10,27 @@ import { getProductImage } from '../utils/productImage';
 export default function CartPage() {
   const [activeTab, setActiveTab] = useState('cart');
   const [cartError, setCartError] = useState('');
+  const [wishlistSelections, setWishlistSelections] = useState({});
   const {
     items,
     addToCart,
     updateQuantity,
     removeFromCart,
     subtotal,
-    shippingFee,
-    estimatedTax,
-    grandTotal
+    hasDemoItems
   } = useCart();
   const { wishlist, removeFromWishlist } = useWishlist();
   const navigate = useNavigate();
 
   const handleAddWishlistItemToCart = async (product) => {
     setCartError('');
+    const productId = product._id || product.id;
+    const selection = wishlistSelections[productId] || {};
+    const firstColour = product.colours?.[0];
     const result = await addToCart(
       product,
-      product.sizes?.[0] || 'M',
-      product.colours?.[0]?.name || 'Default'
+      selection.size || product.sizes?.[0] || 'N/A',
+      selection.colour || (typeof firstColour === 'string' ? firstColour : firstColour?.name) || 'Default'
     );
     if (!result.success) {
       setCartError(result.message || 'Could not add this item to your bag. Please try again.');
@@ -195,50 +197,32 @@ export default function CartPage() {
 
               <div className="space-y-3 text-xs">
                 <div className="flex justify-between text-xora-taupe-dark">
-                  <span>Bag Subtotal</span>
+                  <span>Items subtotal</span>
                   <span className="text-xora-charcoal font-medium">{formatInr(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-xora-taupe-dark">
-                  <span>Express Courier Shipping</span>
-                  <span>{shippingFee === 0 ? 'Complimentary' : formatInr(shippingFee)}</span>
-                </div>
-                <div className="flex justify-between text-xora-taupe-dark">
-                  <span>Estimated Luxury Sales Tax</span>
-                  <span className="text-xora-charcoal font-medium">{formatInr(estimatedTax)}</span>
-                </div>
-
-                <div className="border-t border-xora-taupe/20 pt-4 flex justify-between items-baseline text-base font-semibold text-xora-charcoal">
-                  <span>Estimated Total</span>
-                  <span className="text-lg">{formatInr(grandTotal)}</span>
+                <div className="border-t border-xora-taupe/20 pt-4">
+                  <p className="mt-2 text-[11px] leading-relaxed text-xora-taupe-dark">
+                    Shipping and applicable charges are not estimated in this test checkout.
+                  </p>
                 </div>
               </div>
-
-              {shippingFee > 0 && (
-                <div className="text-[11px] text-xora-taupe-dark bg-xora-sand/50 p-3 rounded border border-xora-taupe/20">
-                  Add <strong>{formatInr(200 - subtotal)}</strong> more to receive complimentary express delivery.
-                </div>
+              {hasDemoItems && (
+                <p className="border border-xora-taupe/30 bg-xora-sand/40 p-3 text-[11px] leading-relaxed text-xora-taupe-dark" role="note">
+                  Demo rack items are display samples and cannot be checked out. Remove them to continue.
+                </p>
               )}
 
               <button
                 type="button"
                 onClick={() => navigate('/checkout')}
-                className="btn-luxury w-full py-4 text-xs flex items-center justify-center space-x-2"
+                disabled={hasDemoItems}
+                className="btn-luxury w-full py-4 text-xs flex items-center justify-center space-x-2 disabled:cursor-not-allowed disabled:opacity-50"
                 id="cart-proceed-checkout-btn"
               >
                 <span>PROCEED TO CHECKOUT</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
 
-              <div className="space-y-2 pt-2 border-t border-xora-taupe/20 text-[11px] text-xora-taupe-dark">
-                <div className="flex items-center space-x-2">
-                  <ShieldCheck className="w-4 h-4 text-xora-charcoal" />
-                  <span>Secure 256-Bit Encrypted Transaction</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Truck className="w-4 h-4 text-xora-charcoal" />
-                  <span>Signature Garment Bag Included</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -280,6 +264,37 @@ export default function CartPage() {
                         <p className="mt-2 text-sm font-medium text-xora-charcoal">
                           {formatInr(product.discountPrice || product.price)}
                         </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {product.sizes?.length > 0 && (
+                            <select
+                              aria-label={`Size for ${product.name}`}
+                              value={wishlistSelections[productId]?.size || product.sizes[0]}
+                              onChange={(event) => setWishlistSelections((current) => ({
+                                ...current,
+                                [productId]: { ...current[productId], size: event.target.value }
+                              }))}
+                              className="min-w-0 border border-xora-taupe/40 bg-white px-2 py-2 text-[10px]"
+                            >
+                              {product.sizes.map((size) => <option key={size} value={size}>{size}</option>)}
+                            </select>
+                          )}
+                          {product.colours?.length > 0 && (
+                            <select
+                              aria-label={`Colour for ${product.name}`}
+                              value={wishlistSelections[productId]?.colour || (typeof product.colours[0] === 'string' ? product.colours[0] : product.colours[0].name)}
+                              onChange={(event) => setWishlistSelections((current) => ({
+                                ...current,
+                                [productId]: { ...current[productId], colour: event.target.value }
+                              }))}
+                              className="min-w-0 border border-xora-taupe/40 bg-white px-2 py-2 text-[10px]"
+                            >
+                              {product.colours.map((colour) => {
+                                const name = typeof colour === 'string' ? colour : colour.name;
+                                return <option key={name} value={name}>{name}</option>;
+                              })}
+                            </select>
+                          )}
+                        </div>
                         <div className="mt-auto flex flex-wrap gap-2 pt-4">
                           <button
                             type="button"

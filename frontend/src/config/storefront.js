@@ -5,6 +5,8 @@ export const firstOrderOffer = Object.freeze({
   checkoutConfigured: false
 });
 
+export const whatsappBusinessNumber = import.meta.env.VITE_YAQANA_WHATSAPP_NUMBER || '';
+
 export const CAMPAIGN_IMAGES = Object.freeze({
   hero: '/images/xora-campaign/xora-hero.jpg',
   upperwear: '/images/xora-campaign/xora-upperwear.jpg',

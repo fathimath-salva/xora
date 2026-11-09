@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { X, ChevronDown, SlidersHorizontal, RotateCcw, Tag, Sparkles, Layers } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
 import { productService, categoryService } from '../services/api';
+import { rupeesToCatalogUnits } from '../utils/currency';
 
 const CATEGORY_SLUGS = ['T-Shirts', 'Hoodies', 'Shirts', 'Trousers'];
 
@@ -26,6 +27,12 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
   const sizeParam = searchParams.get('size') || '';
   const filterParam = searchParams.get('filter') || '';
   const searchTerm = searchParams.get('search') || '';
+  const selectedColour = searchParams.get('colour') || '';
+  const selectedFabric = searchParams.get('fabric') || '';
+  const selectedFit = searchParams.get('fit') || '';
+  const selectedAvailability = searchParams.get('availability') || '';
+  const minPrice = searchParams.get('minPrice') || '';
+  const maxPrice = searchParams.get('maxPrice') || '';
 
   const selectedCategory = categoryParam;
   const selectedCollection = collectionParam;
@@ -59,7 +66,9 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
 
   // Fetch collections once
   useEffect(() => {
-    productService.getCollections().then((res) => setCollections(res.data.collections || [])).catch(() => {});
+    productService.getCollections()
+      .then((res) => setCollections(res.data.collections || []))
+      .catch((error) => console.error('Failed to load product collections.', error));
   }, []);
 
   // Fetch products whenever filters change
@@ -131,11 +140,93 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
     setAvailableSizes([]);
   }, [selectedCategory, selectedCollection, selectedSize, sort, filterParam, searchTerm, retryCount]);
 
-  const hasActiveFilter = selectedCategory !== 'All' || selectedCollection || selectedSize || filterParam;
+  const filteredProducts = useMemo(() => products.filter((product) => {
+    const price = Number(product.discountPrice || product.price);
+    const colours = (product.colours || []).map((colour) =>
+      typeof colour === 'string' ? colour : colour?.name
+    );
+    if (selectedColour && !colours.includes(selectedColour)) return false;
+    if (selectedFabric && product.fabricDetails !== selectedFabric) return false;
+    if (selectedFit && product.fitDetails !== selectedFit) return false;
+    if (selectedAvailability === 'in-stock' && !(product.stock > 0)) return false;
+    if (selectedAvailability === 'out-of-stock' && !(product.stock <= 0)) return false;
+    if ((minPrice || maxPrice) && !Number.isFinite(price)) return false;
+    if (minPrice && price < rupeesToCatalogUnits(minPrice)) return false;
+    if (maxPrice && price > rupeesToCatalogUnits(maxPrice)) return false;
+    return true;
+  }), [
+    products,
+    selectedAvailability,
+    selectedColour,
+    selectedFabric,
+    selectedFit,
+    minPrice,
+    maxPrice
+  ]);
+
+  const availableColours = useMemo(() => Array.from(new Set(
+    products.flatMap((product) => (product.colours || [])
+      .map((colour) => typeof colour === 'string' ? colour : colour?.name)
+      .filter(Boolean))
+  )).sort((a, b) => a.localeCompare(b)), [products]);
+  const availableFabrics = useMemo(() => Array.from(new Set(
+    products.map((product) => product.fabricDetails).filter(Boolean)
+  )).sort((a, b) => a.localeCompare(b)), [products]);
+  const availableFits = useMemo(() => Array.from(new Set(
+    products.map((product) => product.fitDetails).filter(Boolean)
+  )).sort((a, b) => a.localeCompare(b)), [products]);
+  const hasLocalFilters = Boolean(
+    selectedColour || selectedFabric || selectedFit || selectedAvailability || minPrice || maxPrice
+  );
+  const visibleCount = hasLocalFilters ? filteredProducts.length : totalCount;
+  const hasActiveFilter = selectedCategory !== 'All' || selectedCollection || selectedSize || filterParam || hasLocalFilters;
 
   const handleResetFilters = () => {
-    setSearchParams({});
+    const next = new URLSearchParams();
+    if (searchTerm) next.set('search', searchTerm);
+    setSearchParams(next);
   };
+
+  const renderCatalogFilters = () => (
+    <div className="space-y-4">
+      <label className="block text-xs text-xora-taupe-dark">
+        Colour
+        <select value={selectedColour} onChange={(event) => updateShopParam('colour', event.target.value)} className="mt-1 w-full border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal">
+          <option value="">All colours</option>
+          {availableColours.map((colour) => <option key={colour} value={colour}>{colour}</option>)}
+        </select>
+      </label>
+      <label className="block text-xs text-xora-taupe-dark">
+        Fabric
+        <select value={selectedFabric} onChange={(event) => updateShopParam('fabric', event.target.value)} className="mt-1 w-full border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal">
+          <option value="">All fabrics</option>
+          {availableFabrics.map((fabric) => <option key={fabric} value={fabric}>{fabric}</option>)}
+        </select>
+      </label>
+      <label className="block text-xs text-xora-taupe-dark">
+        Fit
+        <select value={selectedFit} onChange={(event) => updateShopParam('fit', event.target.value)} className="mt-1 w-full border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal">
+          <option value="">All fits</option>
+          {availableFits.map((fit) => <option key={fit} value={fit}>{fit}</option>)}
+        </select>
+      </label>
+      <label className="block text-xs text-xora-taupe-dark">
+        Availability
+        <select value={selectedAvailability} onChange={(event) => updateShopParam('availability', event.target.value)} className="mt-1 w-full border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal">
+          <option value="">All products</option>
+          <option value="in-stock">In stock</option>
+          <option value="out-of-stock">Out of stock</option>
+        </select>
+      </label>
+      <fieldset>
+        <legend className="text-xs text-xora-taupe-dark">Price range (₹)</legend>
+        <div className="mt-1 grid grid-cols-2 gap-2">
+          <input type="number" min="0" inputMode="numeric" aria-label="Minimum price in rupees" placeholder="Min" value={minPrice} onChange={(event) => updateShopParam('minPrice', event.target.value)} className="min-w-0 border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal" />
+          <input type="number" min="0" inputMode="numeric" aria-label="Maximum price in rupees" placeholder="Max" value={maxPrice} onChange={(event) => updateShopParam('maxPrice', event.target.value)} className="min-w-0 border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal" />
+        </div>
+      </fieldset>
+    </div>
+  );
 
   return (
     <div className="bg-xora-cream min-h-screen text-xora-charcoal py-10 sm:py-14">
@@ -224,14 +315,14 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
               id="mobile-filter-open-btn"
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Filter by Size</span>
+              <span>Filter Products</span>
               {selectedSize && (
                 <span className="ml-1 bg-xora-charcoal text-white text-[10px] px-1.5 py-0.5 rounded">{selectedSize}</span>
               )}
             </button>
 
             <span className="text-xs text-xora-taupe-dark">
-              Showing <strong className="text-xora-charcoal font-medium">{totalCount}</strong> styles
+            Showing <strong className="text-xora-charcoal font-medium">{visibleCount}</strong> styles
             </span>
 
             {hasActiveFilter && (
@@ -272,7 +363,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
 
         {/* Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Desktop Filter Sidebar — SIZE ONLY */}
+          {/* Desktop Filters */}
           <aside className="hidden lg:block space-y-6 pr-4 border-r border-xora-taupe/20">
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">
@@ -313,6 +404,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
                 </button>
               )}
             </div>
+            {renderCatalogFilters()}
           </aside>
 
           {/* Product Grid Area */}
@@ -324,7 +416,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
                 {loadError}
                 <button type="button" onClick={() => setRetryCount((c) => c + 1)} className="ml-3 underline">Retry</button>
               </div>
-            ) : products.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
               <EmptyState
                 title={selectedSize ? `No products available in size ${selectedSize}.` : 'No pieces match your filter.'}
                 subtitle={selectedSize ? 'Try a different size or clear the size filter to view all available styles.' : 'Try resetting your filters to view the full collection.'}
@@ -334,7 +426,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
               />
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <ProductCard key={product._id} product={product} />
                 ))}
               </div>
@@ -343,7 +435,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
         </div>
       </div>
 
-      {/* Mobile Filter Slide-over Drawer — SIZE ONLY */}
+      {/* Mobile Filter Slide-over Drawer */}
       {mobileFilterOpen && (
         <div className="fixed inset-0 z-50 lg:hidden overflow-hidden">
           <div
@@ -354,7 +446,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
             <div className="space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-xora-taupe/20">
                 <h2 className="font-serif text-xl text-xora-charcoal uppercase tracking-wider">
-                  Filter by Size
+                  Refine Selection
                 </h2>
                 <button
                   type="button"
@@ -396,6 +488,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
                   </button>
                 )}
               </div>
+              {renderCatalogFilters()}
             </div>
 
             <div className="pt-6 border-t border-xora-taupe/20 space-y-2">
