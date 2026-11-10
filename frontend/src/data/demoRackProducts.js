@@ -74,6 +74,42 @@ const productDefinitions = [
     category: 'Trousers',
     colours: [{ name: 'Charcoal', hex: '#55524d' }, { name: 'Stone', hex: '#b7aa98' }],
     sizes: ['S', 'M', 'L', 'XL', 'XXL']
+  },
+  {
+    id: 'demo-ribbed-knit-sweater',
+    name: 'Ribbed Knit Sweater',
+    priceInRupees: 2399,
+    description: 'A soft crew-neck knit with a relaxed shape and subtle ribbed texture.',
+    category: 'Knitwear',
+    colours: [{ name: 'Oatmeal', hex: '#c9bba5' }, { name: 'Burgundy', hex: '#70434a' }, { name: 'Forest', hex: '#435448' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL']
+  },
+  {
+    id: 'demo-utility-jacket',
+    name: 'Utility Jacket',
+    priceInRupees: 2899,
+    description: 'A casual utility layer with a structured collar, front placket and patch pockets.',
+    category: 'Jackets',
+    colours: [{ name: 'Olive', hex: '#72745c' }, { name: 'Sand', hex: '#c4ae91' }, { name: 'Navy', hex: '#293746' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL']
+  },
+  {
+    id: 'demo-denim-shirt',
+    name: 'Denim Shirt',
+    priceInRupees: 1999,
+    description: 'A versatile button-front denim shirt with a pointed collar and chest pocket.',
+    category: 'Shirts',
+    colours: [{ name: 'Indigo', hex: '#52677b' }, { name: 'Washed Blue', hex: '#8295a3' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL']
+  },
+  {
+    id: 'demo-puffer-vest',
+    name: 'Puffer Vest',
+    priceInRupees: 2599,
+    description: 'A lightweight quilted vest with a raised collar and a clean zip-front finish.',
+    category: 'Jackets',
+    colours: [{ name: 'Charcoal', hex: '#55524d' }, { name: 'Moss', hex: '#777b64' }, { name: 'Stone', hex: '#b7aa98' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL']
   }
 ];
 

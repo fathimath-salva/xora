@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight, LoaderCircle, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowRight, Check, ChevronLeft, ChevronRight, LoaderCircle, X } from 'lucide-react';
 import { formatInr } from '../utils/currency';
 import { useCart } from '../context/CartContext';
 import { demoRackProducts } from '../data/demoRackProducts';
@@ -23,6 +23,11 @@ const getRackImages = (product) => {
 
 const getColourName = (colour) => typeof colour === 'string' ? colour : colour?.name;
 const getColourHex = (colour) => typeof colour === 'string' ? '#b7aa98' : colour?.hex || '#b7aa98';
+const PRODUCT_VIEWS = ['front', 'back', 'side'];
+const cycleProductView = (currentView, direction) => {
+  const currentIndex = PRODUCT_VIEWS.indexOf(currentView);
+  return PRODUCT_VIEWS[(currentIndex + direction + PRODUCT_VIEWS.length) % PRODUCT_VIEWS.length];
+};
 
 function Hanger() {
   return (
@@ -84,8 +89,8 @@ function ProductDetails({ product, initialColour, onColourChange, onClose, addTo
     document.body.style.overflow = 'hidden';
     const closeOnEscape = (event) => {
       if (event.key === 'Escape') onClose();
-      if (event.key === 'ArrowLeft') setView((current) => current === 'front' ? 'back' : 'front');
-      if (event.key === 'ArrowRight') setView((current) => current === 'front' ? 'back' : 'front');
+      if (event.key === 'ArrowLeft') setView((current) => cycleProductView(current, -1));
+      if (event.key === 'ArrowRight') setView((current) => cycleProductView(current, 1));
     };
     window.addEventListener('keydown', closeOnEscape);
     return () => {
@@ -104,7 +109,7 @@ function ProductDetails({ product, initialColour, onColourChange, onClose, addTo
     }
   };
 
-  const switchView = () => setView((current) => current === 'front' ? 'back' : 'front');
+  const switchView = (direction = 1) => setView((current) => cycleProductView(current, direction));
 
   const handleAdd = async () => {
     setCartError('');
@@ -134,15 +139,16 @@ function ProductDetails({ product, initialColour, onColourChange, onClose, addTo
           onTouchStart={(event) => { touchStart.current = event.touches[0].clientX; }}
           onTouchEnd={(event) => {
             if (touchStart.current == null) return;
-            if (Math.abs(event.changedTouches[0].clientX - touchStart.current) > 40) switchView();
+            const delta = event.changedTouches[0].clientX - touchStart.current;
+            if (Math.abs(delta) > 40) switchView(delta < 0 ? 1 : -1);
             touchStart.current = null;
           }}
         >
-          <button type="button" className="rack-modal-view-toggle" onClick={switchView} aria-label={`Show ${view === 'front' ? 'back' : 'front'} view`}>
-            {view === 'front' ? 'Front view' : 'Back view'}
+          <button type="button" className="rack-modal-view-toggle" onClick={() => switchView()} aria-label={`Show ${cycleProductView(view, 1)} view`}>
+            {view[0].toUpperCase() + view.slice(1)} view
             <ArrowRight className="h-3.5 w-3.5" />
           </button>
-          <button type="button" className="rack-gallery-arrow rack-gallery-arrow--left" onClick={switchView} aria-label="Previous product view">
+          <button type="button" className="rack-gallery-arrow rack-gallery-arrow--left" onClick={() => switchView(-1)} aria-label="Previous product view">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <img
@@ -167,11 +173,11 @@ function ProductDetails({ product, initialColour, onColourChange, onClose, addTo
               }}
             />
           )}
-          <button type="button" className="rack-gallery-arrow rack-gallery-arrow--right" onClick={switchView} aria-label="Next product view">
+          <button type="button" className="rack-gallery-arrow rack-gallery-arrow--right" onClick={() => switchView(1)} aria-label="Next product view">
             <ChevronRight className="h-5 w-5" />
           </button>
           <div className="rack-view-dots" aria-label="Choose image view">
-            {['front', 'back'].map((imageView) => (
+            {PRODUCT_VIEWS.map((imageView) => (
               <button
                 key={imageView}
                 type="button"
@@ -189,6 +195,10 @@ function ProductDetails({ product, initialColour, onColourChange, onClose, addTo
           <h2 id="rack-product-title">{product.name}</h2>
           <p className="rack-product-price">{formatInr(product.discountPrice || product.price)}</p>
           <p className="rack-product-description">{product.description || product.shortDescription || 'Product details have not been provided.'}</p>
+          <dl className="rack-product-specs">
+            <div><dt>Fabric</dt><dd>{product.fabric || 'To be confirmed'}</dd></div>
+            <div><dt>Fit</dt><dd>{product.fit || 'To be confirmed'}</dd></div>
+          </dl>
 
           <div className="rack-choice-group">
             <p>Colour <span>{selectedColour}</span></p>
@@ -237,7 +247,7 @@ function ProductDetails({ product, initialColour, onColourChange, onClose, addTo
           </p>
 
           <button type="button" onClick={handleAdd} disabled={soldOut || !hasStockData || !selectedSize} className="rack-add-button">
-            {added ? <><Check className="h-4 w-4" /> Added to bag</> : 'Add to bag'}
+            {added ? <><Check className="h-4 w-4" /> Added to cart</> : 'Add to Cart'}
           </button>
           {cartError && <p role="alert" className="rack-cart-error">{cartError}</p>}
           {isDemo && <p className="rack-helper-text">Sample item only. It stays in your local bag and cannot be checked out.</p>}
@@ -263,12 +273,13 @@ export default function ClothingRack({
   const [dyeingProductId, setDyeingProductId] = useState(null);
   const [dyeKeyByProduct, setDyeKeyByProduct] = useState({});
   const [failedRackImages, setFailedRackImages] = useState({});
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const rackRef = useRef(null);
   const rackScrollRef = useRef(null);
   const dragRef = useRef(null);
   const suppressClickRef = useRef(false);
   const { addToCart } = useCart();
-  const activeProduct = products.find((product) => product._id === activeProductId);
 
   const handleCloseModal = () => setSelectedProduct(null);
 
@@ -331,13 +342,41 @@ export default function ClothingRack({
     }
   };
 
+  const updateRackNavigation = useCallback(() => {
+    const track = rackScrollRef.current;
+    if (!track) return;
+    const maxScrollLeft = track.scrollWidth - track.clientWidth;
+    setCanScrollLeft(track.scrollLeft > 1);
+    setCanScrollRight(hasMore || maxScrollLeft > 1 && track.scrollLeft < maxScrollLeft - 1);
+  }, [hasMore]);
+
   const scrollRack = (direction) => {
-    if (!rackScrollRef.current) return;
-    rackScrollRef.current.scrollBy({
-      left: direction * rackScrollRef.current.clientWidth * 0.8,
+    const track = rackScrollRef.current;
+    if (!track || (direction < 0 && !canScrollLeft) || (direction > 0 && !canScrollRight)) return;
+    const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+    if (direction > 0 && atEnd && hasMore) {
+      onNearEnd?.();
+      return;
+    }
+    const itemWidth = track.querySelector('.rack-item')?.getBoundingClientRect().width || track.clientWidth * 0.2;
+    track.scrollBy({
+      left: direction * itemWidth,
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
     });
   };
+
+  useEffect(() => {
+    const track = rackScrollRef.current;
+    if (!track) return undefined;
+    updateRackNavigation();
+    window.addEventListener('resize', updateRackNavigation);
+    const resizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateRackNavigation);
+    resizeObserver?.observe(track);
+    return () => {
+      window.removeEventListener('resize', updateRackNavigation);
+      resizeObserver?.disconnect();
+    };
+  }, [products.length, updateRackNavigation]);
 
   useEffect(() => {
     const track = rackScrollRef.current;
@@ -363,6 +402,7 @@ export default function ClothingRack({
           type="button"
           className="rack-carousel-arrow rack-carousel-arrow--left"
           onClick={() => scrollRack(-1)}
+          disabled={!canScrollLeft}
           aria-label="Show previous garments"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -373,6 +413,7 @@ export default function ClothingRack({
           aria-label="Clothing on the collection rack"
           onScroll={(event) => {
             const element = event.currentTarget;
+            updateRackNavigation();
             if (hasMore && element.scrollLeft + element.clientWidth >= element.scrollWidth - element.clientWidth * 0.4) {
               onNearEnd?.();
             }
@@ -427,6 +468,7 @@ export default function ClothingRack({
                 <span className="rack-hanging-unit">
                   <span className="rack-hanging-swing">
                     <span className="rack-hanger-wrap"><Hanger /></span>
+                    <span className="rack-price-tag" aria-hidden="true">{formatInr(product.discountPrice || product.price)}</span>
                     <span className="rack-garment-stage">
                       <GarmentView
                         product={{ ...product, rackImages: images, _fallbackViews: failedRackImages[product._id] }}
@@ -448,9 +490,6 @@ export default function ClothingRack({
                     </span>
                   </span>
                 </span>
-                <span className="rack-item-name">{product.name}</span>
-                <span className="rack-item-price">{formatInr(product.price)}</span>
-                {product.isDemoOnly && <span className="rack-item-demo">Demo</span>}
               </button>
             );
           })}
@@ -459,13 +498,12 @@ export default function ClothingRack({
           type="button"
           className="rack-carousel-arrow rack-carousel-arrow--right"
           onClick={() => scrollRack(1)}
+          disabled={!canScrollRight}
           aria-label="Show more garments"
         >
           <ChevronRight className="h-5 w-5" />
         </button>
-        <div className="rack-scroll-hint" aria-hidden="true"><ArrowLeft className="h-3.5 w-3.5" /> Drag to explore <ArrowRight className="h-3.5 w-3.5" /></div>
       </div>
-      <p className="rack-instructions">Select a garment to explore its details</p>
       {loadingMore && (
         <p className="rack-pagination-status" role="status">
           <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
@@ -477,11 +515,6 @@ export default function ClothingRack({
           {error}
           <button type="button" onClick={onRetry}>Try again</button>
         </p>
-      )}
-      {activeProduct && (
-        <div className="rack-active-caption" aria-live="polite">
-          {activeProduct.name} <span>·</span> {formatInr(activeProduct.price)}
-        </div>
       )}
       {selectedProduct && (
         <ProductDetails

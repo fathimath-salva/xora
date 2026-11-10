@@ -1,7 +1,7 @@
 DEMO RACK GARMENT IMAGE PLACEHOLDERS
 
 These individually named transparent SVGs are simplified garment illustrations for the
-six demo products. They are intentionally placeholders, not real product photography.
+twelve demo products. They are intentionally placeholders, not real product photography.
 
 Each product has three distinct view files:
   <product-id>-side.svg
