@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300">
-  <path fill="#b9b1a6" d="M76 39l24 17 24-17 21 11 29 19-17 43-18-8v141H61V104l-18 8-17-43 29-19z"/>
-  <path fill="none" stroke="#847d74" stroke-width="2" d="M76 39l24 20 24-20M100 59v186M61 104l-18 8M139 104l18 8M69 243h62"/>
-  <path fill="none" stroke="#d7d0c5" stroke-width="2" d="M88 68l-3 156m30-156 3 156M100 73v146"/>
-  <circle cx="103" cy="93" r="2" fill="#756d63"/><circle cx="103" cy="121" r="2" fill="#756d63"/><circle cx="103" cy="149" r="2" fill="#756d63"/><circle cx="103" cy="177" r="2" fill="#756d63"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300" viewBox="0 0 362 362" preserveAspectRatio="none"><image href="/images/demo-clothing-rack/realistic-front-sheet.png" x="-1086" y="0" width="1448" height="1086" preserveAspectRatio="none"/></svg>

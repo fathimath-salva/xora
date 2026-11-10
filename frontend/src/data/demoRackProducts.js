@@ -1,6 +1,6 @@
 import { rupeesToCatalogUnits } from '../utils/currency';
 
-const assetPath = (productId, view) => `/images/demo-clothing-rack/${productId}-${view}.svg`;
+const assetPath = (productId, view) => `/images/demo-clothing-rack/${productId}-${view}.png`;
 
 const productDefinitions = [
   {
@@ -113,8 +113,18 @@ const productDefinitions = [
   }
 ];
 
+const illustrativeSpecs = {
+  'T-Shirts': { fabric: 'Cotton jersey (demo specification)', fit: 'Classic or relaxed demo silhouette' },
+  Shirts: { fabric: 'Cotton blend (demo specification)', fit: 'Relaxed demo silhouette' },
+  Hoodies: { fabric: 'Cotton fleece blend (demo specification)', fit: 'Relaxed demo silhouette' },
+  Trousers: { fabric: 'Woven cotton blend (demo specification)', fit: 'Straight or wide-leg demo silhouette' },
+  Knitwear: { fabric: 'Cotton blend knit (demo specification)', fit: 'Relaxed demo silhouette' },
+  Jackets: { fabric: 'Woven shell (demo specification)', fit: 'Layering fit (demo specification)' }
+};
+
 export const demoRackProducts = Object.freeze(productDefinitions.map((product) => ({
   ...product,
+  ...illustrativeSpecs[product.category],
   _id: product.id,
   isDemoOnly: true,
   price: rupeesToCatalogUnits(product.priceInRupees),

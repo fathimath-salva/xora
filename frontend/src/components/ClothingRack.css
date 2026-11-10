@@ -150,7 +150,7 @@
   top: 0;
   left: 50%;
   display: block;
-  width: min(5.25rem, 48.5%);
+  width: min(5.25rem, 70%);
   aspect-ratio: 120 / 62;
   transform: translateX(-50%);
   pointer-events: none;
@@ -234,8 +234,8 @@
 
 .rack-garment-art--side {
   z-index: 1;
-  opacity: 1;
-  transform: rotateY(0deg);
+  opacity: 0;
+  transform: rotateY(82deg);
   transition: transform 540ms cubic-bezier(0.22, 0.68, 0.22, 1), opacity 260ms ease;
   transform-origin: 50% 3%;
   backface-visibility: hidden;
@@ -243,8 +243,8 @@
 
 .rack-garment-art--front {
   z-index: 2;
-  opacity: 0;
-  transform: rotateY(82deg);
+  opacity: 1;
+  transform: rotateY(0deg);
   transition: transform 540ms cubic-bezier(0.22, 0.68, 0.22, 1), opacity 280ms ease 80ms;
   transform-origin: 50% 3%;
   backface-visibility: hidden;
@@ -301,21 +301,22 @@
 
 .rack-dye-overlay--modal {
   z-index: 1;
+  top: 4.7rem;
+  height: calc(100% - 4.7rem);
   width: 100%;
-  height: 100%;
   pointer-events: none;
-}
-
-.rack-item.is-active .rack-garment-art--side,
-.rack-item:hover .rack-garment-art--side,
-.rack-item:focus-visible .rack-garment-art--side {
-  opacity: 0;
-  transform: rotateY(-82deg);
 }
 
 .rack-item.is-active .rack-garment-art--front,
 .rack-item:hover .rack-garment-art--front,
 .rack-item:focus-visible .rack-garment-art--front {
+  opacity: 0;
+  transform: rotateY(-82deg);
+}
+
+.rack-item.is-active .rack-garment-art--side,
+.rack-item:hover .rack-garment-art--side,
+.rack-item:focus-visible .rack-garment-art--side {
   opacity: 1;
   transform: rotateY(0deg);
 }
@@ -438,16 +439,59 @@
     radial-gradient(ellipse at center, #fffdfa 0%, #f2eee5 76%);
 }
 
+.rack-modal-hanging-display {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+}
+
+.rack-modal-rail {
+  position: absolute;
+  z-index: 2;
+  top: 2.35rem;
+  left: 12%;
+  right: 12%;
+  height: 0.42rem;
+  border: 1px solid rgb(98 91 80 / 46%);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f8f4e9 0%, #c9c0b1 28%, #8c8375 52%, #eee9df 100%);
+  box-shadow: 0 2px 4px rgb(52 47 39 / 24%);
+}
+
+.rack-modal-hanger {
+  position: absolute;
+  z-index: 2;
+  top: 2.12rem;
+  left: 50%;
+  display: block;
+  width: 5.8rem;
+  height: 3rem;
+  transform: translateX(-50%);
+}
+
+.rack-modal-hanger .rack-hanger {
+  stroke-width: 1.8;
+}
+
 .rack-modal-product-image {
-  position: relative;
+  position: absolute;
   z-index: 0;
+  top: 4.7rem;
+  left: 0;
   display: block;
   width: 100%;
-  height: 100%;
-  max-height: 78vh;
+  height: calc(100% - 4.7rem);
+  max-height: none;
   object-fit: contain;
-  padding: 3rem 2rem 2.75rem;
+  padding: 0.2rem 2rem 2.75rem;
   animation: rack-view-enter 240ms ease both;
+}
+
+.rack-price-tag--modal {
+  z-index: 3;
+  top: 4.8rem;
+  left: calc(50% + 2.35rem);
 }
 
 .rack-modal-view-toggle {
@@ -722,13 +766,22 @@
 
 @media (max-width: 767px) {
   .rack-scroll {
-    grid-auto-columns: clamp(7rem, 30vw, 7.5rem);
+    grid-auto-columns: clamp(4.7rem, 21vw, 5.1rem);
     gap: 0;
-    padding-inline: max(0.5rem, calc((100vw - 20rem) / 2));
+    padding-inline: 0.5rem;
   }
 
   .rack-item {
     min-height: 16rem;
+  }
+
+  .rack-hanging-unit {
+    width: 6.5rem;
+  }
+
+  .rack-price-tag {
+    left: calc(50% + 1.15rem);
+    font-size: 0.55rem;
   }
 
   .rack-carousel-arrow {
@@ -749,8 +802,28 @@
   }
 
   .rack-modal-product-image {
-    max-height: 42dvh;
-    padding: 2.5rem 2rem 2rem;
+    padding: 0.15rem 1.5rem 2rem;
+  }
+
+  .rack-dye-overlay--modal {
+    top: 4.1rem;
+    height: calc(100% - 4.1rem);
+  }
+
+  .rack-modal-rail {
+    top: 2rem;
+  }
+
+  .rack-modal-hanger {
+    top: 1.78rem;
+    width: 5rem;
+    height: 2.6rem;
+  }
+
+  .rack-price-tag--modal {
+    top: 4.1rem;
+    left: calc(50% + 1.95rem);
+    font-size: 0.55rem;
   }
 
   .rack-product-info {
@@ -793,7 +866,12 @@
   }
 
   .rack-modal-product-image {
-    max-height: 36dvh;
+    padding-right: 1.25rem;
+    padding-left: 1.25rem;
+  }
+
+  .rack-price-tag--modal {
+    left: calc(50% + 1.65rem);
   }
 }
 
@@ -808,15 +886,15 @@
     transition-duration: 0.01ms !important;
   }
 
-  .rack-item.is-active .rack-garment-art--side,
-  .rack-item:hover .rack-garment-art--side,
-  .rack-item:focus-visible .rack-garment-art--side {
-    opacity: 0;
-  }
-
   .rack-item.is-active .rack-garment-art--front,
   .rack-item:hover .rack-garment-art--front,
   .rack-item:focus-visible .rack-garment-art--front {
+    opacity: 0;
+  }
+
+  .rack-item.is-active .rack-garment-art--side,
+  .rack-item:hover .rack-garment-art--side,
+  .rack-item:focus-visible .rack-garment-art--side {
     opacity: 1;
     transform: none;
   }

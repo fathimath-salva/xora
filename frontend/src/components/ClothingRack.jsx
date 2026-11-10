@@ -151,16 +151,22 @@ function ProductDetails({ product, initialColour, onColourChange, onClose, addTo
           <button type="button" className="rack-gallery-arrow rack-gallery-arrow--left" onClick={() => switchView(-1)} aria-label="Previous product view">
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <img
-            key={`${view}-${selectedColour}-${dyeKey}`}
-            src={imageForView(view)}
-            alt={`${product.name}, ${view} view${fallbackViews[view] ? ' placeholder illustration' : ''}`}
-            className="rack-modal-product-image"
-            onError={() => setFallbackViews((current) => ({ ...current, [view]: true }))}
-          />
+          <div className="rack-modal-hanging-display">
+            <span className="rack-modal-rail" aria-hidden="true" />
+            <span className="rack-modal-hanger" aria-hidden="true"><Hanger /></span>
+            <img
+              key={`${view}-${selectedColour}-${dyeKey}`}
+              src={imageForView(view)}
+              alt={`${product.name}, ${view} view${fallbackViews[view] ? ' placeholder illustration' : ''}`}
+              className="rack-modal-product-image"
+              onError={() => setFallbackViews((current) => ({ ...current, [view]: true }))}
+            />
+            <span className="rack-price-tag rack-price-tag--modal" aria-hidden="true">
+              {formatInr(product.discountPrice || product.price)}
+            </span>
           {(product.isDemoOnly || (!product.rackImages?.[view] && !product[`${view}Image`] && !(view === 'front' && product.images?.[0]))) && (
             <span className="rack-image-note">
-              {product.isDemoOnly ? 'Illustrative placeholder image' : `${view[0].toUpperCase() + view.slice(1)} view placeholder`}
+              {product.isDemoOnly ? 'AI-generated demo garment view' : `${view[0].toUpperCase() + view.slice(1)} view placeholder`}
             </span>
           )}
           {isDemo && view === 'front' && (
@@ -173,6 +179,7 @@ function ProductDetails({ product, initialColour, onColourChange, onClose, addTo
               }}
             />
           )}
+          </div>
           <button type="button" className="rack-gallery-arrow rack-gallery-arrow--right" onClick={() => switchView(1)} aria-label="Next product view">
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -389,7 +396,7 @@ export default function ClothingRack({
     <div className="clothing-rack-experience">
       {demoMode && (
         <p className="rack-demo-notice" role="note">
-          Interactive sample display · Illustrative placeholder views · Demo prices/inventory only · No live checkout
+          Interactive sample display · AI-generated garment views · Demo prices/inventory only · No live checkout
         </p>
       )}
       <div className="rack-viewport" ref={rackRef} onPointerMove={handleRackPointerMove}>
