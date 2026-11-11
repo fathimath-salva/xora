@@ -8,7 +8,9 @@ export default function NewsletterSignup({ placement = 'footer' }) {
   if (loading || isAuthenticated) return null;
 
   const content = (
-    <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-6 gap-y-3 bg-xora-charcoal px-4 py-4 sm:px-6 sm:py-5 border border-xora-gold/70 text-left shadow-sm">
+    <div className={placement === 'home'
+      ? 'grid w-full grid-cols-1 items-center gap-x-6 gap-y-3 px-4 py-4 text-left sm:px-6 sm:py-5 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:px-8'
+      : 'grid grid-cols-1 items-center gap-x-6 gap-y-3 border border-xora-gold/70 bg-xora-charcoal px-4 py-4 text-left shadow-sm sm:px-6 sm:py-5 lg:grid-cols-[minmax(0,1fr)_auto_auto]'}>
       <div className="min-w-0">
         <h3 className="font-serif text-[10px] sm:text-xs tracking-[0.16em] text-[#D3BD91]">
           A LITTLE SOMETHING FOR YOU
@@ -36,8 +38,8 @@ export default function NewsletterSignup({ placement = 'footer' }) {
 
   if (placement === 'home') {
     return (
-      <section className="py-6 sm:py-8 px-4 sm:px-6 lg:px-8 bg-xora-sand/50">
-        <div className="max-w-5xl mx-auto">{content}</div>
+      <section className="w-full border-y border-xora-gold/70 bg-xora-charcoal py-4 sm:py-5">
+        <div className="w-full">{content}</div>
       </section>
     );
   }

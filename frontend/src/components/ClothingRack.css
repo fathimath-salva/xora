@@ -2,7 +2,6 @@
   --rack-metal: #b7ad9c;
   --rack-ink: #292720;
   --rack-muted: #81796f;
-  --rack-hanger-colour: #514d46;
   position: relative;
   color: var(--rack-ink);
 }
@@ -25,6 +24,24 @@
   letter-spacing: 0.035em;
 }
 
+.rack-stage-back-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 0.45rem;
+}
+
+.rack-stage-back {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgb(97 89 76 / 20%);
+  background: rgb(253 252 249 / 85%);
+  color: #39362f;
+  font-size: 0.65rem;
+}
+
 .rack-viewport {
   position: relative;
   padding-top: 1.75rem;
@@ -38,41 +55,23 @@
   position: absolute;
   z-index: 1;
   top: 1.65rem;
-  left: 3%;
-  right: 3%;
-  height: 0.72rem;
-  border: 1px solid rgb(98 91 80 / 46%);
-  border-radius: 999px;
-  background: linear-gradient(180deg, #f8f4e9 0%, #c9c0b1 22%, #8c8375 48%, #cfc6b7 73%, #eee9df 100%);
-  box-shadow: 0 2px 3px rgb(52 47 39 / 25%), 0 8px 14px rgb(52 47 39 / 9%);
+  left: 0;
+  right: 0;
+  height: 0.56rem;
+  border-top: 1px solid rgb(255 255 255 / 88%);
+  border-bottom: 1px solid rgb(85 77 66 / 62%);
+  background: linear-gradient(180deg, #fcfaf4 0%, #d8d0c2 20%, #978d7d 47%, #eee9df 63%, #a99f8f 82%, #fbf9f2 100%);
+  box-shadow: 0 1px 2px rgb(52 47 39 / 34%), 0 4px 9px rgb(52 47 39 / 12%);
   pointer-events: none;
 }
 
 .rack-rail-highlight {
   position: absolute;
   top: 1px;
-  left: 1.5%;
-  right: 1.5%;
+  left: 0;
+  right: 0;
   height: 1px;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 78%);
-}
-
-.rack-rail-support {
-  position: absolute;
-  top: -1.65rem;
-  width: 0.5rem;
-  height: 2rem;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #8c8375, #e1d8c8 48%, #938979);
-}
-
-.rack-rail-support--left {
-  left: 2%;
-}
-
-.rack-rail-support--right {
-  right: 2%;
+  background: rgb(255 255 255 / 82%);
 }
 
 .rack-scroll {
@@ -144,29 +143,29 @@
   transform-style: preserve-3d;
 }
 
-.rack-hanger-wrap {
+.rack-attachment-wrap {
   position: absolute;
   z-index: 3;
-  top: 0;
+  top: -0.42rem;
   left: 50%;
   display: block;
-  width: min(5.25rem, 70%);
-  aspect-ratio: 120 / 62;
+  width: 0.42rem;
+  height: 0.88rem;
   transform: translateX(-50%);
   pointer-events: none;
 }
 
-.rack-hanger {
+.rack-attachment {
   display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
   fill: none;
-  stroke: var(--rack-hanger-colour);
-  stroke-width: 1.6;
+  stroke: #77756f;
+  stroke-width: 1.05;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 1px 1px rgb(39 36 31 / 22%));
+  filter: drop-shadow(0 1px 1px rgb(39 36 31 / 30%));
 }
 
 .rack-price-tag {
@@ -233,31 +232,33 @@
 }
 
 .rack-garment-art--side {
-  z-index: 1;
-  opacity: 0;
-  transform: rotateY(82deg);
+  z-index: 2;
+  opacity: 1;
+  transform: rotateY(0deg);
   transition: transform 540ms cubic-bezier(0.22, 0.68, 0.22, 1), opacity 260ms ease;
-  transform-origin: 50% 3%;
+  transform-origin: 50% 0.15rem;
   backface-visibility: hidden;
 }
 
 .rack-garment-art--front {
-  z-index: 2;
-  opacity: 1;
-  transform: rotateY(0deg);
+  z-index: 1;
+  opacity: 0;
+  transform: rotateY(-82deg);
   transition: transform 540ms cubic-bezier(0.22, 0.68, 0.22, 1), opacity 280ms ease 80ms;
-  transform-origin: 50% 3%;
+  transform-origin: 50% 0.15rem;
   backface-visibility: hidden;
 }
 
 .rack-garment-image {
   position: absolute;
+  z-index: 1;
   inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
   object-position: center top;
+  filter: drop-shadow(0.12rem 0.32rem 0.22rem rgb(42 37 30 / 19%)) drop-shadow(-0.08rem 0.08rem 0.08rem rgb(255 255 255 / 18%));
   user-select: none;
   pointer-events: none;
 }
@@ -274,6 +275,10 @@
   text-align: center;
   text-transform: uppercase;
   pointer-events: none;
+}
+
+.rack-garment-art .rack-price-tag {
+  z-index: 4;
 }
 
 .rack-dye-overlay {
@@ -301,38 +306,30 @@
 
 .rack-dye-overlay--modal {
   z-index: 1;
-  top: 4.7rem;
-  height: calc(100% - 4.7rem);
+  top: 3.05rem;
+  height: calc(100% - 3.05rem);
   width: 100%;
   pointer-events: none;
 }
 
-.rack-item.is-active .rack-garment-art--front,
-.rack-item:hover .rack-garment-art--front,
-.rack-item:focus-visible .rack-garment-art--front {
-  opacity: 0;
-  transform: rotateY(-82deg);
-}
-
-.rack-item.is-active .rack-garment-art--side,
-.rack-item:hover .rack-garment-art--side,
-.rack-item:focus-visible .rack-garment-art--side {
+.rack-item.is-active .rack-garment-art--front {
   opacity: 1;
   transform: rotateY(0deg);
 }
 
-.rack-item.is-active .rack-hanging-unit,
-.rack-item:hover .rack-hanging-unit,
-.rack-item:focus-visible .rack-hanging-unit {
+.rack-item.is-active .rack-garment-art--side {
+  opacity: 0;
+  transform: rotateY(82deg);
+}
+
+.rack-item.is-active .rack-hanging-unit {
   z-index: 6;
   transform: translateY(-0.2rem) scale(1.035);
   filter: drop-shadow(0 12px 10px rgb(71 63 51 / 14%));
 }
 
-.rack-item.is-active .rack-hanging-swing,
-.rack-item:hover .rack-hanging-swing,
-.rack-item:focus-visible .rack-hanging-swing {
-  animation: rack-hanger-swing 750ms cubic-bezier(0.3, 0.06, 0.28, 1) both;
+.rack-item.is-active .rack-hanging-swing {
+  animation: rack-garment-sway 750ms cubic-bezier(0.3, 0.06, 0.28, 1) both;
 }
 
 .rack-carousel-arrow {
@@ -389,16 +386,16 @@
   text-underline-offset: 3px;
 }
 
-.rack-modal-backdrop {
+.rack-product-presentation {
   position: fixed;
   z-index: 100;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  background: rgb(28 27 24 / 64%);
-  backdrop-filter: blur(5px);
+  padding: clamp(0.5rem, 2vw, 1.5rem);
+  background: radial-gradient(ellipse at 48% 38%, rgb(246 242 233 / 96%), rgb(221 214 201 / 97%));
+  backdrop-filter: blur(4px);
 }
 
 .rack-product-modal {
@@ -411,6 +408,11 @@
   background: #f9f7f1;
   box-shadow: 0 24px 80px rgb(0 0 0 / 27%);
   animation: rack-modal-enter 280ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.rack-product-presentation-panel {
+  width: min(100%, 76rem);
+  max-height: min(92vh, 56rem);
 }
 
 .rack-modal-close {
@@ -459,29 +461,24 @@
   box-shadow: 0 2px 4px rgb(52 47 39 / 24%);
 }
 
-.rack-modal-hanger {
+.rack-modal-attachment {
   position: absolute;
-  z-index: 2;
+  z-index: 5;
   top: 2.12rem;
-  left: 50%;
+  left: calc(50% - 0.28rem);
   display: block;
-  width: 5.8rem;
-  height: 3rem;
-  transform: translateX(-50%);
-}
-
-.rack-modal-hanger .rack-hanger {
-  stroke-width: 1.8;
+  width: 0.56rem;
+  height: 1.08rem;
 }
 
 .rack-modal-product-image {
   position: absolute;
-  z-index: 0;
-  top: 4.7rem;
+  z-index: 4;
+  top: 3.05rem;
   left: 0;
   display: block;
   width: 100%;
-  height: calc(100% - 4.7rem);
+  height: calc(100% - 3.05rem);
   max-height: none;
   object-fit: contain;
   padding: 0.2rem 2rem 2.75rem;
@@ -493,6 +490,15 @@
   top: 4.8rem;
   left: calc(50% + 2.35rem);
 }
+
+.rack-flight-element {
+  transform-origin: top left;
+  animation: rack-garment-flight 680ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  will-change: transform;
+}
+
+.rack-flight-attachment { animation-name: rack-attachment-flight; }
+.rack-flight-tag { animation-name: rack-tag-flight; }
 
 .rack-modal-view-toggle {
   position: absolute;
@@ -741,7 +747,7 @@
   color: #a33e34;
 }
 
-@keyframes rack-hanger-swing {
+@keyframes rack-garment-sway {
   0% { transform: rotate(0deg); }
   22% { transform: rotate(3.2deg); }
   48% { transform: rotate(-2.2deg); }
@@ -762,6 +768,21 @@
 @keyframes rack-view-enter {
   from { opacity: 0.5; transform: scale(0.985); }
   to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rack-garment-flight {
+  from { transform: var(--rack-flight-from); }
+  to { transform: none; }
+}
+
+@keyframes rack-attachment-flight {
+  from { transform: var(--rack-flight-from); }
+  to { transform: none; }
+}
+
+@keyframes rack-tag-flight {
+  from { transform: var(--rack-flight-from); }
+  to { transform: rotate(2deg); }
 }
 
 @media (max-width: 767px) {
@@ -796,6 +817,10 @@
     overflow-y: auto;
   }
 
+  .rack-product-presentation-panel {
+    max-height: calc(100dvh - 1rem);
+  }
+
   .rack-modal-gallery {
     min-height: 13rem;
     max-height: 42dvh;
@@ -806,18 +831,17 @@
   }
 
   .rack-dye-overlay--modal {
-    top: 4.1rem;
-    height: calc(100% - 4.1rem);
+    top: 2.7rem;
+    height: calc(100% - 2.7rem);
   }
 
   .rack-modal-rail {
     top: 2rem;
   }
 
-  .rack-modal-hanger {
-    top: 1.78rem;
-    width: 5rem;
-    height: 2.6rem;
+  .rack-modal-attachment {
+    top: 1.9rem;
+    height: 0.95rem;
   }
 
   .rack-price-tag--modal {
@@ -851,7 +875,7 @@
 }
 
 @media (max-width: 380px) {
-  .rack-modal-backdrop {
+  .rack-product-presentation {
     padding: 0.45rem;
   }
 
@@ -881,21 +905,12 @@
   .rack-garment-art,
   .rack-scroll,
   .rack-product-modal,
-  .rack-dye-overlay {
+  .rack-dye-overlay,
+  .rack-flight-element {
     animation: none !important;
     transition-duration: 0.01ms !important;
   }
 
-  .rack-item.is-active .rack-garment-art--front,
-  .rack-item:hover .rack-garment-art--front,
-  .rack-item:focus-visible .rack-garment-art--front {
-    opacity: 0;
-  }
-
-  .rack-item.is-active .rack-garment-art--side,
-  .rack-item:hover .rack-garment-art--side,
-  .rack-item:focus-visible .rack-garment-art--side {
-    opacity: 1;
-    transform: none;
-  }
+  .rack-item.is-active .rack-garment-art--front { opacity: 1; transform: none; }
+  .rack-item.is-active .rack-garment-art--side { opacity: 0; }
 }

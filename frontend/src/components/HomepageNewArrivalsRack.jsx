@@ -98,7 +98,7 @@ export default function HomepageNewArrivalsRack() {
               Curated Essentials
             </span>
             <h2 id="homepage-rack-title" className="mt-1 font-serif text-3xl tracking-wide text-xora-charcoal sm:text-4xl">
-              New Arrival / New Collection
+              New Arrivals
             </h2>
             <p className="mt-2 text-sm text-xora-taupe-dark font-light">
               Explore the collection garment by garment.

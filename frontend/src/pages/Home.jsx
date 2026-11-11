@@ -23,9 +23,9 @@ export default function Home() {
       <NewsletterSignup placement="home" />
 
       {/* Product Categories */}
-      <section className="bg-xora-sand/50 py-12 sm:py-14 px-4 sm:px-6 lg:px-8 border-y border-xora-taupe/20">
+      <section className="bg-xora-sand/50 py-8 sm:py-10 px-4 sm:px-6 lg:px-8 border-y border-xora-taupe/20">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-8">
+          <div className="text-left max-w-2xl mb-8">
             <span className="text-[11px] uppercase tracking-luxury text-xora-taupe-dark font-medium">Collections</span>
             <h2 className="font-serif text-3xl sm:text-4xl text-xora-charcoal tracking-wide mt-1">
               Shop by Category
@@ -62,7 +62,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* New Arrivals / New Collection interactive rack */}
+      {/* New Arrivals interactive rack */}
       <HomepageNewArrivalsRack />
 
       {/* Standard product collection remains separate from the rack. */}

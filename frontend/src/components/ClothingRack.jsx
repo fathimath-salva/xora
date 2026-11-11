@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, Check, ChevronLeft, ChevronRight, LoaderCircle, X } from 'lucide-react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight, LoaderCircle } from 'lucide-react';
 import { formatInr } from '../utils/currency';
 import { useCart } from '../context/CartContext';
 import { demoRackProducts } from '../data/demoRackProducts';
@@ -29,15 +29,15 @@ const cycleProductView = (currentView, direction) => {
   return PRODUCT_VIEWS[(currentIndex + direction + PRODUCT_VIEWS.length) % PRODUCT_VIEWS.length];
 };
 
-function Hanger() {
+function GarmentAttachment() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 120 62" className="rack-hanger">
-      <path d="M60 17c-4-7-3-15 3-15s8 7 3 11l-3 4L10 54q-3 3 2 3h96q5 0 2-3L63 17Z" />
+    <svg aria-hidden="true" viewBox="0 0 16 30" className="rack-attachment">
+      <path d="M8 0v15c0 3 4 4 4 7 0 3-2 5-5 5H5" />
     </svg>
   );
 }
 
-function GarmentView({ product, view, colour, dyeKey, dyeing = false, isPlaceholder = false, onImageError }) {
+function GarmentView({ product, view, colour, dyeKey, dyeing = false, isPlaceholder = false, onImageError, price }) {
   const images = getRackImages({ ...product, _selectedColour: colour });
   const source = images[view];
   const chosenColour = (product.colours || []).find((item) => getColourName(item) === colour);
@@ -45,6 +45,7 @@ function GarmentView({ product, view, colour, dyeKey, dyeing = false, isPlacehol
 
   return (
     <span className={`rack-garment-art rack-garment-art--${view}`} key={`${view}-${colour}-${dyeKey}`}>
+      <span className="rack-attachment-wrap"><GarmentAttachment /></span>
       <img
         className={`rack-garment-image rack-garment-image--${view}`}
         src={source}
@@ -64,11 +65,12 @@ function GarmentView({ product, view, colour, dyeKey, dyeing = false, isPlacehol
         />
       )}
       {isPlaceholder && <span className="rack-garment-placeholder">{view} view placeholder</span>}
+      <span className="rack-price-tag" aria-hidden="true">{formatInr(price)}</span>
     </span>
   );
 }
 
-function ProductDetails({ product, initialColour, onColourChange, onClose, addToCart }) {
+function ProductDetails({ product, initialColour, presentationOrigin, onColourChange, onClose, addToCart }) {
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || '');
   const [selectedColour, setSelectedColour] = useState(initialColour || getColourName(product.colours?.[0]) || '');
   const [view, setView] = useState('front');
@@ -76,13 +78,39 @@ function ProductDetails({ product, initialColour, onColourChange, onClose, addTo
   const [added, setAdded] = useState(false);
   const [cartError, setCartError] = useState('');
   const [fallbackViews, setFallbackViews] = useState({});
+  const [flightTransforms, setFlightTransforms] = useState(null);
   const touchStart = useRef(null);
+  const imageRef = useRef(null);
+  const attachmentRef = useRef(null);
+  const priceTagRef = useRef(null);
   const images = useMemo(() => getRackImages({ ...product, _selectedColour: selectedColour }), [product, selectedColour]);
   const sizes = product.sizes || [];
   const colours = product.colours || [];
   const hasStockData = product.stock != null && Number.isFinite(Number(product.stock));
   const soldOut = hasStockData && Number(product.stock) <= 0;
   const isDemo = product.isDemoOnly === true;
+
+  useLayoutEffect(() => {
+    if (!presentationOrigin) return undefined;
+    const getTransform = (origin, target) => {
+      if (!origin || !target || !target.width || !target.height) return null;
+      return `translate3d(${origin.left - target.left}px, ${origin.top - target.top}px, 0) scale(${origin.width / target.width}, ${origin.height / target.height})`;
+    };
+    const rectOf = (element) => {
+      if (!element) return null;
+      const { left, top, width, height } = element.getBoundingClientRect();
+      return { left, top, width, height };
+    };
+    const transforms = {
+      garment: getTransform(presentationOrigin.garment, rectOf(imageRef.current)),
+      attachment: getTransform(presentationOrigin.attachment, rectOf(attachmentRef.current)),
+      tag: getTransform(presentationOrigin.tag, rectOf(priceTagRef.current))
+    };
+    if (!transforms.garment) return undefined;
+    setFlightTransforms(transforms);
+    const timer = window.setTimeout(() => setFlightTransforms(null), 760);
+    return () => window.clearTimeout(timer);
+  }, [presentationOrigin, product._id]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -128,10 +156,10 @@ function ProductDetails({ product, initialColour, onColourChange, onClose, addTo
   );
 
   return (
-    <div className="rack-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="rack-product-title" className="rack-product-modal">
-        <button type="button" className="rack-modal-close" onClick={onClose} aria-label="Close product details">
-          <X className="h-5 w-5" />
+    <div className="rack-product-presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <section role="dialog" aria-modal="true" aria-labelledby="rack-product-title" className="rack-product-modal rack-product-presentation-panel">
+        <button type="button" className="rack-modal-close" onClick={onClose} aria-label="Back to front-facing rack view">
+          <ArrowLeft className="h-5 w-5" />
         </button>
 
         <div
@@ -153,15 +181,27 @@ function ProductDetails({ product, initialColour, onColourChange, onClose, addTo
           </button>
           <div className="rack-modal-hanging-display">
             <span className="rack-modal-rail" aria-hidden="true" />
-            <span className="rack-modal-hanger" aria-hidden="true"><Hanger /></span>
+            <span
+              ref={attachmentRef}
+              className={`rack-modal-attachment${flightTransforms?.attachment ? ' rack-flight-element rack-flight-attachment' : ''}`}
+              style={flightTransforms?.attachment ? { '--rack-flight-from': flightTransforms.attachment } : undefined}
+              aria-hidden="true"
+            ><GarmentAttachment /></span>
             <img
+              ref={imageRef}
               key={`${view}-${selectedColour}-${dyeKey}`}
               src={imageForView(view)}
               alt={`${product.name}, ${view} view${fallbackViews[view] ? ' placeholder illustration' : ''}`}
-              className="rack-modal-product-image"
+              className={`rack-modal-product-image${flightTransforms?.garment ? ' rack-flight-element rack-flight-garment' : ''}`}
+              style={flightTransforms?.garment ? { '--rack-flight-from': flightTransforms.garment } : undefined}
               onError={() => setFallbackViews((current) => ({ ...current, [view]: true }))}
             />
-            <span className="rack-price-tag rack-price-tag--modal" aria-hidden="true">
+            <span
+              ref={priceTagRef}
+              className={`rack-price-tag rack-price-tag--modal${flightTransforms?.tag ? ' rack-flight-element rack-flight-tag' : ''}`}
+              style={flightTransforms?.tag ? { '--rack-flight-from': flightTransforms.tag } : undefined}
+              aria-hidden="true"
+            >
               {formatInr(product.discountPrice || product.price)}
             </span>
           {(product.isDemoOnly || (!product.rackImages?.[view] && !product[`${view}Image`] && !(view === 'front' && product.images?.[0]))) && (
@@ -274,8 +314,12 @@ export default function ClothingRack({
   onNearEnd,
   onRetry
 }) {
+  const [interactionStage, setInteractionStage] = useState('rackSideView');
   const [activeProductId, setActiveProductId] = useState(null);
+  const [hoveredProductId, setHoveredProductId] = useState(null);
+  const [pinnedFrontProductId, setPinnedFrontProductId] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [presentationOrigin, setPresentationOrigin] = useState(null);
   const [colourByProduct, setColourByProduct] = useState({});
   const [dyeingProductId, setDyeingProductId] = useState(null);
   const [dyeKeyByProduct, setDyeKeyByProduct] = useState({});
@@ -288,7 +332,57 @@ export default function ClothingRack({
   const suppressClickRef = useRef(false);
   const { addToCart } = useCart();
 
-  const handleCloseModal = () => setSelectedProduct(null);
+  const returnToFrontView = useCallback(() => {
+    setInteractionStage('rackFrontView');
+    setPinnedFrontProductId(selectedProduct?._id || null);
+  }, [selectedProduct]);
+  const returnToSideView = useCallback(() => {
+    setInteractionStage('rackSideView');
+    setActiveProductId(null);
+    setHoveredProductId(null);
+    setPinnedFrontProductId(null);
+  }, []);
+
+  useEffect(() => {
+    if (!pinnedFrontProductId || interactionStage !== 'rackFrontView') return undefined;
+    const clearFrontAfterMouseLeaves = (event) => {
+      if (event.pointerType !== 'mouse') return;
+      const element = document.elementFromPoint(event.clientX, event.clientY);
+      const rackItem = element?.closest('.rack-item');
+      if (rackItem?.dataset.productId !== pinnedFrontProductId) {
+        setPinnedFrontProductId(null);
+        setHoveredProductId(rackItem?.dataset.productId || null);
+      }
+    };
+    const clearFrontOnTouchOutside = (event) => {
+      if (event.target?.closest?.('.rack-item')) return;
+      setInteractionStage('rackSideView');
+      setActiveProductId(null);
+      setHoveredProductId(null);
+      setPinnedFrontProductId(null);
+    };
+    window.addEventListener('pointermove', clearFrontAfterMouseLeaves);
+    const hasCoarsePointer = window.matchMedia?.('(hover: none), (pointer: coarse)').matches
+      || (navigator.maxTouchPoints || 0) > 0;
+    if (hasCoarsePointer) window.addEventListener('click', clearFrontOnTouchOutside);
+    return () => {
+      window.removeEventListener('pointermove', clearFrontAfterMouseLeaves);
+      window.removeEventListener('click', clearFrontOnTouchOutside);
+    };
+  }, [interactionStage, pinnedFrontProductId]);
+
+  const capturePresentationOrigin = (rackItem) => {
+    const readRect = (element) => {
+      if (!element) return null;
+      const { left, top, width, height } = element.getBoundingClientRect();
+      return { left, top, width, height };
+    };
+    setPresentationOrigin({
+      garment: readRect(rackItem.querySelector('.rack-garment-art--front .rack-garment-image')),
+      attachment: readRect(rackItem.querySelector('.rack-garment-art--front .rack-attachment-wrap')),
+      tag: readRect(rackItem.querySelector('.rack-garment-art--front .rack-price-tag'))
+    });
+  };
 
   useEffect(() => {
     if (!dyeingProductId) return undefined;
@@ -399,11 +493,17 @@ export default function ClothingRack({
           Interactive sample display · AI-generated garment views · Demo prices/inventory only · No live checkout
         </p>
       )}
+      {interactionStage === 'rackFrontView' && (
+        <div className="rack-stage-back-row">
+          <button type="button" className="rack-stage-back" onClick={returnToSideView}>
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to side view
+          </button>
+        </div>
+      )}
       <div className="rack-viewport" ref={rackRef} onPointerMove={handleRackPointerMove}>
         <div className="rack-rail">
           <span className="rack-rail-highlight" />
-          <span className="rack-rail-support rack-rail-support--left" />
-          <span className="rack-rail-support rack-rail-support--right" />
         </div>
         <button
           type="button"
@@ -443,7 +543,7 @@ export default function ClothingRack({
               _selectedColour: selectedColour,
               _fallbackViews: failedRackImages[product._id]
             });
-            const isActive = activeProductId === product._id;
+            const isFrontFacing = hoveredProductId === product._id || pinnedFrontProductId === product._id;
             const dyeKey = dyeKeyByProduct[product._id] || 0;
             const colourImages = product.colourImages?.[selectedColour] || {};
             const hasRackImage = (view) => Boolean(
@@ -456,26 +556,36 @@ export default function ClothingRack({
               <button
                 key={product._id}
                 type="button"
-                className={`rack-item${isActive ? ' is-active' : ''}`}
+                className={`rack-item${isFrontFacing ? ' is-active' : ''}`}
                 style={{ '--rack-item-index': index }}
+                data-product-id={product._id}
                 aria-label={`View ${product.name}, ${formatInr(product.price)}`}
                 onPointerEnter={(event) => {
-                  if (event.pointerType !== 'touch') setActiveProductId(product._id);
+                  if (event.pointerType === 'touch') return;
+                  setHoveredProductId(product._id);
+                  setPinnedFrontProductId((current) => current === product._id ? current : null);
                 }}
                 onPointerLeave={(event) => {
-                  if (event.pointerType !== 'touch') setActiveProductId((current) => current === product._id ? null : current);
+                  if (event.pointerType === 'touch') return;
+                  setHoveredProductId((current) => current === product._id ? null : current);
+                  setPinnedFrontProductId((current) => current === product._id ? null : current);
                 }}
-                onFocus={() => setActiveProductId(product._id)}
-                onBlur={() => setActiveProductId((current) => current === product._id ? null : current)}
-                onClick={() => {
+                onClick={(event) => {
+                  const secondClickOnSelected = interactionStage === 'rackFrontView' && activeProductId === product._id;
                   setActiveProductId(product._id);
                   setSelectedProduct(product);
+                  if (secondClickOnSelected) {
+                    capturePresentationOrigin(event.currentTarget);
+                    setPinnedFrontProductId(product._id);
+                    setInteractionStage('productPresentation');
+                  } else {
+                    setPinnedFrontProductId(product._id);
+                    setInteractionStage('rackFrontView');
+                  }
                 }}
               >
                 <span className="rack-hanging-unit">
                   <span className="rack-hanging-swing">
-                    <span className="rack-hanger-wrap"><Hanger /></span>
-                    <span className="rack-price-tag" aria-hidden="true">{formatInr(product.discountPrice || product.price)}</span>
                     <span className="rack-garment-stage">
                       <GarmentView
                         product={{ ...product, rackImages: images, _fallbackViews: failedRackImages[product._id] }}
@@ -484,6 +594,7 @@ export default function ClothingRack({
                         dyeKey={dyeKey}
                         isPlaceholder={!hasRackImage('side') || Boolean(failedRackImages[product._id]?.side)}
                         onImageError={(view) => handleProductImageError(product, view)}
+                        price={product.discountPrice || product.price}
                       />
                       <GarmentView
                         product={{ ...product, rackImages: images, _fallbackViews: failedRackImages[product._id] }}
@@ -493,6 +604,7 @@ export default function ClothingRack({
                         dyeing={dyeingProductId === product._id}
                         isPlaceholder={!hasRackImage('front') || Boolean(failedRackImages[product._id]?.front)}
                         onImageError={(view) => handleProductImageError(product, view)}
+                        price={product.discountPrice || product.price}
                       />
                     </span>
                   </span>
@@ -523,16 +635,17 @@ export default function ClothingRack({
           <button type="button" onClick={onRetry}>Try again</button>
         </p>
       )}
-      {selectedProduct && (
+      {selectedProduct && interactionStage === 'productPresentation' && (
         <ProductDetails
           product={selectedProduct}
           initialColour={colourByProduct[selectedProduct._id]}
+          presentationOrigin={presentationOrigin}
           onColourChange={(colour) => {
             setColourByProduct((current) => ({ ...current, [selectedProduct._id]: colour }));
             setDyeingProductId(selectedProduct._id);
             setDyeKeyByProduct((current) => ({ ...current, [selectedProduct._id]: (current[selectedProduct._id] || 0) + 1 }));
           }}
-          onClose={handleCloseModal}
+          onClose={returnToFrontView}
           addToCart={addToCart}
         />
       )}
