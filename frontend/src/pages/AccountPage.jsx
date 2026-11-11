@@ -7,21 +7,17 @@ import {
   LogOut,
   MapPin,
   Package,
-  ShoppingBag,
   User,
   CheckCircle2,
   Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
-import { addressService, authService, orderService, productService } from '../services/api';
+import { addressService, authService, orderService } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { formatInr } from '../utils/currency';
 import { indianStatesAndTerritories } from '../utils/india';
 import { getProductImage } from '../utils/productImage';
-import { clearRecentlyViewed, getRecentlyViewedIds } from '../utils/recentlyViewed';
-import { useCart } from '../context/CartContext';
-import WhatsAppSupport from '../components/WhatsAppSupport';
 
 const tabs = [
   { id: 'overview', label: 'Overview', icon: Sparkles },
@@ -35,13 +31,9 @@ const tabs = [
 export default function AccountPage() {
   const { user, logout, updateUser } = useAuth();
   const { wishlist, removeFromWishlist } = useWishlist();
-  const { addToCart } = useCart();
   const [searchParams, setSearchParams] = useSearchParams();
   const [orders, setOrders] = useState([]);
   const [addresses, setAddresses] = useState([]);
-  const [recentProducts, setRecentProducts] = useState([]);
-  const [wishlistSelections, setWishlistSelections] = useState({});
-  const [wishlistNotice, setWishlistNotice] = useState('');
   const [loading, setLoading] = useState(true);
   const [profileForm, setProfileForm] = useState({ name: user?.name || '', phone: user?.phone || '' });
   const [profileStatus, setProfileStatus] = useState('');
@@ -80,25 +72,6 @@ export default function AccountPage() {
       setProfileForm({ name: user.name || '', phone: user.phone || '' });
     }
   }, [user]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const loadRecentlyViewed = async () => {
-      const ids = getRecentlyViewedIds();
-      const results = await Promise.all(ids.map(async (id) => {
-        try {
-          const response = await productService.getProductById(id);
-          return response.data?.success ? response.data.product : null;
-        } catch (error) {
-          console.warn(`Unable to load recently viewed product ${id}.`, error);
-          return null;
-        }
-      }));
-      if (!cancelled) setRecentProducts(results.filter(Boolean));
-    };
-    loadRecentlyViewed();
-    return () => { cancelled = true; };
-  }, []);
 
   const handleProfileSave = async (e) => {
     e.preventDefault();
@@ -144,25 +117,6 @@ export default function AccountPage() {
     } catch (err) {
       alert(err.response?.data?.message || 'Unable to save address.');
     }
-  };
-
-  const handleClearRecentlyViewed = () => {
-    clearRecentlyViewed();
-    setRecentProducts([]);
-  };
-
-  const handleMoveWishlistItemToCart = async (product) => {
-    const productId = product._id || product.id;
-    const selection = wishlistSelections[productId] || {};
-    const result = await addToCart(
-      product,
-      selection.size || product.sizes?.[0] || 'N/A',
-      selection.colour || product.colours?.[0]?.name || 'Default',
-      1
-    );
-    setWishlistNotice(result?.success
-      ? `${product.name} added to your bag.`
-      : result?.message || 'Unable to add this product to your bag.');
   };
 
   if (!user) {
@@ -246,30 +200,6 @@ export default function AccountPage() {
                   ))}
                 </div>
 
-                <section className="bg-xora-offwhite border border-xora-taupe/30 p-6 rounded-xs">
-                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                    <h2 className="font-serif text-2xl text-xora-charcoal">Recently Viewed</h2>
-                    {recentProducts.length > 0 && (
-                      <button type="button" onClick={handleClearRecentlyViewed} className="text-xs text-xora-taupe-dark underline underline-offset-2 hover:text-xora-charcoal">
-                        Clear history
-                      </button>
-                    )}
-                  </div>
-                  {recentProducts.length === 0 ? (
-                    <p className="text-sm text-xora-taupe-dark">Products you view will appear here on this device.</p>
-                  ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {recentProducts.map((product) => (
-                        <Link key={product._id} to={`/product/${product._id}`} className="group min-w-0">
-                          <img src={getProductImage(product)} alt={product.name} className="aspect-[3/4] w-full bg-xora-sand object-contain transition-opacity group-hover:opacity-80" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getProductImage({ category: product.category }); }} />
-                          <p className="mt-2 truncate font-serif text-sm text-xora-charcoal">{product.name}</p>
-                          <p className="text-xs text-xora-taupe-dark">{formatInr(product.discountPrice || product.price)}</p>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </section>
-
                 <div className="bg-xora-offwhite border border-xora-taupe/30 p-6 rounded-xs">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="font-serif text-2xl text-xora-charcoal">Recent Orders</h2>
@@ -287,9 +217,6 @@ export default function AccountPage() {
                         <div className="text-right">
                           <p className="text-xs text-xora-taupe-dark">{new Date(order.createdAt).toLocaleDateString()}</p>
                           <p className="text-sm font-medium text-xora-charcoal">{formatInr(order.total)}</p>
-                          <Link to={`/order-confirmation/${order._id}#order-tracking`} className="mt-1 inline-flex items-center text-[10px] uppercase tracking-wider text-xora-charcoal underline underline-offset-2">
-                            Order details <ArrowRight className="ml-1 h-3 w-3" />
-                          </Link>
                         </div>
                       </div>
                     ))}
@@ -362,10 +289,6 @@ export default function AccountPage() {
                           </p>
                         </div>
                       </div>
-                      <Link to={`/order-confirmation/${order._id}#order-tracking`} className="mt-4 inline-flex items-center text-[10px] uppercase tracking-wider text-xora-charcoal underline underline-offset-2">
-                        View order status <ArrowRight className="ml-1 h-3 w-3" />
-                      </Link>
-                      <WhatsAppSupport orderNumber={order._id} inline />
                     </div>
                   ))
                 )}
@@ -379,60 +302,22 @@ export default function AccountPage() {
                   <p className="mt-4 text-sm text-xora-taupe-dark">Your wishlist is empty.</p>
                 ) : (
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {wishlist.map((product) => {
-                      const productId = product._id || product.id;
-                      const selection = wishlistSelections[productId] || {};
-                      const firstColour = product.colours?.[0];
-                      return (
-                      <div key={productId} className="flex gap-3 border border-xora-taupe/20 bg-white p-3 rounded-xs">
+                    {wishlist.map((product) => (
+                      <div key={product._id || product.id} className="flex gap-3 border border-xora-taupe/20 bg-white p-3 rounded-xs">
                         <img src={getProductImage(product)} alt={product.name} className="w-20 h-24 object-cover rounded-xs" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = getProductImage({ category: product.category }); }} />
                         <div className="flex-1">
                           <p className="font-serif text-xl text-xora-charcoal">{product.name}</p>
                           <p className="text-xs text-xora-taupe-dark">{product.category}</p>
                           <p className="text-sm font-medium mt-2">{formatInr(product.discountPrice || product.price)}</p>
                           <div className="mt-3 flex gap-2">
-                            <Link to={`/product/${productId}`} className="btn-luxury py-2 px-3 text-[10px]">View</Link>
-                            {Array.isArray(product.sizes) && product.sizes.length > 0 && (
-                              <select
-                                aria-label={`Size for ${product.name}`}
-                                value={selection.size || product.sizes[0]}
-                                onChange={(event) => setWishlistSelections((current) => ({
-                                  ...current,
-                                  [productId]: { ...current[productId], size: event.target.value }
-                                }))}
-                                className="min-w-0 border border-xora-taupe/40 bg-white px-2 py-2 text-[10px]"
-                              >
-                                {product.sizes.map((size) => <option key={size} value={size}>{size}</option>)}
-                              </select>
-                            )}
-                            {Array.isArray(product.colours) && product.colours.length > 0 && (
-                              <select
-                                aria-label={`Colour for ${product.name}`}
-                                value={selection.colour || (typeof firstColour === 'string' ? firstColour : firstColour.name)}
-                                onChange={(event) => setWishlistSelections((current) => ({
-                                  ...current,
-                                  [productId]: { ...current[productId], colour: event.target.value }
-                                }))}
-                                className="min-w-0 border border-xora-taupe/40 bg-white px-2 py-2 text-[10px]"
-                              >
-                                {product.colours.map((colour) => {
-                                  const name = typeof colour === 'string' ? colour : colour.name;
-                                  return <option key={name} value={name}>{name}</option>;
-                                })}
-                              </select>
-                            )}
-                            <button type="button" onClick={() => handleMoveWishlistItemToCart(product)} disabled={product.stock <= 0} className="btn-luxury py-2 px-3 text-[10px] disabled:cursor-not-allowed disabled:opacity-50">
-                              <ShoppingBag className="mr-1 h-3 w-3" /> Add to Bag
-                            </button>
-                            <button type="button" onClick={() => removeFromWishlist(productId)} className="btn-luxury-outline py-2 px-3 text-[10px]">Remove</button>
+                            <Link to={`/product/${product._id}`} className="btn-luxury py-2 px-3 text-[10px]">View</Link>
+                            <button type="button" onClick={() => removeFromWishlist(product._id)} className="btn-luxury-outline py-2 px-3 text-[10px]">Remove</button>
                           </div>
                         </div>
                       </div>
-                      );
-                    })}
+                    ))}
                   </div>
                 )}
-                {wishlistNotice && <p role="status" className="mt-4 text-xs text-xora-taupe-dark">{wishlistNotice}</p>}
               </div>
             )}
 

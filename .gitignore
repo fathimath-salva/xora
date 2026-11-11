@@ -7,14 +7,39 @@ backend/node_modules/
 .env
 .env.*
 !.env.example
+.npmrc
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+secrets.json
+secrets.*
+credentials*.json
+service-account*.json
 
 # Build files
 dist/
 build/
+coverage/
+logs/
+uploads/
 frontend/dist/
 frontend/build/
 backend/dist/
 backend/build/
+
+# Local databases and backups
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.bak
+*.old
+*.orig
+*.tmp
+*~
 
 # Logs
 *.log

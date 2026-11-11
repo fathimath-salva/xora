@@ -1,0 +1,30 @@
+{
+  "name": "yaqana-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "New backend for YAQANA Men's Fashion; designed to integrate with the existing React/Vite frontend.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "test": "node --test",
+    "check": "node scripts/checkSyntax.js",
+    "create-admin": "node scripts/createAdmin.js",
+    "seed:categories": "node scripts/seedCategories.js",
+    "seed:dummy-catalog": "node scripts/seedDummyCatalog.js",
+    "remove:dummy-catalog": "node scripts/removeDummyCatalog.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "mongoose": "^8.19.1",
+    "multer": "^2.0.2",
+    "zod": "^4.6.7"
+  }
+}

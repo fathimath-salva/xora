@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import { login, register, getProfile, updateProfile, changePassword, logout } from '../controllers/authController.js';
+import { requireAuth } from '../middleware/auth.js';
+const router = Router();
+router.post('/register', register);
+router.post('/login', login);
+router.post('/logout', requireAuth, logout);
+router.get('/profile', requireAuth, getProfile);
+router.put('/profile', requireAuth, updateProfile);
+router.put('/change-password', requireAuth, changePassword);
+export default router;

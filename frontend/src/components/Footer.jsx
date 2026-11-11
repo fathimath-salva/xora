@@ -31,7 +31,7 @@ export default function Footer() {
         )}
 
         {/* Links Navigation Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-8 md:gap-10 py-8 border-b border-xora-taupe/30 text-xs">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-8 border-b border-xora-taupe/30 text-xs">
           <div>
             <h4 className="font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">Shop</h4>
             <ul className="space-y-2.5 text-xora-taupe-dark">
@@ -60,7 +60,7 @@ export default function Footer() {
             <h4 className="font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">Customer Care</h4>
             <ul className="space-y-2.5 text-xora-taupe-dark">
               <li>
-                <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Contact Us</Link>
+                <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Client Services</Link>
               </li>
               <li>
                 <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Shipping &amp; Delivery</Link>
@@ -70,6 +70,9 @@ export default function Footer() {
               </li>
               <li>
                 <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Garment Care &amp; Fabric</Link>
+              </li>
+              <li>
+                <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Bespoke Inquiries</Link>
               </li>
             </ul>
           </div>
@@ -86,14 +89,30 @@ export default function Footer() {
               <li>
                 <Link to="/about" className="hover:text-xora-charcoal transition-colors">Sustainable Sourcing</Link>
               </li>
+              <li>
+                <Link to="/about" className="hover:text-xora-charcoal transition-colors">Careers</Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">Legal &amp; Privacy</h4>
+            <ul className="space-y-2.5 text-xora-taupe-dark">
+              <li>
+                <Link to="/contact" className="hover:text-xora-charcoal transition-colors">Privacy Policy</Link>
+              </li>
+              <li>
+                <Link to="/policies" className="hover:text-xora-charcoal transition-colors">Store Policies</Link>
+              </li>
+              <li>
+                <Link to="/policies" className="hover:text-xora-charcoal transition-colors">Returns Policy</Link>
+              </li>
+              <li>
+                <Link to="/admin" className="hover:text-xora-gold transition-colors font-medium">Atelier Portal (Admin)</Link>
+              </li>
             </ul>
           </div>
         </div>
-
-        <nav aria-label="Legal links" className="flex flex-wrap justify-center gap-x-6 gap-y-2 border-b border-xora-taupe/30 py-4 text-[10px] uppercase tracking-wider text-xora-taupe-dark sm:justify-start">
-          <Link to="/policies" className="hover:text-xora-charcoal transition-colors">Returns &amp; Refund Policy (Draft)</Link>
-          <span>Privacy Policy and Terms &amp; Conditions require business approval</span>
-        </nav>
 
         {/* Bottom copyright */}
         <div className="pt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-[11px] text-xora-taupe-dark tracking-wide">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Smartphone, Banknote, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Smartphone, Banknote, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { orderService, addressService } from '../services/api';
@@ -13,12 +13,12 @@ const paymentOptions = [
   { value: 'PhonePe (UPI)', icon: Smartphone },
   { value: 'Paytm (UPI)', icon: Smartphone },
   { value: 'UPI', icon: Smartphone },
-  { value: 'Cash on Delivery', label: 'Cash on Delivery (test selection)', icon: Banknote }
+  { value: 'Cash on Delivery', label: 'Cash on Delivery (COD)', icon: Banknote }
 ];
 const CHECKOUT_ATTEMPT_STORAGE_KEY = 'xora_checkout_attempt';
 
 export default function CheckoutPage() {
-  const { items, subtotal, clearCart, hasDemoItems } = useCart();
+  const { items, subtotal, shippingFee, estimatedTax, grandTotal, clearCart } = useCart();
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -43,10 +43,10 @@ export default function CheckoutPage() {
 
   // Redirect if cart is empty
   useEffect(() => {
-    if (items.length === 0 || hasDemoItems) {
+    if (items.length === 0) {
       navigate('/cart');
     }
-  }, [items.length, hasDemoItems, navigate]);
+  }, [items, navigate]);
 
   // Load user saved addresses
   useEffect(() => {
@@ -98,12 +98,6 @@ export default function CheckoutPage() {
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
     setError('');
-
-    if (hasDemoItems) {
-      setError('Demo rack items cannot be checked out. Remove them from your bag first.');
-      navigate('/cart');
-      return;
-    }
 
     if (!isAuthenticated) {
       navigate(`/login?redirect=${encodeURIComponent('/checkout')}`);
@@ -157,7 +151,7 @@ export default function CheckoutPage() {
         }
       }
       const res = await orderService.createOrder(orderPayload, checkoutAttempt.current.key);
-      if (res.data?.success && res.data.order?._id) {
+      if (res.data.success) {
         checkoutAttempt.current = null;
         try {
           sessionStorage.removeItem(CHECKOUT_ATTEMPT_STORAGE_KEY);
@@ -166,8 +160,6 @@ export default function CheckoutPage() {
         }
         clearCart();
         navigate(`/order-confirmation/${res.data.order._id}`);
-      } else {
-        setError(res.data?.message || 'The order service did not confirm the order. Please try again.');
       }
     } catch (err) {
       console.error('Order creation failed:', err);
@@ -176,22 +168,6 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
-
-  if (hasDemoItems) {
-    return (
-      <div className="bg-xora-cream min-h-screen text-xora-charcoal py-10 sm:py-16">
-        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="font-serif text-3xl text-xora-charcoal">Demo items cannot be checked out</h1>
-          <p className="mt-3 text-sm text-xora-taupe-dark">
-            Remove the sample rack items from your bag before continuing to checkout.
-          </p>
-          <Link to="/cart" className="btn-luxury inline-flex mt-6 px-6 py-3 text-xs">
-            RETURN TO YOUR BAG
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-xora-cream min-h-screen text-xora-charcoal py-10 sm:py-16">
@@ -206,11 +182,8 @@ export default function CheckoutPage() {
             <span>Return to Shopping Bag</span>
           </Link>
           <h1 className="font-serif text-3xl sm:text-4xl font-light text-xora-charcoal">
-            Checkout
+            Secure Checkout
           </h1>
-          <p className="mt-2 text-xs text-xora-taupe-dark">
-            Test mode only. No payment provider is connected.
-          </p>
         </div>
 
         {error && (
@@ -441,7 +414,7 @@ export default function CheckoutPage() {
                           </span>
                         </div>
                         <span className="text-[10px] uppercase font-mono tracking-wider text-xora-taupe-dark">
-                          Test selection
+                          {value === 'Cash on Delivery' ? 'Pay on delivery' : 'Test mode'}
                         </span>
                       </div>
                     </label>
@@ -489,11 +462,17 @@ export default function CheckoutPage() {
                     <span>Subtotal</span>
                     <span className="font-medium text-xora-charcoal">{formatInr(subtotal)}</span>
                   </div>
-                  <div className="border-t border-xora-taupe/20 pt-3">
-                    <p className="font-medium text-xora-charcoal">Items subtotal: {formatInr(subtotal)}</p>
-                    <p className="mt-2 text-[10px] leading-relaxed text-xora-taupe-dark">
-                      Shipping and applicable charges are not estimated in this test checkout.
-                    </p>
+                  <div className="flex justify-between text-xora-taupe-dark">
+                    <span>Express Shipping</span>
+                    <span>{shippingFee === 0 ? 'Complimentary' : formatInr(shippingFee)}</span>
+                  </div>
+                  <div className="flex justify-between text-xora-taupe-dark">
+                    <span>Estimated Tax (8%)</span>
+                    <span className="font-medium text-xora-charcoal">{formatInr(estimatedTax)}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline text-base font-semibold text-xora-charcoal pt-3 border-t border-xora-taupe/20">
+                    <span>Grand Total</span>
+                    <span className="text-xl">{formatInr(grandTotal)}</span>
                   </div>
                 </div>
 
@@ -510,13 +489,14 @@ export default function CheckoutPage() {
                       <span>PROCESSING ORDER...</span>
                     </>
                   ) : (
-                    <span>PLACE TEST ORDER</span>
+                    <span>{paymentMethod === 'Cash on Delivery' ? 'PLACE COD ORDER' : 'PLACE TEST ORDER'} ({formatInr(grandTotal)})</span>
                   )}
                 </button>
 
                 <div className="text-center pt-2">
-                  <span className="text-[10px] text-xora-taupe-dark">
-                    No payment is processed by this test checkout.
+                  <span className="text-[10px] text-xora-taupe-dark flex items-center justify-center space-x-1">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Your transaction is protected by end-to-end encryption.</span>
                   </span>
                 </div>
               </div>

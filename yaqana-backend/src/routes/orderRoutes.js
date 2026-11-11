@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import { createOrder, getMyOrders, getOrderById, getAllOrders, updateOrderStatus } from '../controllers/orderController.js';
+import { requireAuth, requireAdmin } from '../middleware/auth.js';
+const router = Router();
+router.use(requireAuth);
+router.post('/', createOrder);
+router.get('/my-orders', getMyOrders);
+router.get('/', requireAdmin, getAllOrders);
+router.get('/:id', getOrderById);
+router.put('/:id', requireAdmin, updateOrderStatus);
+export default router;

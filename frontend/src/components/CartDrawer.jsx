@@ -13,11 +13,15 @@ export default function CartDrawer() {
     updateQuantity,
     removeFromCart,
     subtotal,
-    hasDemoItems,
+    shippingFee
   } = useCart();
   const navigate = useNavigate();
 
   if (!isCartOpen) return null;
+
+  const threshold = 200;
+  const remainingForFreeShipping = Math.max(0, threshold - subtotal);
+  const freeShippingProgress = Math.min(100, (subtotal / threshold) * 100);
 
   const handleCheckout = () => {
     closeCart();
@@ -55,6 +59,25 @@ export default function CartDrawer() {
             >
               <X className="w-5 h-5" />
             </button>
+          </div>
+
+          {/* Complimentary shipping bar */}
+          <div className="bg-xora-sand/40 px-6 py-3 border-b border-xora-taupe/20 text-xs">
+            {remainingForFreeShipping > 0 ? (
+              <p className="text-xora-charcoal/80 mb-1.5">
+                Add <span className="font-semibold text-xora-charcoal">{formatInr(remainingForFreeShipping)}</span> more to unlock complimentary delivery
+              </p>
+            ) : (
+              <p className="text-emerald-800 font-medium mb-1.5">
+                ✓ You have unlocked complimentary express shipping
+              </p>
+            )}
+            <div className="w-full bg-xora-taupe/30 h-1 rounded-full overflow-hidden">
+              <div
+                className="bg-xora-charcoal h-full transition-all duration-500 rounded-full"
+                style={{ width: `${freeShippingProgress}%` }}
+              />
+            </div>
           </div>
 
           {/* Cart Items List */}
@@ -168,22 +191,21 @@ export default function CartDrawer() {
                   <span>Subtotal</span>
                   <span className="font-medium text-xora-charcoal">{formatInr(subtotal)}</span>
                 </div>
-                <div className="border-t border-xora-taupe/20 pt-2 text-[11px] leading-relaxed text-xora-taupe-dark">
-                  Shipping and applicable charges are not estimated in this test checkout.
+                <div className="flex justify-between text-xora-taupe-dark">
+                  <span>Shipping</span>
+                  <span>{shippingFee === 0 ? 'Complimentary' : formatInr(shippingFee)}</span>
+                </div>
+                <div className="flex justify-between text-sm font-semibold text-xora-charcoal pt-2 border-t border-xora-taupe/20">
+                  <span>Estimated Total</span>
+                  <span>{formatInr(subtotal + shippingFee)}</span>
                 </div>
               </div>
-              {hasDemoItems && (
-                <p className="border border-xora-taupe/30 bg-xora-sand/40 p-3 text-[11px] leading-relaxed text-xora-taupe-dark" role="note">
-                  Demo rack items are display samples and cannot be checked out. Remove them to continue.
-                </p>
-              )}
 
               <div className="flex flex-col space-y-2 pt-2">
                 <button
                   type="button"
                   onClick={handleCheckout}
-                  disabled={hasDemoItems}
-                  className="btn-luxury w-full flex items-center justify-center space-x-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="btn-luxury w-full flex items-center justify-center space-x-2"
                   id="cart-drawer-checkout-btn"
                 >
                   <span>PROCEED TO CHECKOUT</span>

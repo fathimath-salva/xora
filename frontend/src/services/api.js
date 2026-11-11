@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { API_BASE_URL } from '../utils/apiUrl.js';
 
 const API = axios.create({
-  baseURL: '/api'
+  baseURL: API_BASE_URL
 });
 
 // Intercept request to attach auth token

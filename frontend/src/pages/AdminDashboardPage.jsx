@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { adminService, categoryService, orderService, productService } from '../services/api';
+import { adminService, authService, categoryService, orderService, productService, uploadService } from '../services/api';
 import { BarChart3, Boxes, LayoutDashboard, LogOut, Package, PenSquare, Plus, Search, Settings, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { catalogUnitsToRupees, formatInr, rupeesToCatalogUnits } from '../utils/currency';
 import { getProductImage } from '../utils/productImage';
+import { CUSTOMER_STATUS_OPTIONS, getAdminOrderStatusOptions } from '../utils/adminStatus';
 
+const CORE_CATEGORY_SLUGS = new Set(['t-shirts', 'hoodies', 'shirts', 'trousers']);
 const sections = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'products', label: 'Products', icon: Package },
@@ -47,7 +49,7 @@ const initialProductForm = {
 };
 
 export default function AdminDashboardPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('dashboard');
   const [stats, setStats] = useState({
@@ -76,6 +78,15 @@ export default function AdminDashboardPage() {
   const [productSearch, setProductSearch] = useState('');
   const [notice, setNotice] = useState('');
   const [loading, setLoading] = useState(true);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [profileForm, setProfileForm] = useState({ name: user?.name || '', phone: user?.phone || '' });
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '' });
+  const [noticeType, setNoticeType] = useState('success');
+
+  const showNotice = (message, type = 'success') => {
+    setNotice(message);
+    setNoticeType(type);
+  };
 
   const loadAdminData = async () => {
     setLoading(true);
@@ -108,7 +119,7 @@ export default function AdminDashboardPage() {
         setCollectionRecords(collectionsRes.data.collectionRecords || []);
       }
     } catch (err) {
-      setNotice(err.response?.data?.message || 'Could not load admin data. Check the API connection and your administrator session.');
+      showNotice(err.response?.data?.message || 'Could not load admin data. Check the API connection and your administrator session.', 'error');
     } finally {
       setLoading(false);
     }
@@ -124,6 +135,34 @@ export default function AdminDashboardPage() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+  };
+
+  const handleProductImageUpload = async (event) => {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+    setUploadingImage(true);
+    try {
+      const res = await uploadService.uploadImage(formData);
+      if (!res.data.success || typeof res.data.imageUrl !== 'string' || !res.data.imageUrl) {
+        showNotice(res.data.message || 'Image upload failed.', 'error');
+        return;
+      }
+
+      setProductForm((form) => {
+        const images = form.images.split(',').map((value) => value.trim()).filter(Boolean);
+        return { ...form, images: [...new Set([...images, res.data.imageUrl])].join(', ') };
+      });
+      showNotice('Product image uploaded and added to the image list.');
+    } catch (err) {
+      showNotice(err.response?.data?.message || 'Image upload failed.', 'error');
+    } finally {
+      input.value = '';
+      setUploadingImage(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -149,17 +188,17 @@ export default function AdminDashboardPage() {
 
       if (editingId) {
         await productService.updateProduct(editingId, payload);
-        setNotice('Product updated successfully.');
+        showNotice('Product updated successfully.');
       } else {
         await productService.createProduct(payload);
-        setNotice('Product created successfully.');
+        showNotice('Product created successfully.');
       }
 
       setProductForm(initialProductForm);
       setEditingId(null);
       await loadAdminData();
     } catch (err) {
-      setNotice(err.response?.data?.message || 'Product save failed.');
+      showNotice(err.response?.data?.message || 'Product save failed.', 'error');
     }
   };
 
@@ -192,10 +231,10 @@ export default function AdminDashboardPage() {
   const handleArchiveToggle = async (product) => {
     try {
       await productService.updateProduct(product._id, { active: product.active !== true });
-      setNotice(product.active === true ? 'Product archived; its order history is preserved.' : 'Product activated.');
+      showNotice(product.active === true ? 'Product archived; its order history is preserved.' : 'Product activated.');
       await loadAdminData();
     } catch (err) {
-      setNotice(err.response?.data?.message || 'Could not update product status.');
+      showNotice(err.response?.data?.message || 'Could not update product status.', 'error');
     }
   };
 
@@ -206,9 +245,9 @@ export default function AdminDashboardPage() {
       else await categoryService.createCategory(categoryForm);
       setCategoryForm({ name: '', description: '', image: '' });
       setEditingCategoryId(null);
-      setNotice('Category saved.');
+      showNotice('Category saved.');
       await loadAdminData();
-    } catch (err) { setNotice(err.response?.data?.message || 'Category save failed.'); }
+    } catch (err) { showNotice(err.response?.data?.message || 'Category save failed.', 'error'); }
   };
 
   const handleCollectionRename = async (event) => {
@@ -216,9 +255,9 @@ export default function AdminDashboardPage() {
     try {
       await productService.renameCollection(collectionRename.current, collectionRename.name, collectionRename.description);
       setCollectionRename({ current: '', name: '', description: '' });
-      setNotice('Collection renamed.');
+      showNotice('Collection renamed.');
       await loadAdminData();
-    } catch (err) { setNotice(err.response?.data?.message || 'Collection rename failed.'); }
+    } catch (err) { showNotice(err.response?.data?.message || 'Collection rename failed.', 'error'); }
   };
 
   const handleCollectionCreate = async (event) => {
@@ -226,9 +265,9 @@ export default function AdminDashboardPage() {
     try {
       await productService.createCollection(collectionForm);
       setCollectionForm({ name: '', description: '' });
-      setNotice('Collection created. Add products to it from the product form.');
+      showNotice('Collection created. Add products to it from the product form.');
       await loadAdminData();
-    } catch (err) { setNotice(err.response?.data?.message || 'Collection creation failed.'); }
+    } catch (err) { showNotice(err.response?.data?.message || 'Collection creation failed.', 'error'); }
   };
 
   const handleCategoryEdit = (category) => {
@@ -236,31 +275,75 @@ export default function AdminDashboardPage() {
     setCategoryForm({ name: category.name, description: category.description || '', image: category.image || '' });
   };
 
+  const handleCategoryArchive = async (category) => {
+    if (!window.confirm(`Archive “${category.name}”? Existing product records will remain unchanged.`)) return;
+    try {
+      await categoryService.deleteCategory(category._id);
+      showNotice('Category archived.');
+      await loadAdminData();
+    } catch (err) {
+      showNotice(err.response?.data?.message || 'Category could not be archived.', 'error');
+    }
+  };
+
   const handleCollectionRemove = async (name) => {
     if (!window.confirm(`Remove “${name}” and unassign its products?`)) return;
     try {
       await productService.removeCollection(name);
-      setNotice('Collection removed and products unassigned.');
+      showNotice('Collection removed and products unassigned.');
       await loadAdminData();
-    } catch (err) { setNotice(err.response?.data?.message || 'Collection removal failed.'); }
+    } catch (err) { showNotice(err.response?.data?.message || 'Collection removal failed.', 'error'); }
   };
 
   const handleOrderStatus = async (id, status) => {
     try {
       await orderService.updateOrderStatus(id, { orderStatus: status });
-      loadAdminData();
+      showNotice('Order status updated.');
+      await loadAdminData();
     } catch (err) {
-      console.error('Status update failed', err);
+      showNotice(err.response?.data?.message || 'Order status update failed.', 'error');
     }
   };
 
   const handleCustomerStatus = async (id, status) => {
     try {
       await adminService.updateCustomerStatus(id, { status });
-      setNotice('Customer account status updated.');
+      showNotice('Customer account status updated.');
       await loadAdminData();
     } catch (err) {
-      setNotice(err.response?.data?.message || 'Customer status update failed.');
+      showNotice(err.response?.data?.message || 'Customer status update failed.', 'error');
+    }
+  };
+
+  const handleAdminProfileSave = async (event) => {
+    event.preventDefault();
+    try {
+      const res = await authService.updateProfile(profileForm);
+      if (!res.data.success || !res.data.user) {
+        showNotice(res.data.message || 'Admin profile update failed.', 'error');
+        return;
+      }
+      updateUser(res.data.user);
+      showNotice('Admin profile updated.');
+    } catch (err) {
+      showNotice(err.response?.data?.message || 'Admin profile update failed.', 'error');
+    }
+  };
+
+  const handleAdminPasswordChange = async (event) => {
+    event.preventDefault();
+    try {
+      const res = await authService.changePassword(passwordForm);
+      if (!res.data.success) {
+        showNotice(res.data.message || 'Password update failed.', 'error');
+        return;
+      }
+      setPasswordForm({ currentPassword: '', newPassword: '' });
+      window.alert(res.data.message || 'Password changed. Please sign in again.');
+      logout();
+      navigate('/login');
+    } catch (err) {
+      showNotice(err.response?.data?.message || 'Password update failed.', 'error');
     }
   };
 
@@ -324,7 +407,7 @@ export default function AdminDashboardPage() {
 
         {loading && <div role="status" className="mb-4 text-sm text-xora-taupe-dark">Loading admin data…</div>}
         {notice && (
-          <div role="status" className="mb-6 rounded-xs border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
+          <div role={noticeType === 'error' ? 'alert' : 'status'} className={`mb-6 rounded-xs border px-4 py-3 text-xs ${noticeType === 'error' ? 'border-red-200 bg-red-50 text-red-800' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
             {notice}
           </div>
         )}
@@ -387,7 +470,12 @@ export default function AdminDashboardPage() {
               <div className="mt-6 space-y-2">
                 {categories.map((category) => <div key={category._id} className="flex items-center justify-between gap-3 border-t border-xora-taupe/20 py-3 text-xs">
                   <div><p className="font-medium">{category.name} <span className={category.active === false ? 'text-red-700' : 'text-emerald-800'}>{category.active === false ? '· Archived' : '· Active'}</span></p><p className="text-xora-taupe-dark">{category.itemCount || 0} active products</p></div>
-                  <button type="button" onClick={() => handleCategoryEdit(category)} className="underline">Edit details</button>
+                  <div className="flex items-center gap-3">
+                    <button type="button" onClick={() => handleCategoryEdit(category)} className="underline">Edit details</button>
+                    {!CORE_CATEGORY_SLUGS.has(category.slug) && category.active !== false && (
+                      <button type="button" onClick={() => handleCategoryArchive(category)} className="text-red-700 underline">Archive</button>
+                    )}
+                  </div>
                 </div>)}
               </div>
             </div>
@@ -470,6 +558,10 @@ export default function AdminDashboardPage() {
                 </label>
                 <label className="block text-[11px] text-xora-taupe-dark">Product image URL(s), comma separated
                   <input name="images" value={productForm.images} onChange={handleChange} placeholder="https://..." className={`${inputClass} mt-1`} />
+                </label>
+                <label className="block text-[11px] text-xora-taupe-dark">Upload product image
+                  <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={handleProductImageUpload} disabled={uploadingImage} className={`${inputClass} mt-1`} />
+                  <span className="mt-1 block text-[10px] normal-case text-xora-taupe-dark">{uploadingImage ? 'Uploading image…' : 'JPG, PNG, WebP or AVIF; maximum 5 MB.'}</span>
                 </label>
                 <label className="block text-[11px] text-xora-taupe-dark">Collection name
                   <select name="collection" value={productForm.collection} onChange={handleChange} className={`${inputClass} mt-1`}>
@@ -566,7 +658,7 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0">
                       <span className="font-medium text-xs text-xora-charcoal">{formatInr(order.total)}</span>
                       <select aria-label={`Order status for ${order.customer?.name || 'customer'}`} value={order.orderStatus} onChange={(e) => handleOrderStatus(order._id, e.target.value)} className="max-w-40 border border-xora-taupe/40 bg-white px-2 py-1.5 text-xs focus:outline-none focus:border-xora-charcoal">
-                        {['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map((status) => <option key={status} value={status}>{status}</option>)}
+                        {getAdminOrderStatusOptions(order).map((status) => <option key={status} value={status}>{status}</option>)}
                       </select>
                     </div>
                   </div>
@@ -591,7 +683,7 @@ export default function AdminDashboardPage() {
                       <p className="mt-2">{customer.orderCount} orders · {formatInr(customer.totalSpent)} spent</p>
                     </div>
                     <select aria-label={`Account status for ${customer.name}`} value={customer.status} onChange={(e) => handleCustomerStatus(customer._id, e.target.value)} className="border border-xora-taupe/40 bg-white px-2 py-1.5 text-xs focus:outline-none focus:border-xora-charcoal">
-                      {['active', 'inactive', 'suspended'].map((status) => <option key={status} value={status}>{status}</option>)}
+                      {CUSTOMER_STATUS_OPTIONS.map((status) => <option key={status} value={status}>{status}</option>)}
                     </select>
                   </div>
                 </article>
@@ -630,11 +722,19 @@ export default function AdminDashboardPage() {
         {activeSection === 'settings' && (
           <section className={`${panelClass} max-w-2xl`}>
             <h2 className="font-serif text-2xl text-xora-charcoal mb-4">Admin Settings</h2>
-            <dl className="space-y-3 text-xs">
-              <div className="flex flex-wrap justify-between gap-2 border-b border-xora-taupe/20 pb-3"><dt className="text-xora-taupe-dark">Administrator</dt><dd>{user?.name || 'Administrator'}</dd></div>
-              <div className="flex flex-wrap justify-between gap-2 border-b border-xora-taupe/20 pb-3"><dt className="text-xora-taupe-dark">Email</dt><dd className="break-all">{user?.email}</dd></div>
-              <div className="flex flex-wrap justify-between gap-2"><dt className="text-xora-taupe-dark">Role</dt><dd className="capitalize">{user?.role}</dd></div>
-            </dl>
+            <p className="text-xs text-xora-taupe-dark mb-4">{user?.email} · <span className="capitalize">{user?.role}</span></p>
+            <form onSubmit={handleAdminProfileSave} className="space-y-3">
+              <h3 className="font-serif text-xl">Administrator profile</h3>
+              <label className="block text-[11px]">Name<input className={`${inputClass} mt-1`} value={profileForm.name} onChange={(event) => setProfileForm((form) => ({ ...form, name: event.target.value }))} required minLength={2} maxLength={100} /></label>
+              <label className="block text-[11px]">Phone<input className={`${inputClass} mt-1`} value={profileForm.phone} onChange={(event) => setProfileForm((form) => ({ ...form, phone: event.target.value }))} maxLength={25} /></label>
+              <button type="submit" className="btn-luxury-outline">Save profile</button>
+            </form>
+            <form onSubmit={handleAdminPasswordChange} className="mt-8 space-y-3 border-t border-xora-taupe/20 pt-6">
+              <h3 className="font-serif text-xl">Change password</h3>
+              <label className="block text-[11px]">Current password<input type="password" autoComplete="current-password" className={`${inputClass} mt-1`} value={passwordForm.currentPassword} onChange={(event) => setPasswordForm((form) => ({ ...form, currentPassword: event.target.value }))} required /></label>
+              <label className="block text-[11px]">New password<input type="password" autoComplete="new-password" className={`${inputClass} mt-1`} value={passwordForm.newPassword} onChange={(event) => setPasswordForm((form) => ({ ...form, newPassword: event.target.value }))} required minLength={8} maxLength={128} /></label>
+              <button type="submit" className="btn-luxury-outline">Change password</button>
+            </form>
             <button type="button" onClick={handleLogout} className="mt-6 btn-luxury-outline inline-flex items-center gap-2"><LogOut className="w-4 h-4" />Logout</button>
           </section>
         )}

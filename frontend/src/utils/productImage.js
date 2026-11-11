@@ -1,3 +1,5 @@
+import { resolveApiAssetUrl } from './apiUrl.js';
+
 const CATEGORY_IMAGES = {
   't-shirts': '/images/xora-products/t-shirts.jpg',
   hoodies: '/images/xora-products/hoodies.jpg',
@@ -20,7 +22,7 @@ export function getProductImages(product) {
     : savedImages;
 
   return usableImages.length
-    ? usableImages
+    ? usableImages.map((image) => resolveApiAssetUrl(image))
     : [CATEGORY_IMAGES[category] || CATEGORY_IMAGES.shirts];
 }
 

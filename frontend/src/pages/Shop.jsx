@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { X, ChevronDown, SlidersHorizontal, RotateCcw, Tag, Sparkles, Layers } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
-import { productService, categoryService } from '../services/api';
-import { rupeesToCatalogUnits } from '../utils/currency';
-
-const CATEGORY_SLUGS = ['T-Shirts', 'Hoodies', 'Shirts', 'Trousers'];
+import { productService } from '../services/api';
+import { buildShopProductParams, SHOP_CATEGORIES } from '../utils/shopFilters';
 
 export default function Shop({ initialGender = 'men', pageTitle = "Men's Collection" }) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,6 +17,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
   const [retryCount, setRetryCount] = useState(0);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [availableSizes, setAvailableSizes] = useState([]);
+  const [availableColours, setAvailableColours] = useState([]);
 
   // Read filters from URL query params
   const categoryParam = searchParams.get('category') || 'All';
@@ -27,17 +26,21 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
   const sizeParam = searchParams.get('size') || '';
   const filterParam = searchParams.get('filter') || '';
   const searchTerm = searchParams.get('search') || '';
-  const selectedColour = searchParams.get('colour') || '';
-  const selectedFabric = searchParams.get('fabric') || '';
-  const selectedFit = searchParams.get('fit') || '';
-  const selectedAvailability = searchParams.get('availability') || '';
-  const minPrice = searchParams.get('minPrice') || '';
-  const maxPrice = searchParams.get('maxPrice') || '';
+  const colourParam = searchParams.get('colour') || '';
+  const minPriceParam = searchParams.get('minPrice') || '';
+  const maxPriceParam = searchParams.get('maxPrice') || '';
+  const [priceDraft, setPriceDraft] = useState({ min: minPriceParam, max: maxPriceParam });
+  const [priceError, setPriceError] = useState('');
 
   const selectedCategory = categoryParam;
   const selectedCollection = collectionParam;
   const selectedSize = sizeParam;
+  const selectedColour = colourParam;
   const sort = sortParam;
+
+  useEffect(() => {
+    setPriceDraft({ min: minPriceParam, max: maxPriceParam });
+  }, [minPriceParam, maxPriceParam]);
 
   const updateShopParam = useCallback((key, value) => setSearchParams((current) => {
     const next = new URLSearchParams(current);
@@ -45,6 +48,11 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
     else next.delete(key);
     return next;
   }), [setSearchParams]);
+  const shopLinkWithParam = (key, value) => {
+    const next = new URLSearchParams(searchParams);
+    next.set(key, value);
+    return `/shop?${next.toString()}`;
+  };
 
   // Determine the active page heading
   const getPageHeading = () => {
@@ -61,14 +69,14 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
     if (selectedCategory === 'Hoodies') return 'Soft brushed-fleece layers for cooler days and relaxed weekends.';
     if (selectedCategory === 'Shirts') return 'Oxford, linen, poplin, and chambray shirts for every occasion.';
     if (selectedCategory === 'Trousers') return 'Tailored wool, refined chinos, and wide-leg linen trousers.';
+    if (selectedCategory === 'Jeans') return 'Denim in considered washes, made for everyday rotation.';
+    if (selectedCategory === 'Jackets') return 'Lightweight layers and enduring outerwear silhouettes.';
     return 'Architectural tailoring, natural fibers, and enduring menswear silhouettes.';
   };
 
   // Fetch collections once
   useEffect(() => {
-    productService.getCollections()
-      .then((res) => setCollections(res.data.collections || []))
-      .catch((error) => console.error('Failed to load product collections.', error));
+    productService.getCollections().then((res) => setCollections(res.data.collections || [])).catch(() => {});
   }, []);
 
   // Fetch products whenever filters change
@@ -77,26 +85,17 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
       try {
         setLoading(true);
         setLoadError('');
-        const params = {
+        const params = buildShopProductParams({
+          category: selectedCategory,
+          collection: selectedCollection,
+          colour: selectedColour,
+          minPrice: minPriceParam,
+          maxPrice: maxPriceParam,
+          search: searchTerm,
+          size: selectedSize,
           sort,
-          gender: 'men',
-        };
-        if (searchTerm) params.search = searchTerm;
-        if (selectedCollection) params.collection = selectedCollection;
-
-        if (selectedCategory && selectedCategory !== 'All') {
-          params.category = selectedCategory;
-        }
-
-        if (selectedSize) {
-          params.size = selectedSize;
-        }
-
-        if (filterParam === 'new') {
-          params.newArrival = true;
-        } else if (filterParam === 'featured') {
-          params.featured = true;
-        }
+          filter: filterParam
+        });
 
         const res = await productService.getProducts(params);
         if (!res.data?.success || !Array.isArray(res.data.products)) {
@@ -128,8 +127,11 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
             return a.localeCompare(b, undefined, { numeric: true });
           });
         });
+        setAvailableColours(Array.from(new Set(
+          res.data.products.flatMap((product) => (product.colours || []).map((colour) => colour.name).filter(Boolean))
+        )).sort((a, b) => a.localeCompare(b)));
       } catch (err) {
-        setLoadError(err.response?.data?.message || 'We could not load products. Please try again.');
+        setLoadError(err.response?.data?.message || err.message || 'We could not load products. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -138,95 +140,39 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
     fetchFilteredProducts();
     // Reset sizes when category changes so we don't show stale sizes
     setAvailableSizes([]);
-  }, [selectedCategory, selectedCollection, selectedSize, sort, filterParam, searchTerm, retryCount]);
+    setAvailableColours([]);
+  }, [selectedCategory, selectedCollection, selectedSize, selectedColour, minPriceParam, maxPriceParam, sort, filterParam, searchTerm, retryCount]);
 
-  const filteredProducts = useMemo(() => products.filter((product) => {
-    const price = Number(product.discountPrice || product.price);
-    const colours = (product.colours || []).map((colour) =>
-      typeof colour === 'string' ? colour : colour?.name
-    );
-    if (selectedColour && !colours.includes(selectedColour)) return false;
-    if (selectedFabric && product.fabricDetails !== selectedFabric) return false;
-    if (selectedFit && product.fitDetails !== selectedFit) return false;
-    if (selectedAvailability === 'in-stock' && !(product.stock > 0)) return false;
-    if (selectedAvailability === 'out-of-stock' && !(product.stock <= 0)) return false;
-    if ((minPrice || maxPrice) && !Number.isFinite(price)) return false;
-    if (minPrice && price < rupeesToCatalogUnits(minPrice)) return false;
-    if (maxPrice && price > rupeesToCatalogUnits(maxPrice)) return false;
-    return true;
-  }), [
-    products,
-    selectedAvailability,
-    selectedColour,
-    selectedFabric,
-    selectedFit,
-    minPrice,
-    maxPrice
-  ]);
-
-  const availableColours = useMemo(() => Array.from(new Set(
-    products.flatMap((product) => (product.colours || [])
-      .map((colour) => typeof colour === 'string' ? colour : colour?.name)
-      .filter(Boolean))
-  )).sort((a, b) => a.localeCompare(b)), [products]);
-  const availableFabrics = useMemo(() => Array.from(new Set(
-    products.map((product) => product.fabricDetails).filter(Boolean)
-  )).sort((a, b) => a.localeCompare(b)), [products]);
-  const availableFits = useMemo(() => Array.from(new Set(
-    products.map((product) => product.fitDetails).filter(Boolean)
-  )).sort((a, b) => a.localeCompare(b)), [products]);
-  const hasLocalFilters = Boolean(
-    selectedColour || selectedFabric || selectedFit || selectedAvailability || minPrice || maxPrice
-  );
-  const visibleCount = hasLocalFilters ? filteredProducts.length : totalCount;
-  const hasActiveFilter = selectedCategory !== 'All' || selectedCollection || selectedSize || filterParam || hasLocalFilters;
+  const hasActiveFilter = selectedCategory !== 'All' || selectedCollection || selectedSize || selectedColour || minPriceParam || maxPriceParam || filterParam;
 
   const handleResetFilters = () => {
-    const next = new URLSearchParams();
-    if (searchTerm) next.set('search', searchTerm);
-    setSearchParams(next);
+    setSearchParams({});
+    setPriceError('');
   };
 
-  const renderCatalogFilters = () => (
-    <div className="space-y-4">
-      <label className="block text-xs text-xora-taupe-dark">
-        Colour
-        <select value={selectedColour} onChange={(event) => updateShopParam('colour', event.target.value)} className="mt-1 w-full border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal">
-          <option value="">All colours</option>
-          {availableColours.map((colour) => <option key={colour} value={colour}>{colour}</option>)}
-        </select>
-      </label>
-      <label className="block text-xs text-xora-taupe-dark">
-        Fabric
-        <select value={selectedFabric} onChange={(event) => updateShopParam('fabric', event.target.value)} className="mt-1 w-full border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal">
-          <option value="">All fabrics</option>
-          {availableFabrics.map((fabric) => <option key={fabric} value={fabric}>{fabric}</option>)}
-        </select>
-      </label>
-      <label className="block text-xs text-xora-taupe-dark">
-        Fit
-        <select value={selectedFit} onChange={(event) => updateShopParam('fit', event.target.value)} className="mt-1 w-full border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal">
-          <option value="">All fits</option>
-          {availableFits.map((fit) => <option key={fit} value={fit}>{fit}</option>)}
-        </select>
-      </label>
-      <label className="block text-xs text-xora-taupe-dark">
-        Availability
-        <select value={selectedAvailability} onChange={(event) => updateShopParam('availability', event.target.value)} className="mt-1 w-full border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal">
-          <option value="">All products</option>
-          <option value="in-stock">In stock</option>
-          <option value="out-of-stock">Out of stock</option>
-        </select>
-      </label>
-      <fieldset>
-        <legend className="text-xs text-xora-taupe-dark">Price range (₹)</legend>
-        <div className="mt-1 grid grid-cols-2 gap-2">
-          <input type="number" min="0" inputMode="numeric" aria-label="Minimum price in rupees" placeholder="Min" value={minPrice} onChange={(event) => updateShopParam('minPrice', event.target.value)} className="min-w-0 border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal" />
-          <input type="number" min="0" inputMode="numeric" aria-label="Maximum price in rupees" placeholder="Max" value={maxPrice} onChange={(event) => updateShopParam('maxPrice', event.target.value)} className="min-w-0 border border-xora-taupe/40 bg-white px-3 py-2.5 text-xs text-xora-charcoal" />
-        </div>
-      </fieldset>
-    </div>
-  );
+  const applyPriceFilter = (event) => {
+    event.preventDefault();
+    const min = priceDraft.min.trim();
+    const max = priceDraft.max.trim();
+    if ((min && (!Number.isFinite(Number(min)) || Number(min) < 0)) ||
+        (max && (!Number.isFinite(Number(max)) || Number(max) < 0))) {
+      setPriceError('Enter a valid non-negative price.');
+      return;
+    }
+    if (min && max && Number(min) > Number(max)) {
+      setPriceError('Minimum price cannot exceed maximum price.');
+      return;
+    }
+    setPriceError('');
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (min) next.set('minPrice', min);
+      else next.delete('minPrice');
+      if (max) next.set('maxPrice', max);
+      else next.delete('maxPrice');
+      return next;
+    });
+  };
 
   return (
     <div className="bg-xora-cream min-h-screen text-xora-charcoal py-10 sm:py-14">
@@ -260,7 +206,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
             All Products
           </Link>
           <Link
-            to="/shop?filter=new"
+            to={shopLinkWithParam('filter', 'new')}
             className={`inline-flex items-center gap-1 px-4 py-1.5 text-[11px] uppercase tracking-luxury border transition-all ${
               filterParam === 'new'
                 ? 'bg-xora-charcoal text-white border-xora-charcoal'
@@ -274,7 +220,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
           {collections.length > 0 && collections.map((col) => (
             <Link
               key={col}
-              to={`/shop?collection=${encodeURIComponent(col)}`}
+              to={shopLinkWithParam('collection', col)}
               state={{ scrollToTop: true }}
               className={`inline-flex items-center gap-1 px-4 py-1.5 text-[11px] uppercase tracking-luxury border transition-all ${
                 selectedCollection === col
@@ -286,10 +232,10 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
               {col}
             </Link>
           ))}
-          {CATEGORY_SLUGS.map((cat) => (
+          {SHOP_CATEGORIES.map((cat) => (
             <Link
               key={cat}
-              to={`/shop?category=${encodeURIComponent(cat)}`}
+              to={shopLinkWithParam('category', cat)}
               state={{ scrollToTop: true }}
               className={`inline-flex items-center gap-1 px-4 py-1.5 text-[11px] uppercase tracking-luxury border transition-all ${
                 selectedCategory === cat && !filterParam
@@ -315,14 +261,14 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
               id="mobile-filter-open-btn"
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Filter Products</span>
-              {selectedSize && (
-                <span className="ml-1 bg-xora-charcoal text-white text-[10px] px-1.5 py-0.5 rounded">{selectedSize}</span>
+              <span>Filters</span>
+              {(selectedSize || selectedColour || minPriceParam || maxPriceParam) && (
+                <span className="ml-1 bg-xora-charcoal text-white text-[10px] px-1.5 py-0.5 rounded">Active</span>
               )}
             </button>
 
             <span className="text-xs text-xora-taupe-dark">
-            Showing <strong className="text-xora-charcoal font-medium">{visibleCount}</strong> styles
+              Showing <strong className="text-xora-charcoal font-medium">{totalCount}</strong> styles
             </span>
 
             {hasActiveFilter && (
@@ -363,7 +309,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
 
         {/* Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Desktop Filters */}
+          {/* Desktop Filter Sidebar */}
           <aside className="hidden lg:block space-y-6 pr-4 border-r border-xora-taupe/20">
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">
@@ -404,7 +350,57 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
                 </button>
               )}
             </div>
-            {renderCatalogFilters()}
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal mb-4">
+                Filter by Colour
+              </h3>
+              {availableColours.length === 0 ? (
+                <p className="text-xs text-xora-taupe-dark">{loading ? 'Loading colours…' : 'No colours available.'}</p>
+              ) : (
+                <select
+                  aria-label="Filter by colour"
+                  value={selectedColour}
+                  onChange={(event) => updateShopParam('colour', event.target.value)}
+                  className="w-full bg-white border border-xora-taupe/40 px-3 py-2.5 text-xs text-xora-charcoal focus:outline-none focus:border-xora-charcoal"
+                >
+                  <option value="">All colours</option>
+                  {availableColours.map((colour) => <option key={colour} value={colour}>{colour}</option>)}
+                </select>
+              )}
+            </div>
+            <form onSubmit={applyPriceFilter} className="space-y-3">
+              <h3 className="text-xs font-semibold uppercase tracking-luxury text-xora-charcoal">
+                Filter by Price (₹)
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="text-[10px] uppercase tracking-wider text-xora-taupe-dark">
+                  Min
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={priceDraft.min}
+                    onChange={(event) => setPriceDraft((current) => ({ ...current, min: event.target.value }))}
+                    className="mt-1 w-full bg-white border border-xora-taupe/40 px-2 py-2 text-xs text-xora-charcoal"
+                    aria-label="Minimum price in rupees"
+                  />
+                </label>
+                <label className="text-[10px] uppercase tracking-wider text-xora-taupe-dark">
+                  Max
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={priceDraft.max}
+                    onChange={(event) => setPriceDraft((current) => ({ ...current, max: event.target.value }))}
+                    className="mt-1 w-full bg-white border border-xora-taupe/40 px-2 py-2 text-xs text-xora-charcoal"
+                    aria-label="Maximum price in rupees"
+                  />
+                </label>
+              </div>
+              {priceError && <p role="alert" className="text-xs text-red-700">{priceError}</p>}
+              <button type="submit" className="btn-luxury-outline w-full">Apply Price</button>
+            </form>
           </aside>
 
           {/* Product Grid Area */}
@@ -416,7 +412,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
                 {loadError}
                 <button type="button" onClick={() => setRetryCount((c) => c + 1)} className="ml-3 underline">Retry</button>
               </div>
-            ) : filteredProducts.length === 0 ? (
+            ) : products.length === 0 ? (
               <EmptyState
                 title={selectedSize ? `No products available in size ${selectedSize}.` : 'No pieces match your filter.'}
                 subtitle={selectedSize ? 'Try a different size or clear the size filter to view all available styles.' : 'Try resetting your filters to view the full collection.'}
@@ -426,7 +422,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
               />
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                   <ProductCard key={product._id} product={product} />
                 ))}
               </div>
@@ -446,7 +442,7 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
             <div className="space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-xora-taupe/20">
                 <h2 className="font-serif text-xl text-xora-charcoal uppercase tracking-wider">
-                  Refine Selection
+                  Filters
                 </h2>
                 <button
                   type="button"
@@ -488,7 +484,49 @@ export default function Shop({ initialGender = 'men', pageTitle = "Men's Collect
                   </button>
                 )}
               </div>
-              {renderCatalogFilters()}
+              <div>
+                <p className="text-xs text-xora-taupe-dark mb-3">Select a colour.</p>
+                <select
+                  aria-label="Filter by colour"
+                  value={selectedColour}
+                  onChange={(event) => updateShopParam('colour', event.target.value)}
+                  className="w-full bg-white border border-xora-taupe/40 px-3 py-2.5 text-xs text-xora-charcoal"
+                >
+                  <option value="">All colours</option>
+                  {availableColours.map((colour) => <option key={colour} value={colour}>{colour}</option>)}
+                </select>
+              </div>
+              <form onSubmit={applyPriceFilter} className="space-y-3">
+                <p className="text-xs text-xora-taupe-dark">Set a price range in rupees.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="text-[10px] uppercase tracking-wider text-xora-taupe-dark">
+                    Min
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={priceDraft.min}
+                      onChange={(event) => setPriceDraft((current) => ({ ...current, min: event.target.value }))}
+                      className="mt-1 w-full bg-white border border-xora-taupe/40 px-2 py-2 text-xs text-xora-charcoal"
+                      aria-label="Minimum price in rupees"
+                    />
+                  </label>
+                  <label className="text-[10px] uppercase tracking-wider text-xora-taupe-dark">
+                    Max
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={priceDraft.max}
+                      onChange={(event) => setPriceDraft((current) => ({ ...current, max: event.target.value }))}
+                      className="mt-1 w-full bg-white border border-xora-taupe/40 px-2 py-2 text-xs text-xora-charcoal"
+                      aria-label="Maximum price in rupees"
+                    />
+                  </label>
+                </div>
+                {priceError && <p role="alert" className="text-xs text-red-700">{priceError}</p>}
+                <button type="submit" className="btn-luxury-outline w-full">Apply Price</button>
+              </form>
             </div>
 
             <div className="pt-6 border-t border-xora-taupe/20 space-y-2">
