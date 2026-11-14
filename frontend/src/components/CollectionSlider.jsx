@@ -12,8 +12,8 @@ const SLIDES = [
     tabletImage: '/images/yaqana-home-slides/discount-campaign-tablet.jpg',
     desktopImage: '/images/yaqana-home-slides/discount-campaign-wide.jpg',
     alt: 'A man wearing YAQANA menswear against a warm neutral backdrop',
-    headline: `${firstOrderOffer.percentage}% OFF`,
-    subheading: 'ON YOUR FIRST ORDER',
+    headline: firstOrderOffer.checkoutConfigured ? `${firstOrderOffer.percentage}% OFF` : 'YAQANA',
+    subheading: firstOrderOffer.checkoutConfigured ? 'ON YOUR FIRST ORDER' : 'CONSIDERED MENSWEAR',
     action: { label: 'SHOP NOW', to: '/shop' }
   },
   {

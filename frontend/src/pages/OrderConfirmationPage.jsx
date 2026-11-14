@@ -58,8 +58,20 @@ export default function OrderConfirmationPage() {
             </div>
             <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
               <span>Shipping</span>
+<<<<<<< Updated upstream
               <span className="font-medium">{order.shippingFee === 0 ? 'Complimentary' : formatInr(order.shippingFee)}</span>
             </div>
+=======
+                <span className="font-medium">{formatInr(order.shippingFee)}</span>
+              </div>
+            )}
+            {order.tax != null && (
+              <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
+                <span>Tax</span>
+                <span className="font-medium">{formatInr(order.tax)}</span>
+              </div>
+            )}
+>>>>>>> Stashed changes
             <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4 border-t border-xora-taupe/20 pt-3">
               <span>Total</span>
               <span className="font-medium">{formatInr(order.total)}</span>

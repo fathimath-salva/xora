@@ -48,9 +48,9 @@ export default function ContactPage() {
           <div className="bg-xora-offwhite border border-xora-taupe/30 p-6 sm:p-8 rounded-xs">
             {submitted ? (
               <div className="text-center py-10">
-                <h2 className="font-serif text-3xl text-xora-charcoal">Message sent.</h2>
+                <h2 className="font-serif text-3xl text-xora-charcoal">Contact form unavailable.</h2>
                 <p className="mt-3 text-sm text-xora-taupe-dark">
-                  Our concierge team will be in touch within one business day.
+                  Your message was not sent or saved. Please email apparelyaqana@gmail.com or contact @yaqana_apparel on Instagram.
                 </p>
               </div>
             ) : (

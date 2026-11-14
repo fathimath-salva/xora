@@ -6,6 +6,10 @@
       "destination": "https://xora-backend-u7fd.onrender.com/api/:path*"
     },
     {
+      "source": "/uploads/:path*",
+      "destination": "https://xora-backend-u7fd.onrender.com/uploads/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

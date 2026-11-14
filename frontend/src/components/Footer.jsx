@@ -1,12 +1,6 @@
-import { Link, useLocation } from 'react-router-dom';
-import { ContactRound, Mail } from 'lucide-react';
-import NewsletterSignup from './NewsletterSignup';
-import { SocialLinks } from './SocialLinksBanner';
-
 export default function Footer() {
-  const { pathname } = useLocation();
-
   return (
+<<<<<<< Updated upstream
     <footer className="bg-xora-sand/60 border-t border-xora-taupe/30 pt-10 pb-8 text-xora-charcoal">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Newsletter & Brand statement */}
@@ -150,6 +144,13 @@ export default function Footer() {
             Modern essentials. Timeless confidence.
           </p>
         </div>
+=======
+    <footer className="border-t border-xora-taupe/30 bg-xora-sand/60 py-6 text-center text-xora-charcoal sm:py-7">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <p className="font-serif text-xl font-light uppercase tracking-[0.2em]">YAQANA</p>
+        <p className="mt-1 text-xs font-light text-xora-taupe-dark">Modern essentials. Timeless confidence.</p>
+        <p className="mt-4 text-[11px] tracking-wide text-xora-taupe-dark">© 2026 YAQANA. All rights reserved.</p>
+>>>>>>> Stashed changes
       </div>
     </footer>
   );

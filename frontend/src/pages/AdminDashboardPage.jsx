@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+<<<<<<< Updated upstream
 import { adminService, authService, categoryService, orderService, productService, uploadService } from '../services/api';
+=======
+import { adminService, categoryService, orderService, productService, uploadService } from '../services/api';
+>>>>>>> Stashed changes
 import { BarChart3, Boxes, LayoutDashboard, LogOut, Package, PenSquare, Plus, Search, Settings, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { catalogUnitsToRupees, formatInr, rupeesToCatalogUnits } from '../utils/currency';
@@ -79,6 +83,7 @@ export default function AdminDashboardPage() {
   const [notice, setNotice] = useState('');
   const [loading, setLoading] = useState(true);
   const [uploadingImage, setUploadingImage] = useState(false);
+<<<<<<< Updated upstream
   const [profileForm, setProfileForm] = useState({ name: user?.name || '', phone: user?.phone || '' });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '' });
   const [noticeType, setNoticeType] = useState('success');
@@ -87,6 +92,8 @@ export default function AdminDashboardPage() {
     setNotice(message);
     setNoticeType(type);
   };
+=======
+>>>>>>> Stashed changes
 
   const loadAdminData = async () => {
     setLoading(true);
@@ -138,13 +145,24 @@ export default function AdminDashboardPage() {
   };
 
   const handleProductImageUpload = async (event) => {
+<<<<<<< Updated upstream
     const input = event.currentTarget;
     const file = input.files?.[0];
     if (!file) return;
+=======
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setNotice('Product images must be 5 MB or smaller.');
+      return;
+    }
+>>>>>>> Stashed changes
 
     const formData = new FormData();
     formData.append('image', file);
     setUploadingImage(true);
+<<<<<<< Updated upstream
     try {
       const res = await uploadService.uploadImage(formData);
       if (!res.data.success || typeof res.data.imageUrl !== 'string' || !res.data.imageUrl) {
@@ -161,6 +179,24 @@ export default function AdminDashboardPage() {
       showNotice(err.response?.data?.message || 'Image upload failed.', 'error');
     } finally {
       input.value = '';
+=======
+    setNotice('Uploading product image...');
+    try {
+      const response = await uploadService.uploadImage(formData);
+      const imageUrl = response.data?.imageUrl;
+      if (!response.data?.success || !imageUrl) {
+        throw new Error(response.data?.message || 'The image service did not return an image URL.');
+      }
+      setProductForm((current) => {
+        const images = current.images.split(',').map((image) => image.trim()).filter(Boolean);
+        if (!images.includes(imageUrl)) images.push(imageUrl);
+        return { ...current, images: images.join(', ') };
+      });
+      setNotice('Image uploaded and added to the product image list. Save the product to publish it.');
+    } catch (error) {
+      setNotice(error.response?.data?.message || error.message || 'Product image upload failed.');
+    } finally {
+>>>>>>> Stashed changes
       setUploadingImage(false);
     }
   };
@@ -559,9 +595,14 @@ export default function AdminDashboardPage() {
                 <label className="block text-[11px] text-xora-taupe-dark">Product image URL(s), comma separated
                   <input name="images" value={productForm.images} onChange={handleChange} placeholder="https://..." className={`${inputClass} mt-1`} />
                 </label>
+<<<<<<< Updated upstream
                 <label className="block text-[11px] text-xora-taupe-dark">Upload product image
                   <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={handleProductImageUpload} disabled={uploadingImage} className={`${inputClass} mt-1`} />
                   <span className="mt-1 block text-[10px] normal-case text-xora-taupe-dark">{uploadingImage ? 'Uploading image…' : 'JPG, PNG, WebP or AVIF; maximum 5 MB.'}</span>
+=======
+                <label className="block text-[11px] text-xora-taupe-dark">Upload a product image (JPG, PNG, WebP, AVIF; up to 5 MB)
+                  <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={handleProductImageUpload} disabled={uploadingImage} className={`${inputClass} mt-1 file:mr-3 file:border-0 file:bg-xora-sand file:px-3 file:py-1.5 file:text-[10px]`} />
+>>>>>>> Stashed changes
                 </label>
                 <label className="block text-[11px] text-xora-taupe-dark">Collection name
                   <select name="collection" value={productForm.collection} onChange={handleChange} className={`${inputClass} mt-1`}>
@@ -588,7 +629,7 @@ export default function AdminDashboardPage() {
                   <label className="flex items-center gap-2"><input type="checkbox" name="bestSeller" checked={productForm.bestSeller} onChange={handleChange} /> Best</label>
                   <label className="flex items-center gap-2"><input type="checkbox" name="active" checked={productForm.active} onChange={handleChange} /> Active</label>
                 </div>
-                <button type="submit" className="btn-luxury w-full py-3 text-[10px] flex items-center justify-center gap-2">
+                <button type="submit" disabled={uploadingImage} className="btn-luxury w-full py-3 text-[10px] flex items-center justify-center gap-2 disabled:cursor-wait disabled:opacity-60">
                   {editingId ? <PenSquare className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                   {editingId ? 'Save Changes' : 'Add Product'}
                 </button>

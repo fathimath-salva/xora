@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { firstOrderOffer } from '../config/storefront';
 
 export default function NewsletterSignup({ placement = 'footer' }) {
   const { isAuthenticated, loading } = useAuth();
@@ -14,20 +15,22 @@ export default function NewsletterSignup({ placement = 'footer' }) {
           A LITTLE SOMETHING FOR YOU
         </h3>
         <p className="mt-1 text-xs sm:text-sm text-xora-offwhite/80 leading-relaxed font-light">
-          Create your YAQANA account and enjoy your first order.
+          {firstOrderOffer.checkoutConfigured
+            ? 'Create your YAQANA account and enjoy your first order.'
+            : 'Discover considered essentials and the latest collection.'}
         </p>
       </div>
 
       <div className="col-span-1 flex flex-wrap items-center justify-between gap-3 lg:contents">
         <p className="font-serif font-bold text-3xl sm:text-5xl tracking-wide text-xora-offwhite whitespace-nowrap leading-none">
-          10% OFF
+          {firstOrderOffer.checkoutConfigured ? `${firstOrderOffer.percentage}% OFF` : 'YAQANA'}
         </p>
         <Link
-          to="/register"
+          to={firstOrderOffer.checkoutConfigured ? '/register' : '/shop'}
           className="inline-flex shrink-0 items-center justify-center justify-self-end border border-xora-beige bg-xora-beige px-3 py-2.5 text-[9px] sm:px-5 sm:py-3 text-center text-xora-charcoal font-semibold tracking-[0.12em] whitespace-nowrap transition-colors hover:bg-xora-offwhite hover:border-xora-offwhite"
           id="account-join-btn"
         >
-          JOIN NOW
+          {firstOrderOffer.checkoutConfigured ? 'JOIN NOW' : 'EXPLORE'}
           <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
         </Link>
       </div>

@@ -122,6 +122,13 @@ export default function Home() {
         </div>
       </section>
 
+<<<<<<< Updated upstream
+=======
+      {/* New Arrivals product carousel */}
+      <HomepageNewArrivalsRack />
+
+      {/* Standard product collection remains separate from the rack. */}
+>>>>>>> Stashed changes
       <HomepageCollection />
 
       {/* 2. VALUE PROPOSITIONS BAR */}

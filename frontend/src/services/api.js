@@ -105,9 +105,7 @@ export const adminService = {
 
 // Upload Service
 export const uploadService = {
-  uploadImage: (formData) => API.post('/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  uploadImage: (formData) => API.post('/upload', formData)
 };
 
 export default API;

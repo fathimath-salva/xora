@@ -113,19 +113,20 @@ export default function CheckoutPage() {
       setError('Please provide a mobile number for courier delivery.');
       return;
     }
+    if (String(shippingAddress.phone).replace(/\D/g, '').length !== 10) {
+      setError('Enter a 10-digit Indian mobile number without a country code.');
+      return;
+    }
 
     try {
       setLoading(true);
 
       const orderPayload = {
-        items: items.map((i) => ({
-          product: i.productId,
-          name: i.name,
-          image: i.image,
-          price: i.price,
-          quantity: i.quantity,
-          size: i.size,
-          colour: i.colour
+        items: items.map((item) => ({
+          product: item.productId,
+          quantity: item.quantity,
+          size: item.size,
+          colour: item.colour
         })),
         shippingAddress,
         paymentMethod,
@@ -272,7 +273,7 @@ export default function CheckoutPage() {
                       value={shippingAddress.phone}
                       onChange={handleInputChange}
                       required
-                      placeholder="+91 98765 43210"
+                      placeholder="98765 43210"
                       className="w-full bg-white border border-xora-taupe/40 px-3.5 py-2.5 text-xs focus:outline-none focus:border-xora-charcoal"
                       id="checkout-phone"
                     />

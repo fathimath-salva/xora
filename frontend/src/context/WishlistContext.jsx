@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { wishlistService } from '../services/api';
 import { useAuth } from './AuthContext';
 
@@ -14,12 +14,16 @@ export const WishlistProvider = ({ children }) => {
       return [];
     }
   });
+  const wasAuthenticated = useRef(isAuthenticated);
 
   // Sync with backend on login
   useEffect(() => {
     if (isAuthenticated) {
-      loadBackendWishlist();
+      loadBackendWishlist(wishlist);
+    } else if (wasAuthenticated.current) {
+      setWishlist([]);
     }
+    wasAuthenticated.current = isAuthenticated;
   }, [isAuthenticated]);
 
   // Persist locally
@@ -31,11 +35,31 @@ export const WishlistProvider = ({ children }) => {
     }
   }, [wishlist]);
 
-  const loadBackendWishlist = async () => {
+  const loadBackendWishlist = async (guestWishlist = []) => {
     try {
       const res = await wishlistService.getWishlist();
       if (res.data.success && Array.isArray(res.data.wishlist)) {
-        setWishlist(res.data.wishlist);
+        let mergedWishlist = res.data.wishlist;
+        const existingIds = new Set(mergedWishlist.map((product) => product?._id).filter(Boolean));
+        const guestProducts = guestWishlist.filter((product) =>
+          product && typeof product === 'object' && product._id && !product.isDemoOnly && !existingIds.has(product._id)
+        );
+
+        for (const product of guestProducts) {
+          try {
+            const syncRes = await wishlistService.toggleWishlist({ productId: product._id });
+            if (syncRes.data?.success && Array.isArray(syncRes.data.wishlist)) {
+              mergedWishlist = syncRes.data.wishlist;
+            } else {
+              mergedWishlist = [...mergedWishlist, product];
+            }
+          } catch {
+            mergedWishlist = [...mergedWishlist, product];
+          }
+          existingIds.add(product._id);
+        }
+
+        setWishlist(mergedWishlist);
       }
     } catch (err) {
       console.warn('Failed to load wishlist from server:', err);
